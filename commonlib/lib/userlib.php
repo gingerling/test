@@ -520,6 +520,7 @@ function loadUser($loginname = "") {
         "displayvalue" => $d_req[$field]
       );
 #   	}
+	}
   dbg("done loading user");
   $_SESSION["groups"] = userGroups($loginname);
   return 1;
