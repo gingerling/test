@@ -584,7 +584,7 @@ function getNewAttributeTablename($name) {
   if ($tables["attribute"]) {
   	$table = $tables["attribute"];
   } else {
-  	$user_table = "attribute";
+  	$table = "attribute";
   }
   $lc_name = substr(preg_replace("/\W/","", strtolower($name)),0,10);
 #  if ($lc_name == "") Fatal_Error("Name cannot be empty: $lc_name");
