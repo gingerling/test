@@ -281,15 +281,6 @@ function is_email($email) {
 $pattern =
 "^[\&\'-_.[:alnum:]]+@((([[:alnum:]]|[[:alnum:]][[:alnum:]-]*[[:alnum:]])\.)+(ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|cz|de|dev|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|home|hr|ht|hu|id|ie|il|in|info|int|io|iq|ir|is|it|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|loc|ls|lt|lu|lv|ly|ma|mc|md|mg|mh|mil|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nt|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|quipu|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)|(([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5])\.){3}([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5]))$";
 
-  # older versions of PHP have a bug that chokes on this one (found by Greg Fawcett)
-  $v = phpversion();
-  list($major,$minor,$sub) = explode(".",$v);
-  if ($major < 4 || ($major == 4 && $minor < 3)) {
-    if(eregi("^[a-z0-9_#&./'+\-]+@[a-z0-9_\-]+(\.[a-z0-9_\-]+)+$",$email)) 
-      return(1);
-    else
-      return(0);
-  }
   if(eregi($pattern, $email))
     return(1);
   else
@@ -589,13 +580,13 @@ function getNewAttributeTablename($name) {
   $lc_name = substr(preg_replace("/\W/","", strtolower($name)),0,10);
 #  if ($lc_name == "") Fatal_Error("Name cannot be empty: $lc_name");
 	if (!$lc_name) $lc_name = "attribute";
-  Sql_Query("select * from $table where tablename = \"$lc_name\"");
+  Sql_Query("select * from attribute where tablename = \"$lc_name\"");
 #  if (Sql_Affected_Rows()) Fatal_Error("Name is not unique enough");
 	$c = 1;
   $basename = $lc_name;
   while (Sql_Affected_Rows() && $c < 100) {
   	$lc_name = $basename.$c;
-  	Sql_Query("select * from $table where tablename = \"$lc_name\"");
+  	Sql_Query("select * from attribute where tablename = \"$lc_name\"");
     $c++;
   }
 	return $lc_name;
@@ -605,10 +596,6 @@ function isGuestAccount() {
 	if (!is_array($_SESSION["userdata"])) {
   	return 1;
   }
-        if ($GLOBALS["config"]["guestaccount_attribute"]) {
-        return !empty($_SESSION["userdata"][$GLOBALS["config"]["guestaccount_attribute"]]["value"]);
-        }
-
 	if ($GLOBALS["config"]["guestaccount_email_match"]) {
   	return preg_match($GLOBALS["config"]["guestaccount_email_match"],$_SESSION["userdata"]["email"]["value"]);
 	}
@@ -692,11 +679,8 @@ function saveUserAttribute($userid,$attid,$data) {
 
 			break;
    	default:
-      $attid = sprintf('%d',$attid);
-      if ($attid) {
-        Sql_Query(sprintf('replace into user_attribute (userid,attributeid,value)
-          values(%d,%d,"%s")',$userid,$attid,$data["value"]));
-      }
+    	Sql_Query(sprintf('replace into user_attribute (userid,attributeid,value)
+		  	values(%d,%d,"%s")',$userid,$attid,$data["value"]));
      	break;
  	}
   return 1;
@@ -754,7 +738,7 @@ function saveUserData($username,$fields) {
 
   reset($fields);
  # dbg("Checking fields");
-  while (list($fname,$fval) = each ($fields)) {
+  foreach ($fields as $fname => $fielddetails) {
  # 	dbg($fname);
   	$key = $fname;
     $val = $_POST[$fname];
@@ -798,17 +782,13 @@ function saveUserData($username,$fields) {
 	     	 $_SESSION["userdata"][$key]["displayvalue"] = $val;
 		   }
 
-/*       # remember other aspects of the fields
-       foreach ($fields as $key => $val) {
-         foreach ($val as $field_attr => $value) {
-	       	 if (!isset($_SESSION["userdata"][$key][$field_attr]) && !preg_match("/^\d+$/",$key)
-           	&& !preg_match("/^\d+$/",$field_attr)
-           ) {
-						 $_SESSION["userdata"][$key][$field_attr] = $value;
-           }
-          }
+       foreach ($fielddetails as $field_attr => $field_attr_value) {
+         if (!isset($_SESSION["userdata"][$key][$field_attr]) && !preg_match("/^\d+$/",$key)
+         && !preg_match("/^\d+$/",$field_attr)
+         ) {
+           $_SESSION["userdata"][$key][$field_attr] = $field_attr_value;
+         }
        }
-*/
        # save it to the DB as well
     } else {
 #  	  	dbg("Not checking ".$fname ." of type ".$fields[$key]["type"]);
@@ -878,6 +858,26 @@ function saveUserData($username,$fields) {
       }
    	}
   }
+  # if no error in form check for subscriptions
+  if (!$res && is_object($GLOBALS["config"]["plugins"]["phplist"])) {
+    $phplist = $GLOBALS["config"]["plugins"]["phplist"];
+    foreach ($_SESSION["userdata"] as $key => $field) {
+      if (($field["formtype"] == "List Subscription" || $field["type"] == "List Subscription") && $field["listid"]) {
+         $listid = $field["listid"];
+         if ($field["value"]) {
+           if ($phplist->addEmailToList($_SESSION["userdata"]["email"]["value"],$listid)) {
+             $phplist->confirmEmail($_SESSION["userdata"]["email"]["value"]);
+             #  sendError("User added to list: $listid");
+           } else {
+             # sendError("Error adding user to list: $listid");
+           }
+         } else {
+           $phplist->removeEmailFromList($_SESSION["userdata"]["email"]["value"],$listid);
+         }
+       }
+    }
+  }
+                                                                                                                            
   return $res;
 }
 
