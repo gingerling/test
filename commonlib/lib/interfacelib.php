@@ -356,13 +356,14 @@ class WebblerShader {
 	var is_ie5up  = (is_ie  && !is_ie3 && !is_ie4);
 	var is_mac = (agt.indexOf("mac") != -1);
 	var is_gecko = (agt.indexOf("gecko") != -1);
+  var view;
 
 	function getItem (id) {
 		if (is_ie4) {
-			var view = eval(id);
+			view = eval(id);
 		}
 		if (is_ie5up || is_gecko) {
-			var view = document.getElementById(id);
+			view = document.getElementById(id);
 		}
 		return view;
 	}
@@ -402,27 +403,31 @@ class WebblerShader {
 			document.writeln("</div>");
 		}
 	}
-
+  var title_text = "";
+  var span_text = "";
+  var title_class = "";
 
 	function open_span(number, default_status) {
 		if (is_ie4up || is_gecko) {
 			if(default_status == \'block\') {
-				var span_text = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
+				span_text = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
 			} else {
-				var span_text = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
+				span_text = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
 			}
-			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'ashadersmalltext\'>" + span_text + "</span></a>");
+			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'shadersmalltext\'>" + span_text + "</span></a>");
 		}
 	}
-  
+
   function title_span(number,default_status,title) {
 		if (is_ie4up || is_gecko) {
 			if(default_status == \'none\') {
-				var span_text = \'<span class="shaderfootertext">\'+title+\'</span>\';
+				title_text = \'<img src="images/expand.gif" height="9" width="9" border="0">  \'+title;
+        title_class = "shaderfootertextvisible";
 			} else {
-				var span_text = \'<span class="shaderfootertext"></span><img src="images/expand.gif" height="9" width="9" border="0">\';
+				title_text = \'<img src="images/collapse.gif" height="9" width="9" border="0">   \'+title;
+        title_class = "shaderfootertexthidden";
 			}
-			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'title" + number + "\' class=\'shaderfootertext\'>" + span_text + "</span></a>");
+			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'title" + number + "\' class=\'"+title_class+"\'>" + title_text + "</span></a>");
 		}
 	}
 //-->
@@ -455,7 +460,7 @@ class WebblerShader {
   function dividerRow() {
     return '
 	<tr>
-	    <td colspan="4" class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+	    <td colspan="4" class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
 	</tr>
     ';
   }
@@ -466,12 +471,10 @@ class WebblerShader {
 	<tr>
 		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
     <td class="shaderfooter"><script language="javascript">title_span(%d,\'%s\',\'%s\');</script>&nbsp;</td>
-		<td class="shaderborderright"><script language="javascript">open_span(%d,\'%s\');</script>&nbsp;</td>
+		<td class="shaderfooterright"><script language="javascript">open_span(%d,\'%s\');</script>&nbsp;</td>
 		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
 	</tr>
-	<tr>
-	    <td colspan="4" class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
-	</tr>
+'.$this->dividerRow().'
 </table><br/><br/>
     ',$this->num,$this->display,addslashes($this->name),$this->num,$this->display);
     return $html;
