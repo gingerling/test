@@ -309,7 +309,7 @@ function addUserHistory($email,$msg,$detail) {
 	} else {
 		$default = array('HTTP_USER_AGENT','HTTP_REFERER','REMOTE_ADDR');
   	foreach ($sysarrays as $key => $val) {
-    	if (in_array($default,$key))
+    	if (in_array($key,$default))
     	$sysinfo .= "\n$key = ".$val;
    	}
 	}
@@ -552,7 +552,7 @@ function loadUser($loginname = "") {
 #   	}
 	}
   dbg("done loading user");
-  $_SESSION["groups"] = userGroups($loginname);
+  $_SESSION["usergroups"] = userGroups($loginname);
   return 1;
 }
 
