@@ -155,8 +155,9 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
         if ($attdata["type"] != $firstdata["type"]) {
         	print Error("Can only merge attributes of the same type");
         } else {
-          # debugging: check values for every user. This is very memory demanding, so you'll need to 
+          # debugging: check values for every user. This is very memory demanding, so you'll need to
           # add loads of memory to actually use it.
+/*
           $before = array();
           $second = array();
           $after = array();
@@ -168,6 +169,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
           while ($row = Sql_Fetch_Array($req)) {
             $second[$row["userid"]] = $row["value"];
           }
+*/
           $valuestable = sprintf('%slistattr_%s',$table_prefix,$firstdata["tablename"]);
         	if ($firstdata["type"] == "checkbox" && !$cbg_initiated) {
             # checkboxes are merged into a checkbox group
@@ -191,7 +193,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
             	# we can just keep the data and mark it as the first attribute
               Sql_query(sprintf('update ignore %s set attributeid = %d where attributeid = %d',
                 $tables["user_attribute"],$first,$attid),1);
-              # delete the ones that didn't copy across, because there was a value already  
+              # delete the ones that didn't copy across, because there was a value already
               Sql_query(sprintf('delete from %s where id = %d',
                 $tables["attribute"],$attid));
               # mark forms to use the merged attribute
@@ -250,7 +252,8 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
              	print Error("Sorry, merging of checkbox groups is not implemented yet");
               break;
          	}
-          
+
+/*
           $req = Sql_Query(sprintf('select * from %s where attributeid = %d',$tables["user_attribute"],$first));
           while ($row = Sql_Fetch_Array($req)) {
             $after[$row["userid"]] = $row["value"];
@@ -258,6 +261,8 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
           foreach ($before as $userid => $value) {
             printf("\n".'<br/>%d before -> %s and %s<br/>after ->%s',$userid,$value,$second[$userid],$after[$userid]);
           }
+*/
+
         }
       }
     }
