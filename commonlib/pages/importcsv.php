@@ -559,24 +559,27 @@ if (sizeof($email_list)) {
     $dispemail = ($count["email_add"] == 1) ? "new email was ": "new emails were ";
     $dispemail2 = ($count["list_add"] == 1) ? "email was ":"emails were ";
 
+    $report = "";
     if(!$some && !$count["list_add"]) {
-      print "<br>All the emails already exist in the database and are member of the $displists.";
+      $report .= "<br>All the emails already exist in the database and are member of the $displists.";
     } else {
-      print "<br/>".$count["email_add"]." $dispemail succesfully imported to the database and added to $num_lists $displists.<br>".$count["list_add"]." $dispemail2 subscribed to the $displists";
+      $report .= "<br/>".$count["email_add"]." $dispemail succesfully imported to the database and added to $num_lists $displists.<br>".$count["list_add"]." $dispemail2 subscribed to the $displists";
       if ($count["exist"])
-        print "<br/>".$count["exist"]." emails already existed in the database";
+        $report .= "<br/>".$count["exist"]." emails already existed in the database";
     }
     if ($count["invalid_email"]) {
-      print "<br/>".$count["invalid_email"] ." Invalid Emails found.";
+      $report .= "<br/>".$count["invalid_email"] ." Invalid Emails found.";
       if (!$_SESSION["omit_invalid"])
-        print " These records were added, but the email has been made up from ".$_SESSION["assign_invalid"];
+        $report .= " These records were added, but the email has been made up from ".$_SESSION["assign_invalid"];
       else
-        print " These records were deleted. Check your source and reimport the data. Duplicates will be identified.";
+        $report .= " These records were deleted. Check your source and reimport the data. Duplicates will be identified.";
     }
     if ($_SESSION["overwrite"] == "yes") {
-      print "<br/>User data was updated for ".$count["dataupdate"]." users";
+      $report .= "<br/>User data was updated for ".$count["dataupdate"]." users";
     }
-    printf('<br/>%d users were matched by foreign key, %d by email',$count["fkeymatch"],$count["emailmatch"]);
+    $report .= sprintf('<br/>%d users were matched by foreign key, %d by email',$count["fkeymatch"],$count["emailmatch"]);
+    print $report;
+    sendMail (getConfig("admin_address"),"phplist Import Results",$report);
     clearImport();
   } else {
 	  print 'Test output<br/>If the output looks ok, click '.PageLink2($_GET["page"]."&amp;confirm=yes","Confirm Import").' to submit for real<br/><br/>';
