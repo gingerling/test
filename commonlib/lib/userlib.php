@@ -808,7 +808,7 @@ function saveUserData($username,$fields) {
       $res = "Sorry, you entered an invalid ".$description_fields[$index].": ".$_SESSION["userdata"][$field]["value"];
       break;
     } else if ($field == "email" && !validateEmail($_SESSION["userdata"][$field]["value"])) {
-      $res = "Sorry, you entered an invalid ".$description_fields[$index].": ".$_SESSION["userdata"][$field]["value"];
+      $res = "Sorry, the following field cannot be validated: ".$description_fields[$index].": ".$_SESSION["userdata"][$field]["value"];
       break;
     } else if ($field == "cardtype" && $_SESSION["userdata"][$field]["value"] == "WSWITCH" && !preg_match("/\d/",$_SESSION["userdata"]["attribute82"]["value"])) {
       $res = "Sorry, a Switch Card requires a valid issue number. If you have a new Switch card without an issue number, please use 0 as the issue number.";
