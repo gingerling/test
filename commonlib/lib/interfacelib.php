@@ -219,6 +219,11 @@ class topBar {
 
   function adminBar($lid,$bid) {
   	global $config;
+		$uri = "http://".$config["websiteurl"].'/?lid='.$id.'&validate=1';
+		if ($config["validator"] && in_array($_SESSION["me"]["loginname"],$config["validator_users"])) {
+			$validate = sprintf ('<a href="http://%s/check?uri=%s" class="adminbutton" target="_validate">validate</a>',
+			$config["validator"],urlencode($uri));
+    }
 		return '
 <STYLE TYPE="text/css">
    <!--
@@ -261,7 +266,7 @@ function closeadminbar() {
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr><td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
 href="'.$config["uploader_dir"]."/?page=edit&b=$bid&id=$lid".'" title="use this link to edit this page">edit page</a></td>
-<!--td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton" href="%s">add images</a></td-->
+<td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;'.$validate.'</td>
 <!--td bgcolor="#CCCC99" height="20" width="110">&nbsp;&nbsp;&nbsp;<a class="adminbutton" href="%s">change template</a></td-->
 <td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
 href="'.$config["uploader_dir"]."/?page=logout&return=".urlencode("lid=$lid").'" title="You are logged in as an administrator, click this link to logout">logout</a></td>
