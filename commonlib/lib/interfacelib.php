@@ -317,6 +317,7 @@ class WebblerShader {
   var $num = 0;
   var $isfirst = 0;
   var $display = "block";
+  var $initialstate = "open";
 
   function WebblerShader($name) {
     $this->name = $name;
@@ -327,24 +328,53 @@ class WebblerShader {
     $this->num = $GLOBALS["shadercount"];
     $GLOBALS["shadercount"]++;
   }
-  
+
   function addContent($content) {
     $this->content = $content;
   }
-  
+
   function hide() {
     $this->display = 'none';
   }
-  
+
   function show() {
     $this->display = 'block';
   }
-  
+
+  function shaderCookie() {
+  }
+
+
   function shaderJavascript() {
+  	if ($_SERVER["QUERY_STRING"]) {
+    	$cookie = "WS?".$_SERVER["QUERY_STRING"];
+    } else {
+    	$cookie = "WS";
+    }
+
     return '
   <script language="Javascript" type="text/javascript">
-  
+
   <!--
+  var states = Array("'.join('","',split(",",$_COOKIE[$cookie])).'");
+  var cookieloaded = 0;
+  var expireDate = new Date;
+  expireDate.setDate(expireDate.getDate()+365);
+
+  function cookieVal(cookieName) {
+		var thisCookie = document.cookie.split("; ")
+	  for (var i = 0; i < thisCookie.length; i++) {
+	    if (cookieName == thisCookie[i].split("=")[0]) {
+	      return thisCookie[i].split("=")[1];
+	    }
+	  }
+		return 0;
+	}
+
+  function saveStates() {
+    document.cookie = "WS"+escape(this.location.search)+"="+states+";expires=" + expireDate.toGMTString();
+  }
+
 	var agt = navigator.userAgent.toLowerCase();
 	var is_major = parseInt(navigator.appVersion);
 	var is_nav = ((agt.indexOf(\'mozilla\') != -1) && (agt.indexOf(\'spoofer\') == -1) && (agt.indexOf(\'compatible\') == -1) && (agt.indexOf(\'opera\') == -1) && (agt.indexOf(\'webtv\') == -1));
@@ -376,12 +406,14 @@ class WebblerShader {
 			var shaderImg = getItem(\'shaderimg\'+id);
       var footerTitle = getItem(\'title\'+id);
 			if(shaderDiv.style.display == \'block\') {
+      	states[id] = "closed";
 				shaderDiv.style.display = \'none\';
 				shaderSpan.innerHTML = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
         footerTitle.style.visibility = \'visible\';
 				if (shaderImg)
           shaderImg.src = \'images/expand.gif\';
 			} else {
+      	states[id] = "open";
 				shaderDiv.style.display = \'block\';
         footerTitle.style.visibility = \'hidden\';
 				shaderSpan.innerHTML = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
@@ -389,10 +421,25 @@ class WebblerShader {
   				shaderImg.src = \'images/collapse.gif\';
 			}
 		}
+    saveStates();
+	}
+
+  function getPref(number) {
+    if (states[number] == "open") {
+      return "block";
+    } else if (states[number] == "closed") {
+      return "none";
+    }
+    return "";
 	}
 
 	function start_div(number, default_status) {
 		if (is_ie4up || is_gecko) {
+    	var pref = getPref(number);
+      if (pref) {
+      	default_status = pref;
+      }
+
 			document.writeln("<div id=\'shader" + number + "\' name=\'shader" + number + "\' class=\'shader\' style=\'display: " + default_status + ";\'>");
 		}
 	}
@@ -409,6 +456,10 @@ class WebblerShader {
 
 	function open_span(number, default_status) {
 		if (is_ie4up || is_gecko) {
+    	var pref = getPref(number);
+      if (pref) {
+      	default_status = pref;
+      }
 			if(default_status == \'block\') {
 				span_text = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
 			} else {
@@ -420,6 +471,10 @@ class WebblerShader {
 
   function title_span(number,default_status,title) {
 		if (is_ie4up || is_gecko) {
+    	var pref = getPref(number);
+      if (pref) {
+      	default_status = pref;
+      }
 			if(default_status == \'none\') {
 				title_text = \'<img src="images/expand.gif" height="9" width="9" border="0">  \'+title;
         title_class = "shaderfootertextvisible";
@@ -434,7 +489,7 @@ class WebblerShader {
 </script>
     ';
   }
-  
+
   function header() {
     $html .= sprintf('
 <table width="98%%" align="center" cellpadding="0" cellspacing="0" border="0">');
