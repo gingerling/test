@@ -498,8 +498,12 @@ if (sizeof($email_list)) {
                 break;
             }
 
-            Sql_query(sprintf('replace into %s (attributeid,userid,value) values("%s","%s","%s")',
+            Sql_query(sprintf('replace into %s (attributeid,userid,value) values(%d,%d,"%s")',
               $tables["user_attribute"],$attribute_index,$userid,$user_att_value));
+          } else {
+            # add an empty entry if none existed
+            Sql_Query(sprintf('insert ignore into %s (attributeid,userid,value) values(%d,%d,"")',
+              $tables["user_attribute"],$item["record"],$userid));
           }
         }
         $current_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$userid));
