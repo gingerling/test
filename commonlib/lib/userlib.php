@@ -595,6 +595,10 @@ function isGuestAccount() {
 	if (!is_array($_SESSION["userdata"])) {
   	return 1;
   }
+        if ($GLOBALS["config"]["guestaccount_attribute"]) {
+        return !empty($_SESSION["userdata"][$GLOBALS["config"]["guestaccount_attribute"]]["value"]);
+        }
+
 	if ($GLOBALS["config"]["guestaccount_email_match"]) {
   	return preg_match($GLOBALS["config"]["guestaccount_email_match"],$_SESSION["userdata"]["email"]["value"]);
 	}
