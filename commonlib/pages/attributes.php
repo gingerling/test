@@ -194,9 +194,9 @@ if (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
               } else {
                 $val_index = $exists[0];
               }
-              Sql_Verbose_Query(sprintf('update %s set value = concat(value,",","%s") where attributeid = %d and (value != 0 or value != "off") ',
+              Sql_Query(sprintf('update %s set value = concat(value,",","%s") where attributeid = %d and (value != 0 or value != "off") ',
                 $tables["user_attribute"],$val_index,$first));
-              Sql_Verbose_Query(sprintf('delete from %s where id = %d',
+              Sql_Query(sprintf('delete from %s where id = %d',
                 $tables["attribute"],$attid));
               break;
             case "checkboxgroup":
@@ -257,12 +257,14 @@ while ($row = Sql_Fetch_array($res)) {
 <input type=submit name="action" value="Save Changes">
 <br/><br/>
 <script language="Javascript" src="js/jslib.js" type="text/javascript"></script>
+<? if ($c) { ?>
 <i>With TAGGED attributes: </i><br/>
 <input type=submit name="tagaction" value="Delete">&nbsp;
 <input type=submit name="tagaction" value="Merge"> &nbsp;&nbsp;<?=Help("mergeattributes")?><br/>
-
-
 <p><hr/></p>
+<? } ?>
+
+
 <a name="new"></a>
 <h3>Add a new Attribute:</h3>
 <table border=1>
