@@ -8,6 +8,8 @@ class WebblerListing {
   var $help;
   var $elements = array();
   var $columns = array();
+  var $sortby = array();
+  var $sort = 0;
   var $buttons = array();
   var $sortby = array();
   var $initialstate = "block";
@@ -32,13 +34,16 @@ class WebblerListing {
   function deleteElement($name) {
   	unset($this->elements[$name]);
   }
+  function addSort() {
+    $this->sort = 1;
+  }
 
   function addColumn($name,$column_name,$value,$url="",$align="") {
   	if (!isset($name))
     	return;
   	$this->columns[$column_name] = $column_name;
+        $this->sortby[$column_name] = $column_name;
     # @@@ should make this a callable function
-    $this->sortby[$column_name] = $column_name;
     $this->elements[$name]["columns"]["$column_name"] = array(
     	"value" => $value,
       "url" => $url,
@@ -97,7 +102,7 @@ class WebblerListing {
     	if ($c == sizeof($this->columns)) {
 	      $html .= sprintf('<td><div class="listinghdelement">%s%s</div></td>',$columnname,$this->help);
       } else {
-        if ($this->sortby[$columnname]) {
+        if ($this->sortby[$columnname] && $this->sort) {
           $display = sprintf('<a href="./?%s&amp;sortby=%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
         } else {
           $display = $columnname;
@@ -219,7 +224,9 @@ class WebblerListing {
     $html .= $this->listingHeader();
 #    global $float_menu;
 #    $float_menu .= "<a style=\"display: block;\" href=\"#".htmlspecialchars($this->title)."\">$this->title</a>";
-    usort($this->elements,array("WebblerListing","cmp"));
+    if ($this->sort) {
+      usort($this->elements,array("WebblerListing","cmp"));
+    }
     foreach ($this->elements as $element) {
       $html .= $this->listingElement($element);
     }
