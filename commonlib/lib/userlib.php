@@ -610,7 +610,7 @@ function saveUserAttribute($userid,$attid,$data) {
   if ($data["type"] == "static" || $data["type"] == "password") {
    	Sql_Query(sprintf('update user set %s = "%s" where id = %d',
     	$attid,$data["value"],$userid));
-    if ($data["type"] == "password"]) {
+    if ($data["type"] == "password") {
     	Sql_Query(sprintf('update user set passwordchanged = now() where id = %d',
     	$userid));
     }
