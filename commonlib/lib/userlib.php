@@ -570,16 +570,22 @@ function addKeywordLibrary($name) {
 }
 
 function getNewAttributeTablename($name) {
+  global $table_prefix,$tables;
+  if ($tables["attribute"]) {
+  	$table = $tables["attribute"];
+  } else {
+  	$user_table = "attribute";
+  }
   $lc_name = substr(preg_replace("/\W/","", strtolower($name)),0,10);
 #  if ($lc_name == "") Fatal_Error("Name cannot be empty: $lc_name");
 	if (!$lc_name) $lc_name = "attribute";
-  Sql_Query("select * from attribute where tablename = \"$lc_name\"");
+  Sql_Query("select * from $table where tablename = \"$lc_name\"");
 #  if (Sql_Affected_Rows()) Fatal_Error("Name is not unique enough");
 	$c = 1;
   $basename = $lc_name;
   while (Sql_Affected_Rows() && $c < 100) {
   	$lc_name = $basename.$c;
-  	Sql_Query("select * from attribute where tablename = \"$lc_name\"");
+  	Sql_Query("select * from $table where tablename = \"$lc_name\"");
     $c++;
   }
 	return $lc_name;
