@@ -5,12 +5,13 @@ print '<script language="Javascript" src="js/progressbar.js" type="text/javascri
 ignore_user_abort();
 set_time_limit(500);
 #error_reporting(63);
-if (!isset($GLOBALS["tmpdir"])) {
+if (!isset($GLOBALS["tmpdir"]) && !empty(ini_get("upload_tmp_dir"))) {
 	$GLOBALS["tmpdir"] = ini_get("upload_tmp_dir");
 }
-if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"])) {
+if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"]) && !empty(ini_get("upload_tmp_dir"))) {
 	$GLOBALS["tmpdir"] = ini_get("upload_tmp_dir");
 }
+
 #if (ini_get("open_basedir")) {
 if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"])) {
 	Warn("The temporary directory for uploading (".$GLOBALS["tmpdir"].") is not writable, so import will fail");
