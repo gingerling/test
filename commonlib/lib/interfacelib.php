@@ -219,7 +219,7 @@ class topBar {
 
   function adminBar($lid,$bid) {
   	global $config;
-		$uri = "http://".$config["websiteurl"].'/?lid='.$id.'&validate=1';
+		$uri = "http://".$config["websiteurl"].'/?lid='.$lid.'&validate=1';
 		if ($config["validator"] && in_array($_SESSION["me"]["loginname"],$config["validator_users"])) {
 			$validate = sprintf ('<a href="http://%s/check?uri=%s" class="adminbutton" target="_validate">validate</a>',
 			$config["validator"],urlencode($uri));
