@@ -45,6 +45,9 @@ function deleteUser($id) {
   Sql_Query(sprintf('delete from %s where userid = %d',$tables["usermessage"],$id));
   Sql_Query(sprintf('delete from %s where user = %d',$tables["user_message_bounce"],$id));
   Sql_Query(sprintf('delete from %s where id = %d',$tables["user"],$id));
+  Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_history"],$id));
+  Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_rss"],$id));
+
 }
 
 function addNewUser($email,$password = "") {
