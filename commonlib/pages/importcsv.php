@@ -105,7 +105,7 @@ if(isset($_POST["import"])) {
   	$_SESSION["notify"] = $_POST["notify"];
   }
 
-  if ($_FILES["import_file"] && filesize($_FILES["import_file"]['tmp_name']) > 10) {
+  if ($_FILES["import_file"] && $_FILES["import_file"]['size'] > 10) {
 		$newfile = $GLOBALS['tmpdir'].'/'. $_FILES['import_file']['name'].time();
 		move_uploaded_file($_FILES['import_file']['tmp_name'], $newfile);
     $_SESSION["import_file"] = $newfile;
