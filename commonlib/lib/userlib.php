@@ -798,13 +798,13 @@ function saveUserData($username,$fields) {
     }
   }
   if (is_array($GLOBALS["config"]["bocs_dpa"])) {
-    if (!is_array($_SESSION["userdata"]["DPA"]))
-      $_SESSION["userdata"]["DPA"] = array();
+    if (!is_array($_SESSION["DPA"]))
+      $_SESSION["DPA"] = array();
   	foreach ($GLOBALS["config"]["bocs_dpa"] as $dpaatt => $val) {
     	if ($_SESSION["userdata"][$dpaatt]["displayvalue"]) {
-      	$_SESSION["userdata"]["DPA"][$val] = "Y";
+      	$_SESSION["DPA"][$val] = "Y";
      	} else {
-      	$_SESSION["userdata"]["DPA"][$val] = "N";
+      	$_SESSION["DPA"][$val] = "N";
       }
    	}
   }
