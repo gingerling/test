@@ -5,10 +5,21 @@ print '<script language="Javascript" src="js/progressbar.js" type="text/javascri
 ignore_user_abort();
 set_time_limit(500);
 #error_reporting(63);
-if (!isset($GLOBALS["tmpdir"])) 
-	$GLOBALS["tmpdir"] = "/tmp";
+if (!isset($GLOBALS["tmpdir"])) {
+	$GLOBALS["tmpdir"] = ini_get("upload_tmp_dir");
+}
+if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"])) {
+	$GLOBALS["tmpdir"] = ini_get("upload_tmp_dir");
+}
+#if (ini_get("open_basedir")) {
+if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"])) {
+	Warn("The temporary directory for uploading (".$GLOBALS["tmpdir"].") is not writable, so import will fail");
+}
+
 if (!isset($GLOBALS["assign_invalid_default"]))
 	$GLOBALS["assign_invalid_default"] = 'Invalid Email [number]';
+
+
 ?>
 <p>
 
@@ -47,11 +58,11 @@ require_once $GLOBALS["coderoot"] . "structure.php";
 $system_attributes = array();
 reset($DBstruct["user"]);
 while (list ($key,$val) = each ($DBstruct["user"])) {
-  if (!ereg("sys",$val[1])) {
+  if (!ereg("^sys",$val[1])) {
     $system_attributes[strtolower($val[1])] = $key;
-  } elseif (ereg("sysexp:(.*)",$val[1],$regs)) {
-    $system_attributes[strtolower($regs[1])] = $key;
-  }
+  } #elseif (ereg("sysexp:(.*)",$val[1],$regs)) {
+    #$system_attributes[strtolower($regs[1])] = $key;
+  #}
 }
 
 ob_end_flush();
@@ -287,7 +298,7 @@ if (sizeof($email_list)) {
     reset($system_attribute_mapping);
     $system_values = array();
     foreach ($system_attribute_mapping as $column => $index) {
-    	print "$column = ".$values[$index]."<br/>";
+    	#print "$column = ".$values[$index]."<br/>";
       $system_values[$column] = $values[$index];
     }
     $index = clean($system_values["email"]);
@@ -321,7 +332,7 @@ if (sizeof($email_list)) {
     $user["systemvalues"]["email"] = clean($user["systemvalues"]["email"]);
     $c++;
     if ($_SESSION["test_import"]) {
-      print "<br/><b>$index</b><br/>";
+     # print "<br/><b>$index</b><br/>";
       $html = '';
       foreach ($user["systemvalues"] as $column => $value) {
       	if ($value) {
@@ -341,7 +352,7 @@ if (sizeof($email_list)) {
           $html .= " -> ".$user[$item["index"]]."<br>";
         }
       }
-      if ($html) print "<blockquote>$html</blockquote>";
+      #if ($html) print "<blockquote>$html</blockquote>";
     } else {
     	# do import
       # create new attributes
@@ -522,7 +533,7 @@ if (sizeof($email_list)) {
           $count["list_add"]++;
         if (!TEST && $_SESSION["notify"] == "yes" && $addition) {
           $subscribemessage = ereg_replace('\[LISTS\]', $listoflists, getUserConfig("subscribemessage",$userid));
-          sendMail($email, getConfig("subscribesubject"), $subscribemessage,system_messageheaders(),$envelope);
+          sendMail($user["systemvalues"]["email"], getConfig("subscribesubject"), $subscribemessage,system_messageheaders(),$envelope);
         }
       }
       if (!is_array($_SESSION["groups"])) {
