@@ -460,7 +460,7 @@ function loadUser($loginname = "") {
   if (!Sql_Table_exists("user")) return;
 	initialiseUserSession();
   if (!$loginname) {
-  	if ($_SESSION["userloggedin"] && $_SESSION["username"]) {
+  	if ($_SESSION["userloggedin"] != "" && $_SESSION["username"] != "") {
     	$loginname = $_SESSION["username"];
     } else {
     	return "";
