@@ -68,11 +68,14 @@ if(isset($import)) {
     return;
   }
 
-  if ($_FILES["import_file"]) {
+  if ($_FILES["import_file"] && filesize($_FILES["import_file"]) > 10) {
     $fp = fopen ($_FILES["import_file"]['tmp_name'], "r");
     $email_list = fread($fp, filesize ($_FILES["import_file"]['tmp_name']));
     fclose($fp);
     unlink($_FILES["import_file"]['tmp_name']);
+  } elseif ($_FILES["import_file"]) {
+    Fatal_Error("Something went wrong while uploading the file. Empty file received");
+    return;
   }
 
   // Clean up email file
