@@ -273,7 +273,7 @@ if(isset($_POST["import"])) {
             while (!$notduplicate) {
               $c++;
               Sql_Query(sprintf('select email from %s where email = "%s"',
-                $tables["user"],"duplicate$c ".$userdata["systemvalues"]["email"],0,$uniqid));
+                $tables["user"],"duplicate$c ".$userdata["systemvalues"]["email"]));
               $notduplicate = !Sql_Affected_Rows();
             }
             $userdata["systemvalues"]["email"] = "duplicate$c ".$userdata["systemvalues"]["email"];

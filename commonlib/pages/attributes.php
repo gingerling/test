@@ -41,8 +41,8 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
         # fix all existing users to have a record for this attribute, even with empty data
         $req = Sql_Query("select id from {$tables["user"]}");
         while ($row = Sql_Fetch_Row($req)) {
-          Sql_Query(sprintf('insert ignore into %s (attributeid,userid) values(%d,%d)',
-            $tables["user_attribute"],$insertid,$row[0]));
+          Sql_Query(sprintf('insert ignore into %s (attributeid,userid) values(0,%d)',
+            $tables["user_attribute"],$row[0]));
         }
       } elseif ($_POST["name"][$id] != "") {
         # it is a change
@@ -108,11 +108,10 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
     }
     print '<script language="Javascript" type="text/javascript"> finish();</script>';flush();
   }
-}
-if (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
+} elseif (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
 	ksort($_POST["tag"]);
 	if ($_POST["tagaction"] == "Delete") {
-    while (list($id,$val) = each ($_POST["tag"])) {
+    while (list($k,$id) = each ($_POST["tag"])) {
       $row = Sql_Fetch_Row_Query("select tablename,type from {$tables['attribute']} where id = $id");
       Sql_Query("drop table if exists $table_prefix"."listattr_$row[0]");
       Sql_Query("delete from {$tables['attribute']} where id = $id");
@@ -136,14 +135,14 @@ if (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
         	if ($firstdata["type"] == "checkbox" && !$cbg_initiated) {
             # checkboxes are merged into a checkbox group
             # set that up first
-            Sql_Query(sprintf('create table %s
+            Sql_query(sprintf('create table %s
             (id integer not null primary key auto_increment, name varchar(255) unique,
             listorder integer default 0)',$valuestable),1);
-            Sql_Query(sprintf('insert into %s (name) values("%s")',$valuestable,$firstdata["name"]));
+            Sql_query(sprintf('insert into %s (name) values("%s")',$valuestable,$firstdata["name"]));
             $val = Sql_Insert_Id();
-            Sql_Query(sprintf('update %s set value="%s" where attributeid = %d',
+            Sql_query(sprintf('update %s set value="%s" where attributeid = %d',
               $tables["user_attribute"],$val,$first));
-            Sql_Query(sprintf('update %s set type="checkboxgroup" where id = %d',
+            Sql_query(sprintf('update %s set type="checkboxgroup" where id = %d',
               $tables["attribute"],$first));
             $cbg_initiated = 1;
 					}
@@ -151,11 +150,11 @@ if (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
           	case "textline":
             case "hidden":
             case "textarea":
-			        Sql_Query(sprintf('delete from %s where attributeid = %d and value = ""',$tables["user_attribute"],$first));
+			        Sql_query(sprintf('delete from %s where attributeid = %d and value = ""',$tables["user_attribute"],$first));
             	# we can just keep the data and mark it as the first attribute
-              Sql_Query(sprintf('update %s set attributeid = %d where attributeid = %d',
+              Sql_query(sprintf('update ignore %s set attributeid = %d where attributeid = %d',
                 $tables["user_attribute"],$first,$attid),1);
-              Sql_Query(sprintf('delete from %s where id = %d',
+              Sql_query(sprintf('delete from %s where id = %d',
                 $tables["attribute"],$attid));
               break;
             case "radio":
