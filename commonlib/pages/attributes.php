@@ -112,6 +112,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
 	ksort($_POST["tag"]);
 	if ($_POST["tagaction"] == "Delete") {
     while (list($k,$id) = each ($_POST["tag"])) {
+    	print "Deleting ".$id."<br/>";
       $row = Sql_Fetch_Row_Query("select tablename,type from {$tables['attribute']} where id = $id");
       Sql_Query("drop table if exists $table_prefix"."listattr_$row[0]");
       Sql_Query("delete from {$tables['attribute']} where id = $id");

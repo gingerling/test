@@ -6,7 +6,7 @@
 function initialiseUserSession() {
   if (!is_array($_SESSION["userdata"])) {
 		$_SESSION["userdata"] = array();
- 		$_SESSION["session"] = $GLOBALS["PHPSESSID"];
+ 		$_SESSION["session"] = SID;
   }
 }
 
@@ -660,11 +660,11 @@ function saveUser($loginname,$data) {
 }
 
 function saveUserData($username,$fields) {
-	if (!is_array($_SESSION["userdata"])) {
-  	$_SESSION["userdata"] = array();
-	  $_SESSION["userdata"]["session"] = $GLOBALS["PHPSESSID"];
-  }
   dbg("Saving user $username");
+	if (!is_array($_SESSION["userdata"])) {
+  	dbg("Nothing to save");
+    return;
+  }
   if (!$username) {
   	$username = 'Unknown User';
   }
