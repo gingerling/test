@@ -270,7 +270,9 @@ Find a user: <input type=text name=find value="<?php echo $find != '%' ? $find :
 <tr><td colspan=4>
 <?php
 #if (($require_login && isSuperUser()) || !$require_login)
-  print PageLink2("dlusers","Download all users as CSV file","nocache=".uniqid(""));
+  print '<p>'.PageLink2("dlusers","Download all users as CSV file","nocache=".uniqid("")).'&nbsp;';
+	print PageLink2("user","Add a User").'</p>';
+
 ?></td></tr>
 </table>
 

@@ -3,10 +3,10 @@
 
 <?php
 
-if (!$_GET["id"] && !$_GET["delete"]) {
-  Fatal_Error("No such user");
-  return;
-}
+#if (!$_GET["id"] && !$_GET["delete"]) {
+#  Fatal_Error("No such user");
+#  return;
+#}
 $id = sprintf('%d',$_GET["id"]);
 $delete = sprintf('%d',$_GET["delete"]);
 $date = new Date();
@@ -37,7 +37,13 @@ if ($access == "all") {
 }
 $usegroups = Sql_Table_exists("groups");
 
-if ($change && ($access == "owner"|| $access == "all")) {
+if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
+  if (!$_GET["id"]) {
+    Sql_Query(sprintf('insert into %s (entered,email) values(now(),"%s")',$tables["user"],
+      $_POST["email"]));
+    $id = Sql_Insert_Id();
+    $newuser = 1;
+  }
   # read the current values to compare changes
   $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$id));
   $old_data = array_merge($old_data,getUserAttributeValues('',$id));
@@ -171,6 +177,10 @@ if ($change && ($access == "owner"|| $access == "all")) {
   }
 
   addUserHistory($email,"Update by ".adminName($_SESSION["logindetails"]["id"]),$history_entry);
+  if ($newuser) {
+    Redirect("user&id=$id");
+    exit;
+  }
   Info("Changes saved");
 }
 
@@ -187,15 +197,16 @@ if (isset($delete) && $delete && $access != "view") {
   print "..Done<br /><hr><br />\n";
 }
 
+$membership = "";
+$subscribed = array();
 if ($id) {
   $result = Sql_query("SELECT * FROM {$tables["user"]} where id = $id");
   if (!Sql_Affected_Rows()) {
-    Fatal_Error("No such User");
+    Fatal_Error("No such User".$id);
     return;
   }
   $user = sql_fetch_array($result);
   $lists = Sql_query("SELECT listid,name FROM {$tables["listuser"]},{$tables["list"]} where userid = ".$user["id"]." and $tables[listuser].listid = $tables[list].id $subselect ");
-  $membership = "";$subscribed = array();
   while ($lst = Sql_fetch_array($lists)) {
     $membership .= "<li>".PageLink2("editlist",$lst["name"],"id=".$lst["listid"]);
     array_push($subscribed,$lst["listid"]);
@@ -207,9 +218,15 @@ if ($id) {
   printf('&nbsp;&nbsp;<a href="%s">update page</a>',getConfig("preferencesurl").'&uid='.$user["uniqid"]);
   printf('&nbsp;&nbsp;<a href="%s">unsubscribe page</a>',getConfig("unsubscribeurl").'&uid='.$user["uniqid"]);
   print '&nbsp;&nbsp;'.PageLink2("userhistory&id=$id","History");
+} else {
+	$user = array();
+  $id = 0;
+  print '<h1>Add a new User</h1>';
+}
   print "<p><h3>User Details</h3>".formStart()."<table border=1>";
   print "<input type=hidden name=list value=$list><input type=hidden name=id value=$id>";
   print "<input type=hidden name=returnpage value=$returnpage><input type=hidden name=returnoption value=$returnoption>";
+
   reset($struct);
   while (list ($key,$val) = each ($struct)) {
     list($a,$b) = explode(":",$val[1]);
@@ -322,7 +339,6 @@ if ($id) {
   }
 
   print '</form>';
-}
 ?>
 
 

@@ -905,9 +905,9 @@ function saveUserData($username,$fields) {
            } else {
              # sendError("Error adding user to list: $listid");
            }
-         } else {
-           $phplist->removeEmailFromList($_SESSION["userdata"]["email"]["value"],$listid);
-         }
+         } #else {
+           #$phplist->removeEmailFromList($_SESSION["userdata"]["email"]["value"],$listid);
+         #}
        }
     }
   }
