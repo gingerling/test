@@ -284,6 +284,7 @@ class topBar {
      background-color:#CCCC99;
      border-style:none;
 	   border-bottom: 3px #ff9900 solid;
+     z-index: 1000;
    }
    -->
 </STYLE>
@@ -310,17 +311,19 @@ function closeadminbar() {
 <div id="admineditline">
 <!--EDIT TAB TABLE starts-->
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
-<tr><td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
+<tr><td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
 href="'.$config["uploader_dir"]."/?page=edit&b=$bid&id=$lid".'" title="use this link to edit this page">edit page</a></td>
-<td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;'.$validate.'</td>
+<td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;'.$validate.'</td>
 <!--td bgcolor="#CCCC99" height="20" width="110">&nbsp;&nbsp;&nbsp;<a class="adminbutton" href="%s">change template</a></td-->
 <td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
 href="'.$config["uploader_dir"]."/?page=logout&return=".urlencode("lid=$lid").'" title="You are logged in as an administrator, click this link to logout">logout</a></td>
 <td bgcolor="#CCCC99" height="20">&nbsp;Template: '.getLeafTemplate($lid).'</td>
 <td bgcolor="#CCCC99" height="20" width="70"><a href="'.$config["uploader_dir"].'/" class="adminbutton">admin home</a></td>
-<td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
+<td bgcolor="#CCCC99" height="20" width="50"><a href="'.$config["uploader_dir"].'/?page=sitemap" class="adminbutton">sitemap</a></td>
+<td bgcolor="#CCCC99" height="20" width="50"><a href="'.$config["uploader_dir"].'/?page=list&id='.$bid.'" class="adminbutton">branch</a></td>
+<td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
 href="javascript:hideadminbar();" title="hide the administrative bar on this page">hide bar</a></td>
-<td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
+<td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
 href="javascript:closeadminbar();" title="hide the administrative bar permanently">close bar</a></td></tr>
 </table>
 <!--EDIT TAB TABLE ends-->

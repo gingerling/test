@@ -710,7 +710,7 @@ function saveUserByID($userid,$data) {
     	$attid = $key;
     }
     dbg("Saving attribute $key, $attid, $val for $userid");
-    if ($userid && $attid)
+    if ($userid && $attid && $data[$key]["type"] != "userfield" && !$data[$key]["nodbsave"])
 	    saveUserAttribute($userid,$attid,$val);
   }
 }
