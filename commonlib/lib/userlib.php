@@ -795,7 +795,7 @@ function saveUserData($username,$fields) {
 	     	 $_SESSION["userdata"][$key]["value"] = ltrim($val);
        }
        if ($fields[$key]["type"] == "select") {
-         if (empty($_SESSION["userdata"][$key]["displayvalue"]) && is_array($fields[$key]["values"])) {
+         if (!empty($val) && is_array($fields[$key]["values"])) {
 	     	 	 $_SESSION["userdata"][$key]["displayvalue"] = $fields[$key]["values"][$val];
          }
        } elseif ($fields[$key]["type"] == "checkboxgroup") {
