@@ -202,6 +202,37 @@ function userName() {
   }
   return rtrim($res);
 }
+function isBlackListed($email = "") {
+  if (!$email) return 0;
+  if (!Sql_Table_exists($GLOBALS["tables"]["user_blacklist"])) return 0;
+  $gracetime = sprintf('%d',$GLOBALS["blacklist_gracetime"]);
+  if (!$gracetime || $gracetime > 15 || $gracetime < 0) {
+    $gracetime = 5;
+  }
+  # allow 5 minutes to send the last message acknowledging unsubscription
+  $req = Sql_Query(sprintf('select * from %s where email = "%s" and date_add(added,interval %d minute) < now()',
+    $GLOBALS["tables"]["user_blacklist"],$email,$gracetime));
+  return Sql_Affected_Rows();
+}
+
+function isBlackListedID($userid = 0) {
+  if (!$userid) return 0;
+  $email = Sql_Fetch_Row_Query("select email from {$GLOBALS["tables"]["user"]} where id = $userid");
+  return isBlackListed($email[0]);
+}
+
+function unBlackList($userid = 0) {
+  if (!$userid) return;
+  $email = Sql_Fetch_Row_Query("select email from {$GLOBALS["tables"]["user"]} where id = $userid");
+  Sql_Query(sprintf('delete from %s where email = "%s"',
+    $GLOBALS["tables"]["user_blacklist"],$email[0]));
+  Sql_Query(sprintf('delete from %s where email = "%s"',
+    $GLOBALS["tables"]["user_blacklist_data"],$email[0]));
+  Sql_Query(sprintf('update %s set blacklisted = 0 where id = %d',$GLOBALS["tables"]["user"],$userid));
+  $msg = "Removed from blacklist by ".$_SESSION["logindetails"]["adminname"];
+  addUserHistory($email[0],$msg,"");
+}
+
 
 function UserAttributeValueSelect($user,$attribute) {
 	if (!$user || !$attribute) return;
