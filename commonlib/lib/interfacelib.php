@@ -9,6 +9,7 @@ class WebblerListing {
   var $elements = array();
   var $columns = array();
   var $buttons = array();
+  var $sortby = array();
   var $initialstate = "block";
 
   function WebblerListing($title,$help = "") {
@@ -36,6 +37,8 @@ class WebblerListing {
   	if (!isset($name))
     	return;
   	$this->columns[$column_name] = $column_name;
+    # @@@ should make this a callable function
+    $this->sortby[$column_name] = $column_name;
     $this->elements[$name]["columns"]["$column_name"] = array(
     	"value" => $value,
       "url" => $url,
@@ -45,6 +48,16 @@ class WebblerListing {
   
   function renameColumn($oldname,$newname) {
     $this->columns[$oldname] = $newname;
+  }
+    
+  function removeGetParam($remove) {
+    $res = "";
+    foreach ($_GET as $key => $val) {
+      if ($key != $remove) {
+        $res .= "$key=".urlencode($val)."&amp;";
+      }
+    }
+    return $res;
   }
 
   function addRow($name,$row_name,$value,$url="",$align="") {
@@ -84,9 +97,15 @@ class WebblerListing {
     	if ($c == sizeof($this->columns)) {
 	      $html .= sprintf('<td><div class="listinghdelement">%s%s</div></td>',$columnname,$this->help);
       } else {
-	      $html .= sprintf('<td><div class="listinghdelement">%s</div></td>',$columnname);
+        if ($this->sortby[$columnname]) {
+          $display = sprintf('<a href="./?%s&amp;sortby=%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
+        } else {
+          $display = $columnname;
+        }
+	      $html .= sprintf('<td><div class="listinghdelement">%s</div></td>',$display);
       }
       $c++;
+ 
     }
   #  $html .= sprintf('<td align="right"><span class="listinghdelementright">%s</span></td>',$lastelement);
     $html .= '</tr>';
@@ -175,6 +194,15 @@ class WebblerListing {
   function index() {
     return "<a name=top>Index:</a><br />";
 	}
+                                                                                                                            
+  function cmp($a,$b) {
+    $sortcol = urldecode($_GET["sortby"]);
+    if (!is_array($a) || !is_array($b)) return 0;
+    $val1 = strip_tags($a["columns"][$sortcol]["value"]);
+    $val2 = strip_tags($b["columns"][$sortcol]["value"]);
+    if ($val1 == $val2) return 0;
+    return $val1 < $val2 ? -1 : 1;
+  }
 
   function collapse() {
     $this->initialstate = "none";
@@ -191,11 +219,12 @@ class WebblerListing {
     $html .= $this->listingHeader();
 #    global $float_menu;
 #    $float_menu .= "<a style=\"display: block;\" href=\"#".htmlspecialchars($this->title)."\">$this->title</a>";
+    usort($this->elements,array("WebblerListing","cmp"));
     foreach ($this->elements as $element) {
       $html .= $this->listingElement($element);
     }
     $html .= $this->listingEnd();
-    
+ 
     $shader = new WebblerShader($this->title);
     $shader->addContent($html);
     $shader->display = $this->initialstate;
