@@ -5,9 +5,9 @@
 
 function initialiseUserSession() {
   if (!is_array($_SESSION["userdata"])) {
-		$_SESSION["userdata"] = array();
- 		$_SESSION["session"] = SID;
+    $_SESSION["userdata"] = array();
   }
+  $_SESSION["session"] = $GLOBALS["PHPSESSID"];
 }
 
 function getEveryoneGroupID() {
@@ -455,10 +455,17 @@ function obscureCreditCard($cardno) {
   return $res;
 }
 
-function loadUser($loginname) {
+function loadUser($loginname = "") {
 	dbg("Loading User");
-  if (!SQl_Table_exists("user")) return;
+  if (!Sql_Table_exists("user")) return;
 	initialiseUserSession();
+  if (!$loginname) {
+  	if ($_SESSION["userloggedin"] && $_SESSION["username"]) {
+    	$loginname = $_SESSION["username"];
+    } else {
+    	return "";
+    }
+  }
   $att_req = Sql_Query(sprintf('select attribute.id,
   	%s.name,%s.type,
   	%s.value,%s.tablename from %s,%s,%s
