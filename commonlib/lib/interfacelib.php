@@ -125,6 +125,8 @@ class WebblerListing {
     foreach ($element["rows"] as $row) {
       if ($row["value"]) {
       	$value = $row["value"];
+      } else {
+      	$value = "";
       }
       if ($element["rows"][$row]["align"]) {
       	$align = $element["rows"][$row]["align"];
