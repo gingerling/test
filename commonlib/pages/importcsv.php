@@ -479,7 +479,10 @@ if (sizeof($email_list)) {
                 $val = Sql_Query("select id from $table_prefix"."listattr_$att[1] where name = \"$uservalue\"");
                 # if we do not have this value add it
                 if (!Sql_Affected_Rows()) {
-                  Sql_Query("insert into $table_prefix"."listattr_$att[1] (name) values(\"$uservalue\")");
+									# check the highest listorder and add one extra
+                  $highestreq = Sql_Fetch_Row_Query("select listorder from $table_prefix"."listattr_$att[1] order by listorder desc limit 1");
+                  $highest = sprintf('%d',$highestreq[0] +1);
+                  Sql_Query("insert into $table_prefix"."listattr_$att[1] (name,listorder) values(\"$uservalue\",$highest)");
                   Warn("Value $uservalue added to attribute $att[2]");
                   $user_att_value = Sql_Insert_Id();
                 } else {
