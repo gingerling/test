@@ -16,7 +16,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
       if (!$id && isset($_POST["name"][0]) && $_POST["name"][0] != "") {
         # it is a new one
         $lc_name = getNewAttributeTablename($_POST["name"][0]);        
-        if ($lc_name == "email") { Fatal_Error("Email is a system attribute, you cannot add it manually"); return; }
+        if ($lc_name == "email") { print Warn("Email is a system attribute"); }
 
         #print "New attribute: ".$_POST["name"][0]."<br/>";
         $query = sprintf('insert into %s (name,type,listorder,default_value,required,tablename) values("%s","%s",%d,"%s",%d,"%s")',
