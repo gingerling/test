@@ -709,8 +709,7 @@ function saveUserData($username,$fields) {
 	# saves data in session, not in database
   dbg("Saving user $username");
 	if (!is_array($_SESSION["userdata"])) {
-  	dbg("Nothing to save");
-    return;
+		initialiseUserSession();
   }
   if (!$username) {
   	$username = 'Unknown User';
