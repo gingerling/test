@@ -64,7 +64,7 @@ class WebblerListing {
 	}
 
   function listingStart() {
-    return '<table cellpadding="0" cellspacing="0" border="0" width="536">';
+    return '<table cellpadding="0" cellspacing="0" border="0" width="100%">';
   }
 
   function listingHeader() {
@@ -147,16 +147,19 @@ class WebblerListing {
   }
 
   function listingEnd() {
-  	$html = '';
-		foreach ($this->buttons as $button => $url) {
-			$html .= sprintf('<a class="button" href="%s">%s</a>',$url,strtoupper($button));
-		}
-		return sprintf('
-  <tr><td colspan="2">&nbsp;</td></tr>
-  <tr><td colspan="%d" align="right">%s</td></tr>
-  <tr><td colspan="2">&nbsp;</td></tr>
-  </table>
-  ',sizeof($this->columns)+2,$html);
+  	$html = '';$buttons = "";
+    if (sizeof($this->buttons)) {
+      foreach ($this->buttons as $button => $url) {
+        $buttons .= sprintf('<a class="button" href="%s">%s</a>',$url,strtoupper($button));
+      }
+      $html .= sprintf('
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr><td colspan="%d" align="right">%s</td></tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    ',sizeof($this->columns)+2,$buttons);
+    }
+    $html .= '</table>';
+    return $html;
   }
 
   function index() {
@@ -179,6 +182,12 @@ class WebblerListing {
       $html .= $this->listingElement($element);
     }
     $html .= $this->listingEnd();
+    
+    $shader = new WebblerShader($this->title);
+    $shader->addContent($html);
+    return $shader->display();
+    
+    
     return $html;
   }
 }
@@ -296,5 +305,200 @@ class WebblerTabs {
  }
 
 }
+
+class WebblerShader {
+  var $name = "Untitled";
+  var $content = "";
+  var $num = 0;
+  var $isfirst = 0;
+  var $display = "block";
+
+  function WebblerShader($name) {
+    $this->name = $name;
+    if (!isset($GLOBALS["shadercount"])) {
+      $GLOBALS["shadercount"] = 0;
+      $this->isfirst = 1;
+    }
+    $this->num = $GLOBALS["shadercount"];
+    $GLOBALS["shadercount"]++;
+  }
+  
+  function addContent($content) {
+    $this->content = $content;
+  }
+  
+  function hide() {
+    $this->display = 'none';
+  }
+  
+  function show() {
+    $this->display = 'block';
+  }
+  
+  function shaderJavascript() {
+    return '
+  <script language="Javascript" type="text/javascript">
+  
+  <!--
+	var agt = navigator.userAgent.toLowerCase();
+	var is_major = parseInt(navigator.appVersion);
+	var is_nav = ((agt.indexOf(\'mozilla\') != -1) && (agt.indexOf(\'spoofer\') == -1) && (agt.indexOf(\'compatible\') == -1) && (agt.indexOf(\'opera\') == -1) && (agt.indexOf(\'webtv\') == -1));
+	var is_nav4up = (is_nav && (is_major >= 4));
+	var is_ie = (agt.indexOf("msie") != -1);
+	var is_ie3  = (is_ie && (is_major < 4));
+	var is_ie4  = (is_ie && (is_major == 4) && (agt.indexOf("msie 5") == -1) && (agt.indexOf("msie 6") == -1));
+	var is_ie4up = (is_ie && (is_major >= 4));
+	var is_ie5up  = (is_ie  && !is_ie3 && !is_ie4);
+	var is_mac = (agt.indexOf("mac") != -1);
+	var is_gecko = (agt.indexOf("gecko") != -1);
+
+	function getItem (id) {
+		if (is_ie4) {
+			var view = eval(id);
+		}
+		if (is_ie5up || is_gecko) {
+			var view = document.getElementById(id);
+		}
+		return view;
+	}
+
+	function shade(id) {
+		if(is_ie4up || is_gecko) {
+
+			var shaderDiv = getItem(\'shader\'+id);
+			var shaderSpan = getItem(\'shaderspan\'+id);
+			var shaderImg = getItem(\'shaderimg\'+id);
+      var footerTitle = getItem(\'title\'+id);
+			if(shaderDiv.style.display == \'block\') {
+				shaderDiv.style.display = \'none\';
+				shaderSpan.innerHTML = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
+        footerTitle.style.visibility = \'visible\';
+				if (shaderImg)
+          shaderImg.src = \'images/expand.gif\';
+			} else {
+				shaderDiv.style.display = \'block\';
+        footerTitle.style.visibility = \'hidden\';
+				shaderSpan.innerHTML = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
+				if (shaderImg)
+  				shaderImg.src = \'images/collapse.gif\';
+			}
+		}
+	}
+
+	function start_div(number, default_status) {
+		if (is_ie4up || is_gecko) {
+			document.writeln("<div id=\'shader" + number + "\' name=\'shader" + number + "\' class=\'shader\' style=\'display: " + default_status + ";\'>");
+		}
+	}
+
+
+	function end_div(number, default_status) {
+		if (is_ie4up || is_gecko) {
+			document.writeln("</div>");
+		}
+	}
+
+
+	function open_span(number, default_status) {
+		if (is_ie4up || is_gecko) {
+			if(default_status == \'block\') {
+				var span_text = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
+			} else {
+				var span_text = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
+			}
+			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'shadersmalltext\'>" + span_text + "</span></a>");
+		}
+	}
+//-->
+</script>
+    ';
+  }
+  
+  function header() {
+    $html .= sprintf('
+<table width="95%%" align="center" cellpadding="0" cellspacing="0" border="0">');
+    return $html;
+  }
+  
+  function shadeIcon() {
+    return sprintf('
+<a href="javascript:shade(%d);" style="text-decoration:none;">&nbsp;<img id="shaderimg%d" src="images/collapse.gif" height="9" width="9" border="0">
+    ',$this->num,$this->num);
+  }
+  
+  function titleBar() {
+    return sprintf('
+	<tr>
+	    <td colspan="4" class="shaderheader">%s
+					<span class="shaderheadertext">&nbsp;%s</span>
+				 </a>
+		</td>
+	</tr>',$this->shadeIcon(),$this->name);
+  }
+  
+  function dividerRow() {
+    return '
+	<tr>
+	    <td colspan="4" class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+	</tr>
+    ';
+  }
+  
+  function footer() {
+    $html .= sprintf('
+
+	<tr>
+		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+    <td class="shaderfootertext"><div id="title%d" class="footertext">%s</div></td>
+		<td class="shaderborderright"><script language="javascript">open_span(%d,\'block\');</script>&nbsp;</td>
+		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+	</tr>
+	<tr>
+	    <td colspan="4" class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+	</tr>
+</table><br/><br/>
+    ',$this->num,$this->name,$this->num);
+    return $html;
+  }
+  
+  function contentDiv() {
+    $html .= sprintf('  
+	<tr>
+	    <td class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+	    <td colspan=2>
+			<script language="javascript">start_div(%d,\'%s\')</script>',$this->num,$this->display);
+    $html .= $this->content;
+    
+    $html .= '
+    <script language="javascript">end_div();</script>
+		</td>
+
+		<td class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+	</tr>';
+    return $html;
+  }
+  
+  function shaderStart() {
+    if (!isset($GLOBALS["shaderJSset"])) {
+      $html = $this->shaderJavascript();
+      $GLOBALS["shaderJSset"] = 1;
+    } else {
+      $html = "";
+    }
+    return $html;
+  }  
+  
+  function display() {
+    $html = $this->shaderStart();
+    $html .= $this->header();
+  #  $html .= $this->titleBar();
+    $html .= $this->dividerRow();
+    $html .= $this->contentDiv();
+    $html .= $this->footer();
+    return $html;
+  }
+    
+}  
+  
 
 ?>
