@@ -750,7 +750,9 @@ function saveUserData($username,$fields) {
 	     	 $_SESSION["userdata"][$key]["value"] = ltrim($val);
        }
        if ($fields[$key]["type"] == "select") {
-	     	 $_SESSION["userdata"][$key]["displayvalue"] = $fields[$key]["values"][$val];
+         if (empty($_SESSION["userdata"][$key]["displayvalue"]) && is_array($fields[$key]["values"])) {
+	     	 	 $_SESSION["userdata"][$key]["displayvalue"] = $fields[$key]["values"][$val];
+         }
        } elseif ($fields[$key]["type"] == "checkboxgroup") {
 	     	 $_SESSION["userdata"][$key]["value"] = join(",",$val);
        } elseif ($fields[$key]["type"] == "creditcardno") {
