@@ -5,13 +5,15 @@ require_once "accesscheck.php";
 
 class WebblerListing {
   var $title;
+  var $help;
   var $elements = array();
   var $columns = array();
   var $buttons = array();
   var $initialstate = "block";
 
-  function WebblerListing($title) {
+  function WebblerListing($title,$help = "") {
   	$this->title = $title;
+    $this->help = $help;
   }
 
   function addElement($name,$url = "",$colsize="") {
@@ -39,6 +41,10 @@ class WebblerListing {
       "url" => $url,
       "align"=> $align,
     );
+  }
+  
+  function renameColumn($oldname,$newname) {
+    $this->columns[$oldname] = $newname;
   }
 
   function addRow($name,$row_name,$value,$url="",$align="") {
@@ -69,9 +75,9 @@ class WebblerListing {
 
   function listingHeader() {
     $html = '<tr valign="top">';
-    $html .= sprintf('<td><a name="%s"><span class="listinghdname">%s</span></a></td>',strtolower($this->title),$this->title);
-    foreach ($this->columns as $column) {
-      $html .= sprintf('<td><span class="listinghdelement">%s</span></td>',$column);
+    $html .= sprintf('<td><a name="%s"><span class="listinghdname">%s</span></a>%s</td>',strtolower($this->title),$this->title,$this->help);
+    foreach ($this->columns as $column => $columnname) {
+      $html .= sprintf('<td><span class="listinghdelement">%s</span></td>',$columnname);
     }
   #  $html .= sprintf('<td align="right"><span class="listinghdelementright">%s</span></td>',$lastelement);
     $html .= '</tr>';
