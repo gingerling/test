@@ -341,10 +341,6 @@ class WebblerShader {
     $this->display = 'block';
   }
 
-  function shaderCookie() {
-  }
-
-
   function shaderJavascript() {
   	if ($_SERVER["QUERY_STRING"]) {
     	$cookie = "WS?".$_SERVER["QUERY_STRING"];
