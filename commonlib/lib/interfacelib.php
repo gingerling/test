@@ -287,16 +287,16 @@ class WebblerTabs {
   }
   
   function setCurrent($name) {
-    $this->current = $name;
+    $this->current = strtolower($name);
   }
-  
+
   function display() {
     $html = '<style type=text/css media=screen>@import url( styles/tabs.css );</style>';
     $html .= '<div id="webblertabs">';
     $html .= '<ul>';
     reset($this->tabs);
     foreach ($this->tabs as $tab => $url) {
-      if ($tab == $this->current) {
+      if (strtolower($tab) == $this->current) {
         $html .= '<li id=current>';
       } else {
         $html .= '<li>';
@@ -306,7 +306,8 @@ class WebblerTabs {
     }
     $html .= '</ul>';
     $html .= '</div>';
-    $html .= '<span class="faderight">&nbsp;</span><br/><br/>';
+#    $html .= '<span class="faderight">&nbsp;</span>';
+		$html .= '<br clear="all" />';
     return $html;
  }
 }
