@@ -245,6 +245,7 @@ if ($_SESSION["test_import"]) {
   print $ls->display();
   print '<h3>'.$total.' lines will be imported</h3>';
   print '<p>'.PageLink2($_GET["page"]."&amp;confirm=yes","Confirm Import").'</p>';
+  print '<p><h1>Test Output</h1></p>';
 }
 
 if (sizeof($email_list)) {
@@ -349,7 +350,7 @@ if (sizeof($email_list)) {
           $html .= " -> ".$user[$item["index"]]."<br>";
         }
       }
-      #if ($html) print "<blockquote>$html</blockquote>";
+      if ($html) print '<blockquote>'.$html.'</blockquote>';
     } else {
     	# do import
       # create new attributes
