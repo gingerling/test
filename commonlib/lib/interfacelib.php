@@ -281,6 +281,7 @@ href="javascript:closeadminbar();" title="hide the administrative bar permanentl
 class WebblerTabs {
   var $tabs = array();
   var $current = "";
+  var $linkcode = "";
   
   function addTab($name,$url = "") {
     $this->tabs[$name] = $url;
@@ -288,6 +289,10 @@ class WebblerTabs {
   
   function setCurrent($name) {
     $this->current = strtolower($name);
+  }
+
+  function addLinkCode($code) {
+  	$this->linkcode = $code;
   }
 
   function display() {
@@ -301,7 +306,7 @@ class WebblerTabs {
       } else {
         $html .= '<li>';
       }
-      $html .= sprintf('<a href="%s">%s</a>',$url,$tab);
+      $html .= sprintf('<a href="%s" %s>%s</a>',$url,$this->linkcode,$tab);
       $html .= '</li>';
     }
     $html .= '</ul>';
