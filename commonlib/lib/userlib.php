@@ -678,8 +678,11 @@ function saveUserAttribute($userid,$attid,$data) {
 
 			break;
    	default:
-    	Sql_Query(sprintf('replace into user_attribute (userid,attributeid,value)
-		  	values(%d,%d,"%s")',$userid,$attid,$data["value"]));
+      $attid = sprintf('%d',$attid);
+      if ($attid) {
+        Sql_Query(sprintf('replace into user_attribute (userid,attributeid,value)
+          values(%d,%d,"%s")',$userid,$attid,$data["value"]));
+      }
      	break;
  	}
   return 1;
