@@ -225,7 +225,7 @@ if ($_SESSION["import_file"]) {
   if ($request_mapping) {
     $ls->addButton('Continue','javascript:document.importform.submit()');
     print '<p>Please identify the target of the following unknown columns</p>';
-    print '<form name="importform" method=post>';
+    print '<form name="importform" method="post">';
     print $ls->display();
     print '</form>';
     return;
@@ -609,7 +609,7 @@ if (sizeof($email_list)) {
 
 
 <ul>
-<?=formStart('enctype="multipart/form-data" name="import"');?>
+<?php print formStart('enctype="multipart/form-data" name="import"');?>
 <?php
 if ($GLOBALS["require_login"] && !isSuperUser()) {
   $access = accessLevel("import2");
@@ -709,3 +709,4 @@ The value [number] can be used to insert the sequence number for importing.
 <tr><td><input type="submit" name="import" value="Import"></td><td>&nbsp;</td></tr>
 </table>
 </p>
+</form>
