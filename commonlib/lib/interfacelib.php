@@ -263,4 +263,38 @@ href="javascript:closeadminbar();" title="hide the administrative bar permanentl
 	}
 }
 
+class WebblerTabs {
+  var $tabs = array();
+  var $current = "";
+  
+  function addTab($name,$url = "") {
+    $this->tabs[$name] = $url;
+  }
+  
+  function setCurrent($name) {
+    $this->current = $name;
+  }
+  
+  function display() {
+    $html = '<style type=text/css media=screen>@import url( styles/tabs.css );</style>';
+    $html .= '<div id="webblertabs">';
+    $html .= '<ul>';
+    reset($this->tabs);
+    foreach ($this->tabs as $tab => $url) {
+      if ($tab == $this->current) {
+        $html .= '<li id=current>';
+      } else {
+        $html .= '<li>';
+      }
+      $html .= sprintf('<a href="%s">%s</a>',$url,$tab);
+      $html .= '</li>';
+    }
+    $html .= '</ul>';
+    $html .= '</div>';
+    $html .= '<span class="faderight">&nbsp;</span><br/><br/>';
+    return $html;
+ }
+
+}
+
 ?>
