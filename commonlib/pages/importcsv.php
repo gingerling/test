@@ -405,7 +405,7 @@ if(isset($import)) {
           while (list($key,$groupid) = each($groups)) {
           	if ($groupid) {
               $query = "replace INTO user_group (userid,groupid) values($userid,$groupid)";
-              $result = Sql_verbose_query($query);
+              $result = Sql_query($query);
               # if the affected rows is 2, the user was already subscribed
               $groupaddition = $groupaddition || Sql_Affected_Rows() == 1;
            	}
