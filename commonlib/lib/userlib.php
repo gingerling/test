@@ -485,37 +485,41 @@ function loadUser($loginname = "") {
 		"user_attribute"
 	));
   while ($att = Sql_fetch_array($att_req)) {
-  	$_SESSION["userdata"]["attribute".$att["id"]] = array(
-    	"name" => $att["name"],
-      "value" => $att["value"],
-      "type" => $att["type"],
-      "attid" => $att["id"]
-     	);
-    switch ($att["type"]) {
-    	case "textline":
-      case "hidden":
-      	$_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
-        	$att["value"];
-        break;
-      case "creditcardno":
-      	$_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
-					obscureCreditCard($att["value"]);
-        break;
-      case "select":
-      	$_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
-        	AttributeValue($att["tablename"],$att["value"]);
-        break;
-		}
+#  	if (!defined($_SESSION["userdata"]["attribute".$att["id"]])) {
+      $_SESSION["userdata"]["attribute".$att["id"]] = array(
+        "name" => $att["name"],
+        "value" => $att["value"],
+        "type" => $att["type"],
+        "attid" => $att["id"]
+        );
+      switch ($att["type"]) {
+        case "textline":
+        case "hidden":
+          $_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
+            $att["value"];
+          break;
+        case "creditcardno":
+          $_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
+            obscureCreditCard($att["value"]);
+          break;
+        case "select":
+          $_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
+            AttributeValue($att["tablename"],$att["value"]);
+          break;
+      }
+#    }
   }
   $d_req = Sql_Fetch_Array_Query("select * from user where email = \"$loginname\"");
   $_SESSION["userid"] = $d_req["id"];
-  foreach (array("email","disabled","confirmed","htmlemail","uniqid") as $field)
-  	$_SESSION["userdata"][$field] = array(
-     	"name" => $field,
-      "value" => $d_req[$field],
-      "type" => "static",
-      "displayvalue" => $d_req[$field]
-   	);
+  foreach (array("email","disabled","confirmed","htmlemail","uniqid") as $field) {
+#  	if (!defined($_SESSION["userdata"][$field])) {
+      $_SESSION["userdata"][$field] = array(
+        "name" => $field,
+        "value" => $d_req[$field],
+        "type" => "static",
+        "displayvalue" => $d_req[$field]
+      );
+#   	}
   dbg("done loading user");
   $_SESSION["groups"] = userGroups($loginname);
   return 1;
@@ -588,8 +592,8 @@ function saveUserAttribute($userid,$attid,$data) {
         Sql_Query(sprintf('insert into attribute (name,type,tablename) values("%s","%s","%s")',$data["name"],$data["type"],$atttable));
         $attid = Sql_Insert_Id();
       } else {
-        Dbg("Not creating new Attribute: ".$data["name"]);
-        sendError("Not creating new attribute ".$data["name"]);
+        dbg("Not creating new Attribute: ".$data["name"]);
+       # sendError("Not creating new attribute ".$data["name"]);
 			}
     } else {
       $attid = $attid_req[0];
@@ -651,6 +655,7 @@ function saveUserByID($userid,$data) {
 }
 
 function saveUser($loginname,$data) {
+	# saves user to database
 	$id_req = Sql_Fetch_Row_Query("select id from user where email = \"$loginname\"");
 	if ($id_req[0]) {
   	$userid = $id_req[0];
@@ -667,6 +672,7 @@ function saveUser($loginname,$data) {
 }
 
 function saveUserData($username,$fields) {
+	# saves data in session, not in database
   dbg("Saving user $username");
 	if (!is_array($_SESSION["userdata"])) {
   	dbg("Nothing to save");
