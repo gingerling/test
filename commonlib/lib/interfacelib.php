@@ -8,6 +8,7 @@ class WebblerListing {
   var $elements = array();
   var $columns = array();
   var $buttons = array();
+  var $initialstate = "block";
 
   function WebblerListing($title) {
   	$this->title = $title;
@@ -50,8 +51,7 @@ class WebblerListing {
       "align"=> $align,
     );
   }
-
-
+  
   function addInput ($name,$value) {
   	$this->addElement($name);
     $this->addColumn($name,"value",
@@ -166,6 +166,9 @@ class WebblerListing {
     return "<a name=top>Index:</a><br />";
 	}
 
+  function collapse() {
+    $this->initialstate = "none";
+  }
 
   function display($add_index = 0) {
     $html = "";
@@ -185,9 +188,12 @@ class WebblerListing {
     
     $shader = new WebblerShader($this->title);
     $shader->addContent($html);
-    return $shader->display();
-    
-    
+    $shader->display = $this->initialstate;
+    $html = $shader->shaderStart();
+    $html .= $shader->header();
+    $html .= $shader->dividerRow();
+    $html .= $shader->contentDiv();
+    $html .= $shader->footer();
     return $html;
   }
 }
@@ -303,7 +309,6 @@ class WebblerTabs {
     $html .= '<span class="faderight">&nbsp;</span><br/><br/>';
     return $html;
  }
-
 }
 
 class WebblerShader {
@@ -406,7 +411,18 @@ class WebblerShader {
 			} else {
 				var span_text = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
 			}
-			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'shadersmalltext\'>" + span_text + "</span></a>");
+			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'ashadersmalltext\'>" + span_text + "</span></a>");
+		}
+	}
+  
+  function title_span(number,default_status,title) {
+		if (is_ie4up || is_gecko) {
+			if(default_status == \'none\') {
+				var span_text = \'<span class="shaderfootertext">\'+title+\'</span>\';
+			} else {
+				var span_text = \'<span class="shaderfootertext"></span><img src="images/expand.gif" height="9" width="9" border="0">\';
+			}
+			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'title" + number + "\' class=\'shaderfootertext\'>" + span_text + "</span></a>");
 		}
 	}
 //-->
@@ -449,15 +465,15 @@ class WebblerShader {
 
 	<tr>
 		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
-    <td class="shaderfootertext"><div id="title%d" class="footertext">%s</div></td>
-		<td class="shaderborderright"><script language="javascript">open_span(%d,\'block\');</script>&nbsp;</td>
+    <td class="shaderfooter"><script language="javascript">title_span(%d,\'%s\',\'%s\');</script>&nbsp;</td>
+		<td class="shaderborderright"><script language="javascript">open_span(%d,\'%s\');</script>&nbsp;</td>
 		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
 	</tr>
 	<tr>
 	    <td colspan="4" class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
 	</tr>
 </table><br/><br/>
-    ',$this->num,$this->name,$this->num);
+    ',$this->num,$this->display,addslashes($this->name),$this->num,$this->display);
     return $html;
   }
   
@@ -491,7 +507,7 @@ class WebblerShader {
   function display() {
     $html = $this->shaderStart();
     $html .= $this->header();
-  #  $html .= $this->titleBar();
+    $html .= $this->titleBar();
     $html .= $this->dividerRow();
     $html .= $this->contentDiv();
     $html .= $this->footer();
