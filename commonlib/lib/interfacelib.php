@@ -57,7 +57,7 @@ class WebblerListing {
       "align"=> $align,
     );
   }
-  
+
   function addInput ($name,$value) {
   	$this->addElement($name);
     $this->addColumn($name,"value",
@@ -74,10 +74,19 @@ class WebblerListing {
   }
 
   function listingHeader() {
+  	if (!sizeof($this->columns)) {
+    	$tophelp = $this->help;
+    }
     $html = '<tr valign="top">';
-    $html .= sprintf('<td><a name="%s"><span class="listinghdname">%s</span></a>%s</td>',strtolower($this->title),$this->title,$this->help);
+    $html .= sprintf('<td><a name="%s"></a><div class="listinghdname">%s%s</div></td>',strtolower($this->title),$tophelp,$this->title);
+    $c = 1;
     foreach ($this->columns as $column => $columnname) {
-      $html .= sprintf('<td><span class="listinghdelement">%s</span></td>',$columnname);
+    	if ($c == sizeof($this->columns)) {
+	      $html .= sprintf('<td><div class="listinghdelement">%s%s</div></td>',$columnname,$this->help);
+      } else {
+	      $html .= sprintf('<td><div class="listinghdelement">%s</div></td>',$columnname);
+      }
+      $c++;
     }
   #  $html .= sprintf('<td align="right"><span class="listinghdelementright">%s</span></td>',$lastelement);
     $html .= '</tr>';
@@ -136,13 +145,6 @@ class WebblerListing {
           </td></tr>',$row["name"],$align,sizeof($this->columns),$align,$value);
       }
     }
-#  $html .= sprintf('<td align="right"><span class="listingelementright">%s</span></td>',$lastelement);
-    /*
-    $html .= <td><a class="branches" href="">title</a></td>
-  <td align="left">text box</td>
-  <td align="right"><input type="Text" name="listorder" value="1" class="listorder" size="1"></td>
-  </tr>
-    */
     $html .= sprintf('<!--greenline start-->
       <tr valign="middle">
       <td colspan="%d" bgcolor="#CCCC99"><img height=1 alt="" src="images/transparent.png" width=1 border=0></td></td>
