@@ -572,11 +572,16 @@ function saveUserAttribute($userid,$attid,$data) {
     $attid_req = Sql_Fetch_Row_Query(sprintf('
       select id,type,tablename from attribute where name = "%s"',$data["name"]));
     if (!$attid_req[0]) {
-    	Dbg("Creating new Attribute: ".$data["name"]);
-      sendError("creating new attribute","michiel@tincan.co.uk");
-			$atttable= getNewAttributeTablename($data["name"]);
-      Sql_Query(sprintf('insert into attribute (name,type,tablename) values("%s","%s","%s")',$data["name"],$data["type"],$atttable));
-      $attid = Sql_Insert_Id();
+    	if ($GLOBALS["config"]["autocreate_attributes"]) {
+        Dbg("Creating new Attribute: ".$data["name"]);
+        sendError("creating new attribute ".$data["name"]);
+        $atttable= getNewAttributeTablename($data["name"]);
+        Sql_Query(sprintf('insert into attribute (name,type,tablename) values("%s","%s","%s")',$data["name"],$data["type"],$atttable));
+        $attid = Sql_Insert_Id();
+      } else {
+        Dbg("Not creating new Attribute: ".$data["name"]);
+        sendError("Not creating new attribute ".$data["name"]);
+			}
     } else {
       $attid = $attid_req[0];
       $atttable = $attid_req[2];
@@ -725,6 +730,16 @@ function saveUserData($username,$fields) {
 #  	  	dbg("Not checking ".$fname ." of type ".$fields[$key]["type"]);
 		}
   }
+  
+  # fix UK postcodes to correct format
+  if ($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom") {
+    $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"];
+    $postcode = strtoupper(str_replace(" ","",$postcode));
+    if (preg_match("/(.*)(\d\w\w)$/",$postcode,$regs)) {
+      $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"] = trim($regs[1])." ".$regs[2];
+      $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["displayvalue"] = trim($regs[1])." ".$regs[2];
+    }
+  }
 
   while (list($index,$field) = each ($required_fields)) {
  		$type = $fields[$field]["type"];
@@ -757,8 +772,8 @@ function saveUserData($username,$fields) {
       break;
     }
   }
-	if ($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["value"] == "United Kingdom") {
-    $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"];
+	if ($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom") {
+    $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["displayvalue"];
     if (!preg_match("/(.*)(\d\w\w)$/",$postcode,$regs)) {
       $res = "That does not seem to be a valid UK postcode";
     } elseif (!preg_match("/^[\s\w\d]+$/",$postcode,$regs)) {
