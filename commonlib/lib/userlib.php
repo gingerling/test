@@ -714,16 +714,31 @@ function saveUserData($username,$fields) {
   }
 	$res = "";
   $required_fields = explode(",",$_POST["required"]);
+  foreach ($required_fields as $f) {
+  	dbg("REQ: $f");
+  }
+  if ($_POST["unrequire"]) {
+	  $unrequired_fields = explode(",",$_POST["unrequire"]);
+    $required_fields = array_diff($required_fields,$unrequired_fields);
+    foreach ($unrequired_fields as $f) {
+      dbg("UNREQ: $f");
+    }
+  foreach ($required_fields as $f) {
+  	dbg("REQ: $f");
+  }
+  } else {
+  	$unrequired_fields = array();
+  }
   $required_formats = explode(",",$_POST["required_formats"]);
   $description_fields = explode(",",$_POST["required_description"]);
 
   reset($fields);
-  dbg("Checking fields");
+ # dbg("Checking fields");
   while (list($fname,$fval) = each ($fields)) {
  # 	dbg($fname);
   	$key = $fname;
     $val = $_POST[$fname];
-		if (!ereg("required",$key) &&
+		if (!ereg("required",$key) && $key != "unrequire" &&
     	$fields[$key]["type"] != "separator" &&
     	$fields[$key]["type"] != "emailcheck" &&
     	$fields[$key]["type"] != "passwordcheck"
@@ -760,7 +775,7 @@ function saveUserData($username,$fields) {
 		   } else {
 	     	 $_SESSION["userdata"][$key]["displayvalue"] = $val;
 		   }
-       
+
 /*       # remember other aspects of the fields
        foreach ($fields as $key => $val) {
          foreach ($val as $field_attr => $value) {
@@ -777,7 +792,7 @@ function saveUserData($username,$fields) {
 #  	  	dbg("Not checking ".$fname ." of type ".$fields[$key]["type"]);
 		}
   }
-  
+
   # fix UK postcodes to correct format
   if ($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom") {
     $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"];
@@ -788,8 +803,11 @@ function saveUserData($username,$fields) {
     }
   }
 
+ # dbg("Checking required fields");
+  reset($required_fields);
   while (list($index,$field) = each ($required_fields)) {
  		$type = $fields[$field]["type"];
+ #   dbg("$field of type $type");
     if ($field && !$_SESSION["userdata"][$field]["value"]) {
       $res = "Information missing: ".$description_fields[$index];
       break;
