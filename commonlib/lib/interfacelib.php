@@ -20,6 +20,7 @@ class WebblerListing {
         "url" => $url,
         "colsize" => $colsize,
         "columns" => array(),
+        "rows" => array(),
       );
     }
   }
@@ -39,6 +40,18 @@ class WebblerListing {
     );
   }
 
+  function addRow($name,$row_name,$value,$url="",$align="") {
+  	if (!isset($name))
+    	return;
+    $this->elements[$name]["rows"]["$row_name"] = array(
+    	"name" => $row_name,
+    	"value" => $value,
+      "url" => $url,
+      "align"=> $align,
+    );
+  }
+
+
   function addInput ($name,$value) {
   	$this->addElement($name);
     $this->addColumn($name,"value",
@@ -55,7 +68,7 @@ class WebblerListing {
   }
 
   function listingHeader() {
-    $html .= '<tr valign="top">';
+    $html = '<tr valign="top">';
     $html .= sprintf('<td><a name="%s"><span class="listinghdname">%s</span></a></td>',strtolower($this->title),$this->title);
     foreach ($this->columns as $column) {
       $html .= sprintf('<td><span class="listinghdelement">%s</span></td>',$column);
@@ -93,8 +106,31 @@ class WebblerListing {
         $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,$element["columns"][$column]["value"]);
       }
     }
-#  $html .= sprintf('<td align="right"><span class="listingelementright">%s</span></td>',$lastelement);
     $html .= '</tr>';
+    foreach ($element["rows"] as $row) {
+      if ($row["value"]) {
+      	$value = $row["value"];
+      }
+      if ($element["rows"][$row]["align"]) {
+      	$align = $element["rows"][$row]["align"];
+      } else {
+      	$align = 'left';
+      }
+      if ($element["rows"][$row]["url"]) {
+        $html .= sprintf('<tr><td valign="top" class="listingrowname">
+        	<span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
+          </td><td valign="top" class="listingelement%s" colspan=%d>
+          <span class="listingelement%s">%s</span>
+          </td></tr>',$row["url"],$row["name"],$align,sizeof($this->columns),$align,$value);
+      } else {
+        $html .= sprintf('<tr><td valign="top" class="listingrowname">
+        	<span class="listingrowname">%s</span>
+          </td><td valign="top" class="listingelement%s" colspan=%d>
+          <span class="listingelement%s">%s</span>
+          </td></tr>',$row["name"],$align,sizeof($this->columns),$align,$value);
+      }
+    }
+#  $html .= sprintf('<td align="right"><span class="listingelementright">%s</span></td>',$lastelement);
     /*
     $html .= <td><a class="branches" href="">title</a></td>
   <td align="left">text box</td>
@@ -111,6 +147,7 @@ class WebblerListing {
   }
 
   function listingEnd() {
+  	$html = '';
 		foreach ($this->buttons as $button => $url) {
 			$html .= sprintf('<a class="button" href="%s">%s</a>',$url,strtoupper($button));
 		}
