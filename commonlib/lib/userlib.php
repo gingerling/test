@@ -716,18 +716,9 @@ function saveUserData($username,$fields) {
   }
 	$res = "";
   $required_fields = explode(",",$_POST["required"]);
-  foreach ($required_fields as $f) {
-  	dbg("REQ: $f");
-  }
   if ($_POST["unrequire"]) {
 	  $unrequired_fields = explode(",",$_POST["unrequire"]);
     $required_fields = array_diff($required_fields,$unrequired_fields);
-    foreach ($unrequired_fields as $f) {
-      dbg("UNREQ: $f");
-    }
-  foreach ($required_fields as $f) {
-  	dbg("REQ: $f");
-  }
   } else {
   	$unrequired_fields = array();
   }
