@@ -304,6 +304,9 @@ function userGroups($loginname) {
 }
 
 function is_email($email) {
+	if ($GLOBALS["config"]["dont_require_validemail"])
+  	return 1;
+
 	$email = trim($email);
 
   # hmm, it seems people are starting to have emails with & and ' or ` chars in the name

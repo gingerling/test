@@ -1,15 +1,16 @@
-<?
+<?php
 
 print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
 
 ignore_user_abort();
 set_time_limit(500);
-#error_reporting(63);
-if (!isset($GLOBALS["tmpdir"]) && !empty(ini_get("upload_tmp_dir"))) {
-	$GLOBALS["tmpdir"] = ini_get("upload_tmp_dir");
+
+$system_tmpdir = ini_get("upload_tmp_dir");
+if (!isset($GLOBALS["tmpdir"]) && !empty($system_tmpdir)) {
+	$GLOBALS["tmpdir"] = $system_tmpdir;
 }
-if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"]) && !empty(ini_get("upload_tmp_dir"))) {
-	$GLOBALS["tmpdir"] = ini_get("upload_tmp_dir");
+if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"]) && !empty($system_tmpdir)) {
+	$GLOBALS["tmpdir"] = $system_tmpdir;
 }
 
 #if (ini_get("open_basedir")) {
@@ -20,11 +21,6 @@ if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"])) {
 if (!isset($GLOBALS["assign_invalid_default"]))
 	$GLOBALS["assign_invalid_default"] = 'Invalid Email [number]';
 
-
-?>
-<p>
-
-<?php
 function my_shutdown () {
 #	print "Shutting down";
 #	print connection_status(); # with PHP 4.2.1 buggy. http://bugs.php.net/bug.php?id=17774
