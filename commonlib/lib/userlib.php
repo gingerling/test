@@ -98,13 +98,12 @@ function AttributeValue($table,$value) {
   return $row[0];
 }
 
-
-function getUserAttributeValues($email) {
+function getUserAttributeValues($email = '', $id = 0) {
   global $table_prefix,$tables;
+  if (!$email && !$id) return;
   # workaround for integration webbler/phplist
   if (!isset($table_prefix))
   	$table_prefix = "phplist_";
-  if (!$email) return;
 
   if (isset($tables["attribute"])) {
   	$att_table = $tables["attribute"];
@@ -116,7 +115,10 @@ function getUserAttributeValues($email) {
     $usertable = "user";
   }
   $result = array();
-	$userid = Sql_Fetch_Row_Query("select id from {$usertable} where email = \"$email\"");
+  if ($email && !$id) {
+		$userid = Sql_Fetch_Row_Query("select id from {$usertable} where email = \"$email\"");
+    $id = $userid[0];
+  }
   $att_req = Sql_Query(sprintf('select
   	%s.name,%s.id from %s,%s
     where %s.userid = %s and %s.id = %s.attributeid',
@@ -125,13 +127,13 @@ function getUserAttributeValues($email) {
     $user_att_table,
     $att_table,
     $user_att_table,
-    $userid[0],
+    $id,
 		$att_table,
 		$user_att_table
 	));
 
   while ($att = Sql_fetch_array($att_req)) {
-    $result[$att["name"]] = UserAttributeValue($userid[0],$att["id"]);
+    $result[$att["name"]] = UserAttributeValue($id,$att["id"]);
   }
   return $result;
 }
@@ -266,16 +268,6 @@ function userGroups($loginname) {
   return $result;
 }
 
-function UserAttributeValue1($kwlib,$value) {
-  if ($value) {
-    $res = Sql_Query("select value from keywordlibvalue where id = $value");
-    $row = Sql_Fetch_row($res);
-  } else {
-    return "Invalid Attribute Index";
-  }
-  return $row[0];
-}
-
 function is_email($email) {
 	$email = trim($email);
 
@@ -289,6 +281,44 @@ $pattern =
     return(1);
   else
     return(0);
+}
+
+function addUserHistory($email,$msg,$detail) {
+  global $table_prefix,$tables;
+  if ($tables["user"]) {
+  	$user_table = $tables["user"];
+    $user_his_table = $tables["user_history"];
+  } else {
+  	$user_table = "user";
+    $user_his_table = "user_history";
+  }
+  $sysinfo = "";
+  $sysarrays = array_merge($_ENV,$_SERVER);
+	if (is_array($GLOBALS["userhistory_systeminfo"])) {
+  	foreach ($GLOBALS["userhistory_systeminfo"] as $key) {
+    	if ($sysarrays[$key]) {
+      	$sysinfo .= "\n$key = $sysarrays[$key]";
+     	}
+   	}
+ 	} elseif (is_array($GLOBALS["config"]["userhistory_systeminfo"])) {
+  	foreach ($GLOBALS["config"]["userhistory_systeminfo"] as $key) {
+    	if ($sysarrays[$key]) {
+      	$sysinfo .= "\n$key = $sysarrays[$key]";
+     	}
+   	}
+	} else {
+		$default = array('HTTP_USER_AGENT','HTTP_REFERER','REMOTE_ADDR');
+  	foreach ($sysarrays as $key => $val) {
+    	if (in_array($default,$key))
+    	$sysinfo .= "\n$key = ".$val;
+   	}
+	}
+
+  $userid = Sql_Fetch_Row_Query("select id from $user_table where email = \"$email\"");
+  if ($userid[0]) {
+    Sql_Query(sprintf('insert into %s (ip,userid,date,summary,detail,systeminfo)
+      values("%s",%d,now(),"%s","%s","%s")',$user_his_table,$_SERVER["REMOTE_ADDR"],$userid[0],$msg,htmlspecialchars($detail),$sysinfo));
+  }
 }
 
 function validateEmail($email) {
