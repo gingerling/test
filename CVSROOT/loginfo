@@ -1,0 +1,2 @@
+CVSROOT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail %{sVv} mdethmers@users.sourceforge.net
+DEFAULT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail %{sVv} phplist-commit@lists.sourceforge.net
