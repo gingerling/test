@@ -11,7 +11,6 @@ class WebblerListing {
   var $sortby = array();
   var $sort = 0;
   var $buttons = array();
-  var $sortby = array();
   var $initialstate = "block";
 
   function WebblerListing($title,$help = "") {
