@@ -68,7 +68,7 @@ if(isset($import)) {
     return;
   }
 
-  if ($_FILES["import_file"] && filesize($_FILES["import_file"]) > 10) {
+  if ($_FILES["import_file"] && filesize($_FILES["import_file"]['tmp_name']) > 10) {
     $fp = fopen ($_FILES["import_file"]['tmp_name'], "r");
     $email_list = fread($fp, filesize ($_FILES["import_file"]['tmp_name']));
     fclose($fp);
@@ -189,7 +189,7 @@ if(isset($import)) {
       $invalid = 1;
       $invalid_email_count++;
     }
-    if (sizeof($values) != sizeof($attributes) && $test_input && $_POST["show_warnings"])
+    if (sizeof($values) != sizeof($attributes) && $test_import && $_POST["show_warnings"])
       Warn("Record has more values than header indicated, this may cause trouble: $email");
     if (!$invalid || ($invalid && $omit_invalid != "yes")) {
       $user_list[$index] = array ();
@@ -393,7 +393,7 @@ if(isset($import)) {
         if (!is_array($_POST["groups"])) {
         	$groups = array();
         } else {
-        	$group = $_POST["groups"];
+        	$groups = $_POST["groups"];
         }
         if (isset($everyone_groupid) && !in_array($everyone_groupid,$groups)) {
         	array_push($groups,$everyone_groupid);
@@ -403,9 +403,9 @@ if(isset($import)) {
           reset($groups);
           $groupaddition = 0;
           while (list($key,$groupid) = each($groups)) {
-          	if ($group) {
+          	if ($groupid) {
               $query = "replace INTO user_group (userid,groupid) values($userid,$groupid)";
-              $result = Sql_query($query);
+              $result = Sql_verbose_query($query);
               # if the affected rows is 2, the user was already subscribed
               $groupaddition = $groupaddition || Sql_Affected_Rows() == 1;
            	}
