@@ -1,5 +1,5 @@
 <?
-$types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea");
+$types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea","date");
 $formtable_exists = Sql_Table_exists("formfield");
 
 ob_end_flush();
@@ -56,35 +56,47 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
         $req = Sql_Fetch_Row_Query("select type,tablename from {$tables['attribute']} where id = $id");
         $existingtype = $req[0];
         #print "Existing attribute: ".$_POST["name"][$id]." new type:".$_POST["type"][$id]." existing type: ".$req[0]."<br/>";
-        
+
         if ($_POST["type"][$id] != $existingtype)
         switch ($existingtype) {
-          case "textline":case "hidden":
-            if ($_POST["type"][$id] == "hidden" || $_POST["type"][$id] == "textline") break;
-            # we are turning a hidden or textline field into a radio,checkbox,checkboxgroup or select
-            if ($_POST["type"][$id] != "checkbox") {
-              $lc_name = getNewAttributeTablename($req[1]);
-              Sql_Query("create table $table_prefix"."listattr_$lc_name (id integer not null primary key auto_increment, name varchar(255) unique,listorder integer default 0)");
-              $attreq = Sql_Query("select distinct value from {$tables['user_attribute']} where attributeid = $id");
-              while ($row = Sql_Fetch_Row($attreq)) {
-                $attindexreq = Sql_Query("select id from $table_prefix"."listattr_$lc_name where name = \"$row[0]\"");
-                if (!Sql_Affected_Rows()) {
-                  Sql_Query("insert into $table_prefix"."listattr_$lc_name (name) values(\"$row[0]\")");
-                  $attid = Sql_Insert_Id();
-                } else {
-                  $attindex = Sql_Fetch_Row($attindexreq);
-                  $attid = $attindex[0];
+          case "textline":case "hidden":case "date":
+          	 print "Converting ".$_POST["name"][$id]." from $existingtype to ".$_POST["type"][$id]."<br/>";
+             switch ($_POST["type"][$id]) {
+            	case "radio":
+              case "checkboxgroup":
+              case "select":
+                $lc_name = getNewAttributeTablename($req[1]);
+                Sql_Query("create table $table_prefix"."listattr_$lc_name (id integer not null primary key auto_increment, name varchar(255) unique,listorder integer default 0)");
+                $attreq = Sql_Query("select distinct value from {$tables['user_attribute']} where attributeid = $id");
+                while ($row = Sql_Fetch_Row($attreq)) {
+                  $attindexreq = Sql_Query("select id from $table_prefix"."listattr_$lc_name where name = \"$row[0]\"");
+                  if (!Sql_Affected_Rows()) {
+                    Sql_Query("insert into $table_prefix"."listattr_$lc_name (name) values(\"$row[0]\")");
+                    $attid = Sql_Insert_Id();
+                  } else {
+                    $attindex = Sql_Fetch_Row($attindexreq);
+                    $attid = $attindex[0];
+                  }
+                  Sql_Query("update {$tables['user_attribute']} set value = $attid where attributeid = $id and value = \"$row[0]\"");
                 }
-                Sql_Query("update {$tables['user_attribute']} set value = $attid where attributeid = $id and value = \"$row[0]\"");
-              }
-            } else {
-            # in case of checkbox we just need to set the value to "on"
-              Sql_Query("update {$tables['user_attribute']} set value = \"off\" where attributeid = $id and (value = 0 or value = \"off\")");
-              Sql_Query("update {$tables['user_attribute']} set value = \"on\" where attributeid = $id and (value = 1 or value = \"on\") ");
+                break;
+              case "checkbox":
+              # in case of checkbox we just need to set the value to "on"
+                Sql_Query("update {$tables['user_attribute']} set value = \"off\" where attributeid = $id and (value = 0 or value = \"off\")");
+                Sql_Query("update {$tables['user_attribute']} set value = \"on\" where attributeid = $id and (value = 1 or value = \"on\") ");
+              case "date":
+              	$attreq = Sql_Query("select * from {$tables['user_attribute']} where attributeid = $id");
+                while ($row = Sql_Fetch_Array($attreq)) {
+#                	if (strlen($row["value"] > 5)) {
+                  	Sql_Query(sprintf('update %s set value = "%s" where attributeid = %d and userid = %d',$tables["user_attribute"],parseDate($row["value"]),$row["attributeid"],$row["userid"]));
+#                  }
+                }
+                break;
             }
             break;
           case "radio":case "select": case "checkbox":
-            if ($_POST["type"][$id] != "hidden" && $_POST["type"][$id] != "textline") break;
+            if ($_POST["type"][$id] != "date" && $_POST["type"][$id] != "hidden" && $_POST["type"][$id] != "textline") break;
+          	print "Converting ".$_POST["name"][$id]." from $existingtype to ".$_POST["type"][$id]."<br/>";
             # we are turning a radio,select or checkbox into a hidden or textline field
             $valuereq = Sql_Query("select id,name from $table_prefix"."listattr_$req[1]");
             while ($row = Sql_Fetch_Row($valuereq))
@@ -93,6 +105,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
             break;
           case "checkboxgroup":
             if ($_POST["type"][$id] == "hidden" || $_POST["type"][$id] == "textline") {
+		         	 print "Converting ".$_POST["name"][$id]." from $existingtype to ".$_POST["type"][$id]."<br/>";
             	# we are changing a checkbox group into a hidden or textline
               # take the first value!
               $valuereq = Sql_Query("select id,name from $table_prefix"."listattr_$req[1]");
@@ -189,6 +202,7 @@ if (isset($_POST["action"]) && $_POST["action"] == "Save Changes") {
           	case "textline":
             case "hidden":
             case "textarea":
+            case "date":
 			        Sql_query(sprintf('delete from %s where attributeid = %d and value = ""',$tables["user_attribute"],$first));
             	# we can just keep the data and mark it as the first attribute
               Sql_query(sprintf('update ignore %s set attributeid = %d where attributeid = %d',

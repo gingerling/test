@@ -493,6 +493,9 @@ if (sizeof($email_list)) {
                 else
                   $user_att_value = "off";
                 break;
+              case "date":
+                $user_att_value = parseDate($uservalue);
+                break;
               default:
                 $user_att_value = $uservalue;
                 break;
