@@ -38,7 +38,7 @@ while (list ($key,$val) = each ($DBstruct["user"])) {
 }
 
 ob_end_flush();
-if(isset($import)) {
+if(isset($_POST["import"])) {
 
   $test_import = (isset($_POST["import_test"]) && $_POST["import_test"] == "yes");
  /*
@@ -56,6 +56,7 @@ if(isset($import)) {
     return;
   }
   if (filesize($_FILES["import_file"]['tmp_name']) > 1000000) {
+    # if we allow more, we will certainly run out of memory
   	Fatal_Error("File too big, please split it up into smaller ones");
     return;
   }
@@ -74,7 +75,7 @@ if(isset($import)) {
     fclose($fp);
     unlink($_FILES["import_file"]['tmp_name']);
   } elseif ($_FILES["import_file"]) {
-    Fatal_Error("Something went wrong while uploading the file. Empty file received");
+    Fatal_Error("Something went wrong while uploading the file. Empty file received. Maybe the file is too big?");
     return;
   }
 
@@ -516,8 +517,15 @@ an existing user. This will slow down the import process. If you use this, it is
 records without email, but an "Invalid Email" will be created instead. You can then do
 a search on "invalid email" to find those records. Maximum size of a foreign key is 100.
 <br/><br/>
-<b>Warning</b>: the file needs to be plain text. Do not upload binary files like a Word Document.</td></tr>
-<tr><td>File containing emails:</td><td><input type="file" name="import_file"></td></tr>
+<b>Warning</b>: the file needs to be plain text. Do not upload binary files like a Word Document.
+<br/>
+</td></tr>
+<tr><td>File containing emails:<br/>
+</td><td><input type="file" name="import_file">
+<br/>The following limits are set by your server:<br/>
+Maximum size of a total data sent to server: <b><?=ini_get("post_max_size")?></b><br/>
+Maximum size of each individual file: <b><?=ini_get("upload_max_filesize")?></b>
+</td></tr>
 <tr><td>Field Delimiter:</td><td><input type="text" name="import_field_delimiter" size=5> (default is TAB)</td></tr>
 <tr><td>Record Delimiter:</td><td><input type="text" name="import_record_delimiter" size=5> (default is line break)</td></tr>
 <tr><td colspan=2>If you check "Test Output", you will get the list of parsed emails on screen, and the database will not be filled with the information. This is useful to find out whether the format of your file is correct. It will only show the first 50 records.</td></tr>

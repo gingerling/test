@@ -14,7 +14,7 @@ function getEveryoneGroupID() {
   $ev_req = Sql_Fetch_Row_Query("select id from groups where name = \"Everyone\"");
   $everyone_groupid = $ev_req[0];
   if (!$everyone_groupid) {
-    Sql_Query("insert into groups (name) values(\"Everyone\"");
+    Sql_Query("insert into groups (name) values(\"Everyone\")");
     $everyone_groupid = Sql_Insert_Id();
   }
   return $everyone_groupid;
