@@ -232,14 +232,20 @@ if ($sortby) {
   $find_url .= "&sortby=$sortby&sortorder=$sortorder&unconfirmed=$unconfirmed";
 }
 
+$dolist = 1;
 if ($total > MAX_USER_PP) {
   if (isset($start) && $start) {
     $listing = "Listing user $start to " . ($start + MAX_USER_PP);
     $limit = "limit $start,".MAX_USER_PP;
   } else {
-    $listing = "Listing user 1 to 50";
-    $limit = "limit 0,50";
-    $start = 0;
+    if ($total < 1000) {
+      $listing = "Listing user 1 to 50";
+      $limit = "limit 0,50";
+      $start = 0;
+      $dolist = 1;
+    } else {
+      $dolist = 0;
+    }
   }
   if ($_GET["unconfirmed"])
      $find_url .= "&unconfirmed=".$_GET["unconfirmed"];
@@ -250,7 +256,9 @@ if ($total > MAX_USER_PP) {
           PageLink2("users","&lt;",sprintf('start=%d',max(0,$start-MAX_USER_PP)).$find_url),
           PageLink2("users","&gt;",sprintf('start=%d',min($total,$start+MAX_USER_PP)).$find_url),
           PageLink2("users","&gt;&gt;",sprintf('start=%d',$total-MAX_USER_PP).$find_url));
-  $result = Sql_query("$listquery $order $limit");
+  if ($dolist) {
+    $result = Sql_query("$listquery $order $limit");
+  }
 } else {
   $result = Sql_Query("$listquery $order");
 }
@@ -320,8 +328,8 @@ while ($user = Sql_fetch_array($result)) {
   }
 }
 print $ls->display();
-if (!$some) {
-  print "<p>No users apply</p>";
+if (!$some && !$total) {
+  print '<p>'.$GLOBALS['I18N']->get('No users apply').'</p>';
 }
 ?>
 
