@@ -17,6 +17,7 @@ if (!ini_get("magic_quotes_gpc") || ini_get("magic_quotes_gpc") == "off") {
   $_REQUEST = addSlashesArray($_REQUEST);
   $_COOKIE = addSlashesArray($_COOKIE);
 }
+
 /*
 foreach ($_POST as $key => $val) {
   print "POST: $key = $val<br/>";
