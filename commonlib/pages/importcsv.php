@@ -253,7 +253,7 @@ if (sizeof($email_list)) {
 #	print "A: ".sizeof($import_attribute);
   reset($system_attributes);
   foreach ($system_attributes as $key => $val) {
-    print "<br/>$key => $val ".$_SESSION["systemindex"][$key];
+ #   print "<br/>$key => $val ".$_SESSION["systemindex"][$key];
     if (isset($_SESSION["systemindex"][$key]))
       $system_attribute_mapping[$key] = $_SESSION["systemindex"][$key];
   }
@@ -277,7 +277,7 @@ if (sizeof($email_list)) {
   $count["dataupdate"] = 0;
   $additional_emails = 0;
   foreach ($email_list as $line) {
-  	print $line.'<br/>';
+  #	print $line.'<br/>';
 		$user = array();
     # get rid of text delimiters generally added by spreadsheet apps
   	$line = str_replace('"','',$line);
