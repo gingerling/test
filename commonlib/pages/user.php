@@ -73,10 +73,10 @@ if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
   }
   if (is_array($_POST["dateattribute"]))
   foreach ($_POST["dateattribute"] as $attid => $attname) {
-  	if (isset($_POST[normalize($attname).'_novalue'])) {
-    	$value = "";
+    if (isset($_POST[normalize($attname).'_novalue'])) {
+      $value = "";
     } else {
-  		$value = $date->getDate($attname);
+      $value = $date->getDate($attname);
     }
     Sql_Query(sprintf('replace into %s (userid,attributeid,value)
       values(%d,%d,"%s")',$tables["user_attribute"],$id,$attid,$value));
@@ -113,7 +113,7 @@ if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
     if (is_array($_POST["groups"])) {
       foreach ($_POST["groups"] as $group) {
         Sql_Query(sprintf('insert into user_group (userid,groupid) values(%d,%d)',$id,$group));
-	      print "<br/>User added to group ".groupName($group);
+        print "<br/>User added to group ".groupName($group);
       }
     }
   }
@@ -219,7 +219,7 @@ if ($id) {
   printf('&nbsp;&nbsp;<a href="%s">unsubscribe page</a>',getConfig("unsubscribeurl").'&uid='.$user["uniqid"]);
   print '&nbsp;&nbsp;'.PageLink2("userhistory&id=$id","History");
 } else {
-	$user = array();
+  $user = array();
   $id = 0;
   print '<h1>Add a new User</h1>';
 }
