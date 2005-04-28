@@ -234,6 +234,23 @@ function unBlackList($userid = 0) {
   addUserHistory($email[0],$msg,"");
 }
 
+function addUserToBlackList($email,$reason = '') {
+  Sql_Query(sprintf('insert ignore into %s (email,added) values("%s",now())',
+    $GLOBALS['tables']["user_blacklist"],addslashes($email)));
+  Sql_Query(sprintf('update %s set blacklisted = 1 where email = "%s"',
+    $GLOBALS['tables']["user"],addslashes($email)));
+  # save the reason, and other data
+  Sql_Query(sprintf('insert ignore into %s (email,name,data) values("%s","%s","%s")',
+    $GLOBALS['tables']["user_blacklist_data"],addslashes($email),
+    "reason",addslashes($reason)));
+  foreach (array("REMOTE_ADDR") as $item ) { # @@@do we want to know more?
+    if (isset($_SERVER[$item])) {
+      Sql_Query(sprintf('insert ignore into %s (email,name,data) values("%s","%s","%s")',
+        $GLOBALS['tables']["user_blacklist_data"],addslashes($email),
+        $item,addslashes($_SERVER[$item])));
+    }
+  }
+}
 
 function UserAttributeValueSelect($user,$attribute) {
   if (!$user || !$attribute) return;
@@ -335,7 +352,7 @@ function addUserHistory($email,$msg,$detail) {
   $sysarrays = array_merge($_ENV,$_SERVER);
   if (is_array($GLOBALS["userhistory_systeminfo"])) {
     foreach ($GLOBALS["userhistory_systeminfo"] as $key) {
-      if ($sysarrays[$key]) {
+      if (isset($sysarrays[$key])) {
         $sysinfo .= "\n$key = $sysarrays[$key]";
       }
     }
@@ -355,8 +372,13 @@ function addUserHistory($email,$msg,$detail) {
 
   $userid = Sql_Fetch_Row_Query("select id from $user_table where email = \"$email\"");
   if ($userid[0]) {
+    if (isset($_SERVER["REMOTE_ADDR"])) {
+      $ip = $_SERVER["REMOTE_ADDR"];
+    } else {
+      $ip = '';
+    }
     Sql_Query(sprintf('insert into %s (ip,userid,date,summary,detail,systeminfo)
-      values("%s",%d,now(),"%s","%s","%s")',$user_his_table,$_SERVER["REMOTE_ADDR"],$userid[0],$msg,htmlspecialchars($detail),$sysinfo));
+      values("%s",%d,now(),"%s","%s","%s")',$user_his_table,$ip,$userid[0],$msg,htmlspecialchars($detail),$sysinfo));
   }
 }
 

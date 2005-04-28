@@ -14,12 +14,12 @@ class WebblerListing {
   var $initialstate = "block";
 
   function WebblerListing($title,$help = "") {
-  	$this->title = $title;
+    $this->title = $title;
     $this->help = $help;
   }
 
   function addElement($name,$url = "",$colsize="") {
-  	if (!isset($this->elements[$name])) {
+    if (!isset($this->elements[$name])) {
       $this->elements[$name] = array(
         "name" => $name,
         "url" => $url,
@@ -31,20 +31,20 @@ class WebblerListing {
   }
 
   function deleteElement($name) {
-  	unset($this->elements[$name]);
+    unset($this->elements[$name]);
   }
   function addSort() {
     $this->sort = 1;
   }
 
   function addColumn($name,$column_name,$value,$url="",$align="") {
-  	if (!isset($name))
-    	return;
-  	$this->columns[$column_name] = $column_name;
+    if (!isset($name))
+      return;
+    $this->columns[$column_name] = $column_name;
         $this->sortby[$column_name] = $column_name;
     # @@@ should make this a callable function
     $this->elements[$name]["columns"]["$column_name"] = array(
-    	"value" => $value,
+      "value" => $value,
       "url" => $url,
       "align"=> $align,
     );
@@ -65,48 +65,49 @@ class WebblerListing {
   }
 
   function addRow($name,$row_name,$value,$url="",$align="") {
-  	if (!isset($name))
-    	return;
+    if (!isset($name))
+      return;
     $this->elements[$name]["rows"]["$row_name"] = array(
-    	"name" => $row_name,
-    	"value" => $value,
+      "name" => $row_name,
+      "value" => $value,
       "url" => $url,
       "align"=> $align,
     );
   }
 
   function addInput ($name,$value) {
-  	$this->addElement($name);
+    $this->addElement($name);
     $this->addColumn($name,"value",
-    	sprintf('<input type=text name="%s" value="%s" size=40 class="listinginput">',
+      sprintf('<input type=text name="%s" value="%s" size=40 class="listinginput">',
       strtolower($name),$value));
   }
 
-	function addButton($name,$url) {
-		$this->buttons[$name] = $url;
-	}
+  function addButton($name,$url) {
+    $this->buttons[$name] = $url;
+  }
 
   function listingStart() {
     return '<table cellpadding="0" cellspacing="0" border="0" width="100%">';
   }
 
   function listingHeader() {
-  	if (!sizeof($this->columns)) {
-    	$tophelp = $this->help;
+    $tophelp = '';
+    if (!sizeof($this->columns)) {
+      $tophelp = $this->help;
     }
     $html = '<tr valign="top">';
     $html .= sprintf('<td><a name="%s"></a><div class="listinghdname">%s%s</div></td>',strtolower($this->title),$tophelp,$this->title);
     $c = 1;
     foreach ($this->columns as $column => $columnname) {
-    	if ($c == sizeof($this->columns)) {
-	      $html .= sprintf('<td><div class="listinghdelement">%s%s</div></td>',$columnname,$this->help);
+      if ($c == sizeof($this->columns)) {
+        $html .= sprintf('<td><div class="listinghdelement">%s%s</div></td>',$columnname,$this->help);
       } else {
         if ($this->sortby[$columnname] && $this->sort) {
           $display = sprintf('<a href="./?%s&amp;sortby=%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
         } else {
           $display = $columnname;
         }
-	      $html .= sprintf('<td><div class="listinghdelement">%s</div></td>',$display);
+        $html .= sprintf('<td><div class="listinghdelement">%s</div></td>',$display);
       }
       $c++;
  
@@ -128,43 +129,45 @@ class WebblerListing {
       $html .= sprintf('<td valign="top" %s class="listingname"><span class="listingname">%s</span></td>',$width,$element["name"]);
     }
     foreach ($this->columns as $column) {
-      if ($element["columns"][$column]["value"]) {
-      	$value = $element["columns"][$column]["value"];
+      if (isset($element["columns"][$column]) && $element["columns"][$column]["value"]) {
+        $value = $element["columns"][$column]["value"];
       } else {
-      	$value = $column;
+        $value = $column;
       }
-      if ($element["columns"][$column]["align"]) {
-      	$align = $element["columns"][$column]["align"];
+      if (isset($element["columns"][$column]) && $element["columns"][$column]["align"]) {
+        $align = $element["columns"][$column]["align"];
       } else {
-      	$align = '';
+        $align = '';
       }
-      if ($element["columns"][$column]["url"]) {
+      if (isset($element["columns"][$column]) && $element["columns"][$column]["url"]) {
         $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s"><a href="%s" class="listingelement">%s</a></span></td>',$align,$align,$element["columns"][$column]["url"],$value);
-      } else {
+      } elseif (isset($element["columns"][$column])) {
         $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,$element["columns"][$column]["value"]);
+      } else {
+        $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,'');
       }
     }
     $html .= '</tr>';
     foreach ($element["rows"] as $row) {
       if ($row["value"]) {
-      	$value = $row["value"];
+        $value = $row["value"];
       } else {
-      	$value = "";
+        $value = "";
       }
       if ($element["rows"][$row]["align"]) {
-      	$align = $element["rows"][$row]["align"];
+        $align = $element["rows"][$row]["align"];
       } else {
-      	$align = 'left';
+        $align = 'left';
       }
       if ($element["rows"][$row]["url"]) {
         $html .= sprintf('<tr><td valign="top" class="listingrowname">
-        	<span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
+          <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
           </td><td valign="top" class="listingelement%s" colspan=%d>
           <span class="listingelement%s">%s</span>
           </td></tr>',$row["url"],$row["name"],$align,sizeof($this->columns),$align,$value);
       } else {
         $html .= sprintf('<tr><td valign="top" class="listingrowname">
-        	<span class="listingrowname">%s</span>
+          <span class="listingrowname">%s</span>
           </td><td valign="top" class="listingelement%s" colspan=%d>
           <span class="listingelement%s">%s</span>
           </td></tr>',$row["name"],$align,sizeof($this->columns),$align,$value);
@@ -180,7 +183,7 @@ class WebblerListing {
   }
 
   function listingEnd() {
-  	$html = '';$buttons = "";
+    $html = '';$buttons = "";
     if (sizeof($this->buttons)) {
       foreach ($this->buttons as $button => $url) {
         $buttons .= sprintf('<a class="button" href="%s">%s</a>',$url,strtoupper($button));
@@ -197,7 +200,7 @@ class WebblerListing {
 
   function index() {
     return "<a name=top>Index:</a><br />";
-	}
+  }
                                                                                                                             
   function cmp($a,$b) {
     $sortcol = urldecode($_GET["sortby"]);
@@ -216,8 +219,8 @@ class WebblerListing {
     $html = "";
     if (!sizeof($this->elements))
       return "";
-# 	if ($add_index)
-#   	$html = $this->index();
+#   if ($add_index)
+#     $html = $this->index();
 
     $html .= $this->listingStart();
     $html .= $this->listingHeader();
@@ -244,45 +247,45 @@ class WebblerListing {
 }
 
 class topBar {
-	var $type = '';
+  var $type = '';
 
-	function topBar($type) {
-  	$this->type = $type;
+  function topBar($type) {
+    $this->type = $type;
   }
 
   function display($lid,$bid) {
-  	if ($this->type == "admin") {
-    	return $this->adminBar($lid,$bid);
-   	} else {
-    	return $this->defaultBar();
+    if ($this->type == "admin") {
+      return $this->adminBar($lid,$bid);
+    } else {
+      return $this->defaultBar();
     }
   }
 
   function defaultBar() {
-  	return '';
+    return '';
   }
 
   function adminBar($lid,$bid) {
-  	global $config;
-		$uri = "http://".$config["websiteurl"].'/?lid='.$lid.'&validate=1';
-		if ($config["validator"] && in_array($_SESSION["me"]["loginname"],$config["validator_users"])) {
-			$validate = sprintf ('<a href="http://%s/check?uri=%s" class="adminbutton" target="_validate">validate</a>',
-			$config["validator"],urlencode($uri));
+    global $config;
+    $uri = "http://".$config["websiteurl"].'/?lid='.$lid.'&validate=1';
+    if ($config["validator"] && in_array($_SESSION["me"]["loginname"],$config["validator_users"])) {
+      $validate = sprintf ('<a href="http://%s/check?uri=%s" class="adminbutton" target="_validate">validate</a>',
+      $config["validator"],urlencode($uri));
     }
-		return '
+    return '
 <STYLE TYPE="text/css">
    <!--
    a.adminbutton:link {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
    a.adminbutton:active {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
    a.adminbutton:visited {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
-	 a.adminbutton:hover {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
-	 #admineditline {
-   	 position:absolute;
-		 top:0px; left:0px;
+   a.adminbutton:hover {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
+   #admineditline {
+     position:absolute;
+     top:0px; left:0px;
      width:100%;
      background-color:#CCCC99;
      border-style:none;
-	   border-bottom: 3px #ff9900 solid;
+     border-bottom: 3px #ff9900 solid;
      z-index: 1000;
    }
    -->
@@ -291,17 +294,17 @@ class topBar {
 <script language="Javascript" type="text/javascript">
 function hideadminbar() {
   if (document.getElementById) {
-		document.getElementById(\'admineditline\').style.visibility="hidden";
-	} else {
-  	alert("To hide the bar, you need to logout");
+    document.getElementById(\'admineditline\').style.visibility="hidden";
+  } else {
+    alert("To hide the bar, you need to logout");
   }
 }
 function closeadminbar() {
   if (document.getElementById) {
-		document.getElementById(\'admineditline\').style.visibility="hidden";
+    document.getElementById(\'admineditline\').style.visibility="hidden";
     SetCookie("adminbar","hide");
-	} else {
-  	alert("To hide the bar, you need to logout");
+  } else {
+    alert("To hide the bar, you need to logout");
   }
 }
 
@@ -328,7 +331,7 @@ href="javascript:closeadminbar();" title="hide the administrative bar permanentl
 <!--EDIT TAB TABLE ends-->
 </div>
 ';
-	}
+  }
 }
 
 class WebblerTabs {
@@ -345,7 +348,7 @@ class WebblerTabs {
   }
 
   function addLinkCode($code) {
-  	$this->linkcode = $code;
+    $this->linkcode = $code;
   }
 
   function display() {
@@ -365,7 +368,7 @@ class WebblerTabs {
     $html .= '</ul>';
     $html .= '</div>';
 #    $html .= '<span class="faderight">&nbsp;</span>';
-		$html .= '<br clear="all" />';
+    $html .= '<br clear="all" />';
     return $html;
  }
 }
@@ -401,10 +404,13 @@ class WebblerShader {
   }
 
   function shaderJavascript() {
-  	if ($_SERVER["QUERY_STRING"]) {
-    	$cookie = "WS?".$_SERVER["QUERY_STRING"];
+    if ($_SERVER["QUERY_STRING"]) {
+      $cookie = "WS?".$_SERVER["QUERY_STRING"];
     } else {
-    	$cookie = "WS";
+      $cookie = "WS";
+    }
+    if (!isset($_COOKIE[$cookie])) {
+      $_COOKIE[$cookie] = '';
     }
 
     return '
@@ -417,67 +423,67 @@ class WebblerShader {
   expireDate.setDate(expireDate.getDate()+365);
 
   function cookieVal(cookieName) {
-		var thisCookie = document.cookie.split("; ")
-	  for (var i = 0; i < thisCookie.length; i++) {
-	    if (cookieName == thisCookie[i].split("=")[0]) {
-	      return thisCookie[i].split("=")[1];
-	    }
-	  }
-		return 0;
-	}
+    var thisCookie = document.cookie.split("; ")
+    for (var i = 0; i < thisCookie.length; i++) {
+      if (cookieName == thisCookie[i].split("=")[0]) {
+        return thisCookie[i].split("=")[1];
+      }
+    }
+    return 0;
+  }
 
   function saveStates() {
     document.cookie = "WS"+escape(this.location.search)+"="+states+";expires=" + expireDate.toGMTString();
   }
 
-	var agt = navigator.userAgent.toLowerCase();
-	var is_major = parseInt(navigator.appVersion);
-	var is_nav = ((agt.indexOf(\'mozilla\') != -1) && (agt.indexOf(\'spoofer\') == -1) && (agt.indexOf(\'compatible\') == -1) && (agt.indexOf(\'opera\') == -1) && (agt.indexOf(\'webtv\') == -1));
-	var is_nav4up = (is_nav && (is_major >= 4));
-	var is_ie = (agt.indexOf("msie") != -1);
-	var is_ie3  = (is_ie && (is_major < 4));
-	var is_ie4  = (is_ie && (is_major == 4) && (agt.indexOf("msie 5") == -1) && (agt.indexOf("msie 6") == -1));
-	var is_ie4up = (is_ie && (is_major >= 4));
-	var is_ie5up  = (is_ie  && !is_ie3 && !is_ie4);
-	var is_mac = (agt.indexOf("mac") != -1);
-	var is_gecko = (agt.indexOf("gecko") != -1);
+  var agt = navigator.userAgent.toLowerCase();
+  var is_major = parseInt(navigator.appVersion);
+  var is_nav = ((agt.indexOf(\'mozilla\') != -1) && (agt.indexOf(\'spoofer\') == -1) && (agt.indexOf(\'compatible\') == -1) && (agt.indexOf(\'opera\') == -1) && (agt.indexOf(\'webtv\') == -1));
+  var is_nav4up = (is_nav && (is_major >= 4));
+  var is_ie = (agt.indexOf("msie") != -1);
+  var is_ie3  = (is_ie && (is_major < 4));
+  var is_ie4  = (is_ie && (is_major == 4) && (agt.indexOf("msie 5") == -1) && (agt.indexOf("msie 6") == -1));
+  var is_ie4up = (is_ie && (is_major >= 4));
+  var is_ie5up  = (is_ie  && !is_ie3 && !is_ie4);
+  var is_mac = (agt.indexOf("mac") != -1);
+  var is_gecko = (agt.indexOf("gecko") != -1);
   var view;
 
-	function getItem (id) {
-		if (is_ie4) {
-			view = eval(id);
-		}
-		if (is_ie5up || is_gecko) {
-			view = document.getElementById(id);
-		}
-		return view;
-	}
+  function getItem (id) {
+    if (is_ie4) {
+      view = eval(id);
+    }
+    if (is_ie5up || is_gecko) {
+      view = document.getElementById(id);
+    }
+    return view;
+  }
 
-	function shade(id) {
-		if(is_ie4up || is_gecko) {
+  function shade(id) {
+    if(is_ie4up || is_gecko) {
 
-			var shaderDiv = getItem(\'shader\'+id);
-			var shaderSpan = getItem(\'shaderspan\'+id);
-			var shaderImg = getItem(\'shaderimg\'+id);
+      var shaderDiv = getItem(\'shader\'+id);
+      var shaderSpan = getItem(\'shaderspan\'+id);
+      var shaderImg = getItem(\'shaderimg\'+id);
       var footerTitle = getItem(\'title\'+id);
-			if(shaderDiv.style.display == \'block\') {
-      	states[id] = "closed";
-				shaderDiv.style.display = \'none\';
-				shaderSpan.innerHTML = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
+      if(shaderDiv.style.display == \'block\') {
+        states[id] = "closed";
+        shaderDiv.style.display = \'none\';
+        shaderSpan.innerHTML = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
         footerTitle.style.visibility = \'visible\';
-				if (shaderImg)
+        if (shaderImg)
           shaderImg.src = \'images/expand.gif\';
-			} else {
-      	states[id] = "open";
-				shaderDiv.style.display = \'block\';
+      } else {
+        states[id] = "open";
+        shaderDiv.style.display = \'block\';
         footerTitle.style.visibility = \'hidden\';
-				shaderSpan.innerHTML = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
-				if (shaderImg)
-  				shaderImg.src = \'images/collapse.gif\';
-			}
-		}
+        shaderSpan.innerHTML = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
+        if (shaderImg)
+          shaderImg.src = \'images/collapse.gif\';
+      }
+    }
     saveStates();
-	}
+  }
 
   function getPref(number) {
     if (states[number] == "open") {
@@ -486,67 +492,67 @@ class WebblerShader {
       return "none";
     }
     return "";
-	}
+  }
 
-	function start_div(number, default_status) {
-		if (is_ie4up || is_gecko) {
-    	var pref = getPref(number);
+  function start_div(number, default_status) {
+    if (is_ie4up || is_gecko) {
+      var pref = getPref(number);
       if (pref) {
-      	default_status = pref;
+        default_status = pref;
       }
 
-			document.writeln("<div id=\'shader" + number + "\' name=\'shader" + number + "\' class=\'shader\' style=\'display: " + default_status + ";\'>");
-		}
-	}
+      document.writeln("<div id=\'shader" + number + "\' name=\'shader" + number + "\' class=\'shader\' style=\'display: " + default_status + ";\'>");
+    }
+  }
 
 
-	function end_div(number, default_status) {
-		if (is_ie4up || is_gecko) {
-			document.writeln("</div>");
-		}
-	}
+  function end_div(number, default_status) {
+    if (is_ie4up || is_gecko) {
+      document.writeln("</div>");
+    }
+  }
   var title_text = "";
   var span_text = "";
   var title_class = "";
 
-	function open_span(number, default_status) {
-		if (is_ie4up || is_gecko) {
-    	var pref = getPref(number);
+  function open_span(number, default_status) {
+    if (is_ie4up || is_gecko) {
+      var pref = getPref(number);
       if (pref) {
-      	default_status = pref;
+        default_status = pref;
       }
-			if(default_status == \'block\') {
-				span_text = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
-			} else {
-				span_text = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
-			}
-			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'shadersmalltext\'>" + span_text + "</span></a>");
-		}
-	}
+      if(default_status == \'block\') {
+        span_text = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
+      } else {
+        span_text = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
+      }
+      document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'shadersmalltext\'>" + span_text + "</span></a>");
+    }
+  }
 
   function title_span(number,default_status,title) {
-		if (is_ie4up || is_gecko) {
-    	var pref = getPref(number);
+    if (is_ie4up || is_gecko) {
+      var pref = getPref(number);
       if (pref) {
-      	default_status = pref;
+        default_status = pref;
       }
-			if(default_status == \'none\') {
-				title_text = \'<img src="images/expand.gif" height="9" width="9" border="0">  \'+title;
+      if(default_status == \'none\') {
+        title_text = \'<img src="images/expand.gif" height="9" width="9" border="0">  \'+title;
         title_class = "shaderfootertextvisible";
-			} else {
-				title_text = \'<img src="images/collapse.gif" height="9" width="9" border="0">   \'+title;
+      } else {
+        title_text = \'<img src="images/collapse.gif" height="9" width="9" border="0">   \'+title;
         title_class = "shaderfootertexthidden";
-			}
-			document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'title" + number + "\' class=\'"+title_class+"\'>" + title_text + "</span></a>");
-		}
-	}
+      }
+      document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'title" + number + "\' class=\'"+title_class+"\'>" + title_text + "</span></a>");
+    }
+  }
 //-->
 </script>
     ';
   }
 
   function header() {
-    $html .= sprintf('
+    $html = sprintf('
 <table width="98%%" align="center" cellpadding="0" cellspacing="0" border="0">');
     return $html;
   }
@@ -559,31 +565,31 @@ class WebblerShader {
   
   function titleBar() {
     return sprintf('
-	<tr>
-	    <td colspan="4" class="shaderheader">%s
-					<span class="shaderheadertext">&nbsp;%s</span>
-				 </a>
-		</td>
-	</tr>',$this->shadeIcon(),$this->name);
+  <tr>
+      <td colspan="4" class="shaderheader">%s
+          <span class="shaderheadertext">&nbsp;%s</span>
+         </a>
+    </td>
+  </tr>',$this->shadeIcon(),$this->name);
   }
   
   function dividerRow() {
     return '
-	<tr>
-	    <td colspan="4" class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
-	</tr>
+  <tr>
+      <td colspan="4" class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+  </tr>
     ';
   }
   
   function footer() {
-    $html .= sprintf('
+    $html = sprintf('
 
-	<tr>
-		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+  <tr>
+    <td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
     <td class="shaderfooter"><script language="javascript">title_span(%d,\'%s\',\'%s\');</script>&nbsp;</td>
-		<td class="shaderfooterright"><script language="javascript">open_span(%d,\'%s\');</script>&nbsp;</td>
-		<td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
-	</tr>
+    <td class="shaderfooterright"><script language="javascript">open_span(%d,\'%s\');</script>&nbsp;</td>
+    <td class="shaderborder"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+  </tr>
 '.$this->dividerRow().'
 </table><br/><br/>
     ',$this->num,$this->display,addslashes($this->name),$this->num,$this->display);
@@ -591,19 +597,19 @@ class WebblerShader {
   }
   
   function contentDiv() {
-    $html .= sprintf('  
-	<tr>
-	    <td class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
-	    <td colspan=2>
-			<script language="javascript">start_div(%d,\'%s\')</script>',$this->num,$this->display);
+    $html = sprintf('  
+  <tr>
+      <td class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+      <td colspan=2>
+      <script language="javascript">start_div(%d,\'%s\')</script>',$this->num,$this->display);
     $html .= $this->content;
     
     $html .= '
     <script language="javascript">end_div();</script>
-		</td>
+    </td>
 
-		<td class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
-	</tr>';
+    <td class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
+  </tr>';
     return $html;
   }
   
