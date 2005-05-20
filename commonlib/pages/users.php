@@ -3,11 +3,41 @@
 
 <?php
 
-if (!$_SESSION["userlistfilter"]) {
+if (!isset($_SESSION["userlistfilter"]) || !$_SESSION["userlistfilter"]) {
   $_SESSION["userlistfilter"] = array();
 }
-
+if (!isset($_GET["unconfirmed"])) {
+  $_GET['unconfirmed'] = 0;
+}
+if (!isset($_GET["blacklisted"])) {
+  $_GET['blacklisted'] = 0;
+}
+if (isset($_GET['sortby'])) {
+  $sortby = $_GET['sortby'];
+} else {
+  $sortby = '';
+}
+$unconfirmed = $_GET['unconfirmed'];
+$blacklisted = $_GET['blacklisted'];
+if (isset($_GET['sortorder'])) {
+  if ($_GET['sortorder'] == 'asc') {
+    $sortorder = 'asc';
+  } else {
+    $sortorder = 'desc';
+  }
+} else {
+  $sortorder = 'desc';
+}
+if (isset($_GET['listid'])) {
+  $listid = sprintf('%d',$_GET['listid']);
+} else {
+  $listid = 0;
+}
 if (isset($_GET["find"])) {
+  if (!isset($_GET['findby'])) {
+    $_GET['findby'] = '';
+  }
+
   if ($_GET["find"] == "NULL") {
     $_SESSION["userlistfilter"]["find"] = "";
     $_SESSION["userlistfilter"]["findby"] = "";
@@ -129,9 +159,9 @@ if ($require_login && !isSuperUser()) {
     $listquery = "select {$tables["user"]}.email,{$tables["user"]}.id,$findfield,{$tables["user"]}.confirmed from ".$table_list;
     $count = Sql_query("SELECT count(*) FROM ".$table_list);
     $unconfirmedcount = Sql_query("SELECT count(*) FROM ".$table_list." where !confirmed");
-    if ($_GET["unconfirmed"])
+    if (isset($_GET["unconfirmed"]) && $_GET["unconfirmed"])
       $listquery .= ' where !confirmed';
-    if ($_GET["blacklisted"])
+    if (isset($_GET["blacklisted"]) && $_GET["blacklisted"])
       $listquery .= ' and blacklisted ';
   }
   $delete_message = '<br />Delete will delete user and all listmemberships<br />';
@@ -193,6 +223,9 @@ if ($_GET["blacklisted"]) {
 } else {
   $bll = "unchecked";
 }
+if (!isset($start)) {
+  $start = 0;
+}
 
 print '<table><tr><td valign=top>';
 printf ('<form method="get" name="listcontrol">
@@ -204,6 +237,7 @@ printf ('<form method="get" name="listcontrol">
   <input type="checkbox" name="blacklisted" value="on" %s>',
   $start,$find,$findby,$unc,$bll);
 print '</td><td valign=top>';
+$select = '';
 foreach (array("email","bouncecount","entered","modified","foreignkey") as $item) {
   $select .= sprintf('<option value="%s" %s>%s</option>',
     $item,$item == $sortby ? "selected":"",$item);
@@ -222,6 +256,7 @@ printf ('
   $select,$sortorder == "desc"? "checked":"",$sortorder == "asc"? "checked":"");
 print '</td></tr></table>';
 
+$order = '';
 if ($sortby) {
   $order = ' order by '.$sortby;
   if ($sortorder == "asc") {
@@ -229,7 +264,7 @@ if ($sortby) {
   } else {
     $order .= ' desc';
   }
-  $find_url .= "&sortby=$sortby&sortorder=$sortorder&unconfirmed=$unconfirmed";
+  $find_url .= "&amp;sortby=$sortby&amp;sortorder=$sortorder&amp;unconfirmed=$unconfirmed&amp;blacklisted=$blacklisted";
 }
 
 $dolist = 1;
@@ -262,6 +297,7 @@ if ($total > MAX_USER_PP) {
 } else {
   $result = Sql_Query("$listquery $order");
 }
+
 ?>
 <table border=0>
 <tr><td colspan=4><input type=hidden name=id value="<?php echo $listid?>">
@@ -279,7 +315,7 @@ Find a user: <input type=text name=find value="<?php echo $find != '%' ? $find :
 <?php
 #if (($require_login && isSuperUser()) || !$require_login)
   print '<p>'.PageLink2("dlusers","Download all users as CSV file","nocache=".uniqid("")).'&nbsp;';
-	print PageLink2("user","Add a User").'</p>';
+  print PageLink2("user","Add a User").'</p>';
 
 ?></td></tr>
 </table>
@@ -300,12 +336,16 @@ while ($user = Sql_fetch_array($result)) {
   }
   $ls->addColumn($user["email"],"del",sprintf("<a href=\"javascript:deleteRec('%s');\">del</a>",
      PageURL2("users","delete","start=$start&delete=".$user["id"])));
-   $ls->addColumn($user["email"],"key",$user["foreignkey"]);
-   $ls->addColumn($user["email"],"&nbsp;",$user["display"]);
+  if (isset($user['foreignkey'])) {
+    $ls->addColumn($user["email"],"key",$user["foreignkey"]);
+  }
+  if (isset($user["display"])) {
+    $ls->addColumn($user["email"],"&nbsp;",$user["display"]);
+  }
   if (in_array("lists",$columns)) {
     $lists = Sql_query("SELECT count(*) FROM ".$tables["listuser"].",".$tables["list"]." where userid = ".$user["id"]." and ".$tables["listuser"].".listid = ".$tables["list"].".id");
-	  $membership = Sql_fetch_row($lists);
-  	$ls->addColumn($user["email"],"lists",$membership[0]);
+    $membership = Sql_fetch_row($lists);
+    $ls->addColumn($user["email"],"lists",$membership[0]);
   }
   if (in_array("messages",$columns)) {
     $msgs = Sql_query("SELECT count(*) FROM ".$tables["usermessage"]." where userid = ".$user["id"]);
@@ -316,7 +356,7 @@ while ($user = Sql_fetch_array($result)) {
     $rss = Sql_query("SELECT count(*) FROM ".$tables["rssitem_user"]." where userid = ".$user["id"]);
     $nummsgs = Sql_fetch_row($rss);
     $ls->addColumn($user["email"],"rss",$nummsgs[0]);
-    if ($user["rssfrequency"])
+    if (isset($user["rssfrequency"]))
       $ls->addColumn($user["email"],"rss freq",$user["rssfrequency"]);
     $last = Sql_Fetch_Row_Query("select last from {$tables["user_rss"]} where userid = ".$user["id"]);
     if ($last[0])
@@ -324,7 +364,7 @@ while ($user = Sql_fetch_array($result)) {
   }
 
   if (in_array("bounces",$columns)) {
-	  $ls->addColumn($user["email"],"bncs",$user["bouncecount"]);
+    $ls->addColumn($user["email"],"bncs",$user["bouncecount"]);
   }
 }
 print $ls->display();
