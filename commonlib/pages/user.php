@@ -7,8 +7,8 @@
 #  Fatal_Error("No such user");
 #  return;
 #}
-$id = sprintf('%d',$_GET["id"]);
-$delete = sprintf('%d',$_GET["delete"]);
+$id = sprintf('%d',isset($_GET["id"]) ? $_GET['id']:0);
+$delete = sprintf('%d',isset($_GET['delete']) ? $_GET["delete"]:0);
 $date = new Date();
 
 $access = accessLevel("user");
@@ -38,10 +38,8 @@ if ($access == "all") {
 $usegroups = Sql_Table_exists("groups");
 
 if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
-  if (!$_GET["id"]) {
-    Sql_Query(sprintf('insert into %s (entered,email) values(now(),"%s")',$tables["user"],
-      $_POST["email"]));
-    $id = Sql_Insert_Id();
+  if (!$id) {
+    $id = addNewUser($_POST['email']);  
     $newuser = 1;
   }
   # read the current values to compare changes
