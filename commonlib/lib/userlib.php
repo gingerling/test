@@ -148,7 +148,7 @@ function UserAttributeValue($user = 0,$attribute = 0) {
   global $table_prefix,$tables;
   if (!isset($table_prefix))
     $table_prefix = "phplist_";
-  if (!$user || !$attribute) return;
+#  if (!$user || !$attribute) return;
 
   if (isset($tables["attribute"])) {
     $att_table = $tables["attribute"];
@@ -252,8 +252,8 @@ function addUserToBlackList($email,$reason = '') {
   }
 }
 
-function UserAttributeValueSelect($user,$attribute) {
-  if (!$user || !$attribute) return;
+function UserAttributeValueSelect($user = 0,$attribute = 0) {
+#  if (!$user || !$attribute) return;
   global $table_prefix,$tables;
   # workaround for integration webbler/phplist
   if (!isset($table_prefix))
@@ -283,8 +283,8 @@ function UserAttributeValueSelect($user,$attribute) {
   return $html . '</select>';
 }
 
-function UserAttributeValueCbGroup($user,$attribute) {
-  if (!$user || !$attribute) return;
+function UserAttributeValueCbGroup($user = 0,$attribute = 0) {
+#  if (!$user || !$attribute) return;
   global $table_prefix,$tables;
   if ($tables["attribute"]) {
     $att_table = $tables["attribute"];
