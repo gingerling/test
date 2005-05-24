@@ -387,8 +387,10 @@ function validateEmail($email) {
     return 1;
   if (isset($email) && (!isset($GLOBALS["check_for_host"]) || $GLOBALS["check_for_host"])) {
     list($username,$domaincheck) = split('@',$email);
-    $mxhosts = array();
-    $validhost = getmxrr ($domaincheck,$mxhosts);
+    # checking for an MX is not sufficient
+#    $mxhosts = array();
+#    $validhost = getmxrr ($domaincheck,$mxhosts);
+    $validhost = checkdnsrr($domaincheck, "MX") || checkdnsrr($domaincheck, "A");
   } else {
     $validhost = 0;
   }
@@ -652,6 +654,9 @@ function getNewAttributeTablename($name) {
 function isGuestAccount() {
   if (!is_array($_SESSION["userdata"])) {
     return 1;
+  }
+  if ($GLOBALS["config"]["guestaccount_attribute"]) {
+    return $_SESSION['userdata'][$GLOBALS["config"]["guestaccount_attribute"]]['value'];
   }
   if ($GLOBALS["config"]["guestaccount_email_match"]) {
     return preg_match($GLOBALS["config"]["guestaccount_email_match"],$_SESSION["userdata"]["email"]["value"]);
