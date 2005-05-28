@@ -97,7 +97,7 @@ function AttributeValue($table,$value) {
     $table_prefix,$table,$value));
     $row = Sql_Fetch_row($res);
   } else {
-    return "Invalid Attribute Index";
+#    return "Invalid Attribute Index";
   }
   return $row[0];
 }
@@ -728,7 +728,7 @@ function saveUserAttribute($userid,$attid,$data) {
     case "select":
       $curval = Sql_Fetch_Row_Query(sprintf('select id from phplist_listattr_%s
         where name = "%s"',$atttable,$data["displayvalue"]),1);
-      if (!$curval[0]) {
+      if (!$curval[0] && $data['displayvalue'] && $data['displayvalue'] != '') {
         Sql_Query(sprintf('insert into phplist_listattr_%s (name) values("%s")',$atttable,
           $data["displayvalue"]));
         sendError("Added ".$data["displayvalue"]." to $atttable");
