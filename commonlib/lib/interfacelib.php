@@ -269,67 +269,110 @@ class topBar {
     global $config;
     $uri = "http://".$config["websiteurl"].'/?lid='.$lid.'&validate=1';
     if ($config["validator"] && in_array($_SESSION["me"]["loginname"],$config["validator_users"])) {
-      $validate = sprintf ('<a href="http://%s/check?uri=%s" class="adminbutton" target="_validate">validate</a>',
+      $validate = sprintf ('<li><a href="http://%s/check?uri=%s" target="_validate" title="use this link to validate this page" target="_validate">validate</a></li>',
       $config["validator"],urlencode($uri));
     }
     return '
 <STYLE TYPE="text/css">
-   <!--
-   a.adminbutton:link {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
-   a.adminbutton:active {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
-   a.adminbutton:visited {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
-   a.adminbutton:hover {font-family: verdana, sans-serif;font-size : 10px; color : white;background-color : #ff9900; font-weight: normal; border-top: 1px black solid; border-right: 1px black solid; border-left: 1px black solid; text-align : center; text-decoration : none; padding: 2px; width : 80px;}
-   #admineditline {
-     position:absolute;
-     top:0px; left:0px;
-     width:100%;
-     background-color:#CCCC99;
-     border-style:none;
-     border-bottom: 3px #ff9900 solid;
-     z-index: 1000;
-   }
-   -->
-</STYLE>
+body {margin: 0; padding: 0 0 0 0}
+
+#adminnavcontainer {margin: 0 0 0 0; padding: 0; background-color: #DEDEB6; position: absolute; top: 0px; left:0px}
+
+div.adminwebblerid { float: right; margin: 3px 5px 0 0; 
+padding: 0;
+font: 11px arial, sans-serif;
+font-weight: bold;
+color: #C2C283
+}
+
+#adminnavcontainer div {padding: 15px 0 0 0;}
+ul {margin: 0 0 0 0; padding: 10px 0 0 0 ;}
+#adminnavlist
+{
+padding: 3px 0 3px 0;
+margin-left: 0;
+border-bottom: 2px solid #CCCC99;
+font: 11px arial, sans-serif;
+}
+
+#adminnavlist li
+{
+list-style: none;
+margin: 0;
+display: inline;
+}
+
+#adminnavlist li a
+{
+padding: 3px 0.5em;
+margin-left: 3px;
+border: 1px solid #CCCC99;
+border-bottom: none;
+background: #FFCC66;
+text-decoration: none;
+}
+
+#adminnavlist li a:link,
+#adminnavlist li a:visited { color: #000; }
+
+#adminnavlist li a:hover
+{
+color: #000;
+background: #CCCC99;
+border-color: #CCCC99;
+}
+
+</style>
+
 <script language="Javascript" type="text/javascript" src="/codelib/js/cookielib.js"></script>
 <script language="Javascript" type="text/javascript">
+var expDays = 3;
+var exp = new Date();
+exp.setTime(exp.getTime() + (expDays*24*60*60*1000));
+
 function hideadminbar() {
   if (document.getElementById) {
-    document.getElementById(\'admineditline\').style.visibility="hidden";
+    var el = document.getElementById(\'adminnavcontainer\');
+    el.style.visibility="hidden";
   } else {
     alert("To hide the bar, you need to logout");
   }
 }
 function closeadminbar() {
   if (document.getElementById) {
-    document.getElementById(\'admineditline\').style.visibility="hidden";
-    SetCookie("adminbar","hide");
+    var el = document.getElementById(\'adminnavcontainer\');
+    document.getElementById(\'adminnavcontainer\').style.visibility="hidden";
+    SetCookie("webbleradminbar","closed",exp);
   } else {
     alert("To hide the bar, you need to logout");
   }
 }
-
 </script>
 
-<div id="admineditline">
-<!--EDIT TAB TABLE starts-->
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-<tr><td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
-href="'.$config["uploader_dir"]."/?page=edit&b=$bid&id=$lid".'" title="use this link to edit this page">edit page</a></td>
-<td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;'.$validate.'</td>
-<!--td bgcolor="#CCCC99" height="20" width="110">&nbsp;&nbsp;&nbsp;<a class="adminbutton" href="%s">change template</a></td-->
-<td bgcolor="#CCCC99" height="20" width="70">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
-href="'.$config["uploader_dir"]."/?page=logout&return=".urlencode("lid=$lid").'" title="You are logged in as an administrator, click this link to logout">logout</a></td>
-<td bgcolor="#CCCC99" height="20">&nbsp;Template: '.getLeafTemplate($lid).'</td>
-<td bgcolor="#CCCC99" height="20" width="70"><a href="'.$config["uploader_dir"].'/" class="adminbutton">admin home</a></td>
-<td bgcolor="#CCCC99" height="20" width="50"><a href="'.$config["uploader_dir"].'/?page=sitemap" class="adminbutton">sitemap</a></td>
-<td bgcolor="#CCCC99" height="20" width="50"><a href="'.$config["uploader_dir"].'/?page=list&id='.$bid.'" class="adminbutton">branch</a></td>
-<td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
-href="javascript:hideadminbar();" title="hide the administrative bar on this page">hide bar</a></td>
-<td bgcolor="#CCCC99" height="20" width="60">&nbsp;&nbsp;&nbsp;<a class="adminbutton"
-href="javascript:closeadminbar();" title="hide the administrative bar permanently">close bar</a></td></tr>
-</table>
-<!--EDIT TAB TABLE ends-->
+<div id="adminnavcontainer">
+<div class="adminwebblerid">[webbler admin bar]</div>
+<div></div>
+<ul id="adminnavlist">
+<li>&nbsp;</li>
+<li><a href="'.$config["uploader_dir"]."/?page=edit&b=$bid&id=$lid".'" title="use this link to edit this page">edit page</a></li>
+<li><a href="'.$config["uploader_dir"].'/?page=list&id='.$bid.'" title="use this link to edit this branch">branch</a></li>
+<li><a href="'.$config["uploader_dir"].'/?page=sitemap" title="use this link to view the sitemap">sitemap</a></li>
+<li><a href="'.$config["uploader_dir"].'/" title="use this link to go to the webbler admin homepage">webbler home</a></li>
+'.$validate.'
+<li><a href="'.$config["uploader_dir"]."/?page=logout&return=".urlencode("lid=$lid").'" title="use this link to logout of the webbler">logout</a></li>
+<li><a href="javascript:hideadminbar();" title="use this link to hide this admin bar on this page">hide bar</a></li>
+<li><a href="javascript:closeadminbar();" title="use this link to hide the admin bar for this session">close bar</a></li>
+<li>&nbsp;TEMPLATE:&nbsp; <b>'.getLeafTemplate($lid).'</b></li>
+</ul>
+
 </div>
+<script language="Javascript" type="text/javascript">
+var state = GetCookie("webbleradminbar");
+if (state == "closed") {
+  hideadminbar();
+}
+
+</script>
 ';
   }
 }
