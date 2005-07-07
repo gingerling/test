@@ -49,11 +49,11 @@ class WebblerListing {
       "align"=> $align,
     );
   }
-  
+
   function renameColumn($oldname,$newname) {
     $this->columns[$oldname] = $newname;
   }
-    
+
   function removeGetParam($remove) {
     $res = "";
     foreach ($_GET as $key => $val) {
@@ -110,7 +110,7 @@ class WebblerListing {
         $html .= sprintf('<td><div class="listinghdelement">%s</div></td>',$display);
       }
       $c++;
- 
+
     }
   #  $html .= sprintf('<td align="right"><span class="listinghdelementright">%s</span></td>',$lastelement);
     $html .= '</tr>';
@@ -201,7 +201,7 @@ class WebblerListing {
   function index() {
     return "<a name=top>Index:</a><br />";
   }
-                                                                                                                            
+
   function cmp($a,$b) {
     $sortcol = urldecode($_GET["sortby"]);
     if (!is_array($a) || !is_array($b)) return 0;
@@ -233,7 +233,7 @@ class WebblerListing {
       $html .= $this->listingElement($element);
     }
     $html .= $this->listingEnd();
- 
+
     $shader = new WebblerShader($this->title);
     $shader->addContent($html);
     $shader->display = $this->initialstate;
@@ -278,7 +278,7 @@ body {margin: 0; padding: 0 0 0 0}
 
 #adminnavcontainer {margin: 0 0 0 0; padding: 0; background-color: #DEDEB6; position: absolute; top: 0px; left:0px}
 
-div.adminwebblerid { float: right; margin: 3px 5px 0 0; 
+div.adminwebblerid { float: right; margin: 3px 5px 0 0;
 padding: 0;
 font: 11px arial, sans-serif;
 font-weight: bold;
@@ -381,11 +381,11 @@ class WebblerTabs {
   var $tabs = array();
   var $current = "";
   var $linkcode = "";
-  
+
   function addTab($name,$url = "") {
     $this->tabs[$name] = $url;
   }
-  
+
   function setCurrent($name) {
     $this->current = strtolower($name);
   }
@@ -512,7 +512,7 @@ class WebblerShader {
       if(shaderDiv.style.display == \'block\') {
         states[id] = "closed";
         shaderDiv.style.display = \'none\';
-        shaderSpan.innerHTML = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
+        shaderSpan.innerHTML = \'<span class="shadersmall">'.$GLOBALS['I18N']->get('open').'&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
         footerTitle.style.visibility = \'visible\';
         if (shaderImg)
           shaderImg.src = \'images/expand.gif\';
@@ -520,7 +520,7 @@ class WebblerShader {
         states[id] = "open";
         shaderDiv.style.display = \'block\';
         footerTitle.style.visibility = \'hidden\';
-        shaderSpan.innerHTML = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
+        shaderSpan.innerHTML = \'<span class="shadersmall">'.$GLOBALS['I18N']->get('close').'&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
         if (shaderImg)
           shaderImg.src = \'images/collapse.gif\';
       }
@@ -565,9 +565,9 @@ class WebblerShader {
         default_status = pref;
       }
       if(default_status == \'block\') {
-        span_text = \'<span class="shadersmall">close&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
+        span_text = \'<span class="shadersmall">'.$GLOBALS['I18N']->get('close').'&nbsp;</span><img src="images/shaderup.gif" height="9" width="9" border="0">\';
       } else {
-        span_text = \'<span class="shadersmall">open&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
+        span_text = \'<span class="shadersmall">'.$GLOBALS['I18N']->get('open').'&nbsp;</span><img src="images/shaderdown.gif" height="9" width="9" border="0">\';
       }
       document.writeln("<a href=\'javascript: shade(" + number + ");\'><span id=\'shaderspan" + number + "\' class=\'shadersmalltext\'>" + span_text + "</span></a>");
     }
@@ -599,13 +599,13 @@ class WebblerShader {
 <table width="98%%" align="center" cellpadding="0" cellspacing="0" border="0">');
     return $html;
   }
-  
+
   function shadeIcon() {
     return sprintf('
 <a href="javascript:shade(%d);" style="text-decoration:none;">&nbsp;<img id="shaderimg%d" src="images/collapse.gif" height="9" width="9" border="0">
     ',$this->num,$this->num);
   }
-  
+
   function titleBar() {
     return sprintf('
   <tr>
@@ -615,7 +615,7 @@ class WebblerShader {
     </td>
   </tr>',$this->shadeIcon(),$this->name);
   }
-  
+
   function dividerRow() {
     return '
   <tr>
@@ -623,7 +623,7 @@ class WebblerShader {
   </tr>
     ';
   }
-  
+
   function footer() {
     $html = sprintf('
 
@@ -638,15 +638,15 @@ class WebblerShader {
     ',$this->num,$this->display,addslashes($this->name),$this->num,$this->display);
     return $html;
   }
-  
+
   function contentDiv() {
-    $html = sprintf('  
+    $html = sprintf('
   <tr>
       <td class="shaderdivider"><img src="images/transparent.png" height="1" border="0" width="1"></td>
       <td colspan=2>
       <script language="javascript">start_div(%d,\'%s\')</script>',$this->num,$this->display);
     $html .= $this->content;
-    
+
     $html .= '
     <script language="javascript">end_div();</script>
     </td>
@@ -655,7 +655,7 @@ class WebblerShader {
   </tr>';
     return $html;
   }
-  
+
   function shaderStart() {
     if (!isset($GLOBALS["shaderJSset"])) {
       $html = $this->shaderJavascript();
@@ -664,8 +664,8 @@ class WebblerShader {
       $html = "";
     }
     return $html;
-  }  
-  
+  }
+
   function display() {
     $html = $this->shaderStart();
     $html .= $this->header();
@@ -675,8 +675,8 @@ class WebblerShader {
     $html .= $this->footer();
     return $html;
   }
-    
-}  
-  
+
+}
+
 
 ?>

@@ -21,7 +21,7 @@ switch ($access) {
   case "view":
     $subselect = "";
     if (sizeof($_POST)) {
-      print Error("You only have privileges to view this page, not change any of the information");
+      print Error($GLOBALS['I18N']->get('You only have privileges to view this page, not change any of the information'));
       return;
     }
     break;
@@ -30,16 +30,16 @@ switch ($access) {
     $subselect = " and ".$tables["list"].".id = 0";
     $subselect_where = " where ".$tables["list"].".owner = 0";break;
 }
-if ($access == "all") {
-  $delete_message = '<br />Delete will delete user from the list<br />';
+if ($access != "all") {
+  $delete_message = '<br />'.$GLOBALS['I18N']->get('Delete will delete user from the list').'<br />';
 } else {
-  $delete_message = '<br />Delete will delete user and all listmemberships<br />';
+  $delete_message = '<br />'.$GLOBALS['I18N']->get('Delete will delete user and all listmemberships').'<br />';
 }
 $usegroups = Sql_Table_exists("groups");
 
 if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
   if (!$id) {
-    $id = addNewUser($_POST['email']);  
+    $id = addNewUser($_POST['email']);
     $newuser = 1;
   }
   # read the current values to compare changes
@@ -111,7 +111,7 @@ if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
     if (is_array($_POST["groups"])) {
       foreach ($_POST["groups"] as $group) {
         Sql_Query(sprintf('insert into user_group (userid,groupid) values(%d,%d)',$id,$group));
-        print "<br/>User added to group ".groupName($group);
+        print "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($group);
       }
     }
   }
@@ -128,7 +128,7 @@ if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
   if (is_array($_POST["subscribe"])) {
     foreach ($_POST["subscribe"] as $ind => $lst) {
       Sql_Query("insert into {$tables["listuser"]} (userid,listid) values($id,$lst)");
-      print "<br/>User added to list ".ListName($lst);
+      print '<br/>'.sprintf($GLOBALS['I18N']->get('User added to list %s'),ListName($lst));
     }
     print "<br/>";
   }
@@ -179,12 +179,12 @@ if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
     Redirect("user&id=$id");
     exit;
   }
-  Info("Changes saved");
+  Info($GLOBALS['I18N']->get('Changes saved'));
 }
 
 if (isset($delete) && $delete && $access != "view") {
   # delete the index in delete
-  print "Deleting $delete ..\n";
+  print $GLOBALS['I18N']->get('Deleting')." $delete ..\n";
   if ($require_login && !isSuperUser()) {
     $lists = Sql_query("SELECT listid FROM {$tables["listuser"]},{$tables["list"]} where userid = ".$delete." and $tables[listuser].listid = $tables[list].id $subselect ");
     while ($lst = Sql_fetch_array($lists))
@@ -192,7 +192,7 @@ if (isset($delete) && $delete && $access != "view") {
   } else {
     deleteUser($delete);
   }
-  print "..Done<br /><hr><br />\n";
+  print '..'.$GLOBALS['I18N']->get('Done')."<br /><hr><br />\n";
 }
 
 $membership = "";
@@ -200,7 +200,7 @@ $subscribed = array();
 if ($id) {
   $result = Sql_query("SELECT * FROM {$tables["user"]} where id = $id");
   if (!Sql_Affected_Rows()) {
-    Fatal_Error("No such User".$id);
+    Fatal_Error($GLOBALS['I18N']->get('No such User').' '.$id);
     return;
   }
   $user = sql_fetch_array($result);
@@ -210,18 +210,20 @@ if ($id) {
     array_push($subscribed,$lst["listid"]);
   }
   if (!$membership)
-    $membership = "No Lists";
+    $membership = $GLOBALS['I18N']->get('No Lists');
   if ($access != "view")
-  printf( "<br /><hr/>%s<li><a href=\"javascript:deleteRec('%s');\">delete</a> %s\n",$delete_message,PageURL2("user","","delete=$id&$returnurl"),$user["email"]);
-  printf('&nbsp;&nbsp;<a href="%s">update page</a>',getConfig("preferencesurl").'&uid='.$user["uniqid"]);
-  printf('&nbsp;&nbsp;<a href="%s">unsubscribe page</a>',getConfig("unsubscribeurl").'&uid='.$user["uniqid"]);
-  print '&nbsp;&nbsp;'.PageLink2("userhistory&id=$id","History");
+  printf( "<br /><hr/>%s<li><a href=\"javascript:deleteRec('%s');\">delete</a> %s\n",
+    $delete_message,PageURL2("user","","delete=$id&$returnurl"),$user["email"]);
+  printf('&nbsp;&nbsp;<a href="%s">%s</a>',getConfig("preferencesurl").
+    '&uid='.$user["uniqid"],$GLOBALS['I18N']->get('update page'));
+  printf('&nbsp;&nbsp;<a href="%s">%s</a>',getConfig("unsubscribeurl").'&uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
+  print '&nbsp;&nbsp;'.PageLink2("userhistory&id=$id",$GLOBALS['I18N']->get('History'));
 } else {
   $user = array();
   $id = 0;
-  print '<h1>Add a new User</h1>';
+  print '<h1>'.$GLOBALS['I18N']->get('Add a new User').'</h1>';
 }
-  print "<p><h3>User Details</h3>".formStart()."<table border=1>";
+  print "<p><h3>".$GLOBALS['I18N']->get('User Details')."</h3>".formStart()."<table border=1>";
   print "<input type=hidden name=list value=$list><input type=hidden name=id value=$id>";
   print "<input type=hidden name=returnpage value=$returnpage><input type=hidden name=returnoption value=$returnoption>";
 
@@ -230,18 +232,18 @@ if ($id) {
     list($a,$b) = explode(":",$val[1]);
     if ($key == "confirmed") {
       if (!$require_login || ($require_login && isSuperUser())) {
-        printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size=5></td></tr>'."\n",$b,$key,$user[$key]);
+        printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size=5></td></tr>'."\n",$GLOBALS['I18N']->get($b),$key,$user[$key]);
       } else {
         printf('<tr><td>%s</td><td>%s</td></tr>',$b,$user[$key]);
       }
     } elseif ($key == "password" && ENCRYPTPASSWORD) {
-      printf('<tr><td>%s (encrypted)</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$val[1],$key,"");
+      printf('<tr><td>%s (%s)</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$GLOBALS['I18N']->get('encrypted'),$val[1],$key,"");
     } else {
       if ($key != "unique" && $key != "index" && $key != "primary key")
       if (ereg("sys",$a))
-        printf('<tr><td>%s</td><td>%s</td></tr>',$b,$user[$key]);
+        printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),$user[$key]);
       elseif ($val[1])
-        printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$val[1],$key,$user[$key]);
+        printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,$user[$key]);
     }
   }
   $res = Sql_Query("select * from $tables[attribute] order by listorder");
@@ -268,14 +270,14 @@ if ($id) {
     }
   }
   if ($access != "view")
-  print '<tr><td colspan=2><input type=submit name=change value="Save Changes"></td></tr>';
+  print '<tr><td colspan=2><input type=submit name=change value="'.$GLOBALS['I18N']->get('Save Changes').'"></td></tr>';
   print '</table>';
 
   if (isBlackListed($user["email"])) {
-    print '<h3>User is blacklisted. No emails will be sent to this user</h3>';
+    print '<h3>'.$GLOBALS['I18N']->get('User is blacklisted. No emails will be sent to this user').'</h3>';
   }
 
-  print "<h3>Mailinglist Membership:</h3>";
+  print "<h3>".$GLOBALS['I18N']->get('Mailinglist Membership').":</h3>";
   print "<table border=1><tr>";
   $req = Sql_Query("select * from {$tables["list"]} $subselect_where order by listorder,name");
   $c = 0;
@@ -296,15 +298,15 @@ if ($id) {
   print '</tr>';
 
   if ($access != "view")
-    print '<tr><td><input type=submit name="change" value="Save Changes"></td></tr>';
+    print '<tr><td><input type=submit name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'"></td></tr>';
 
   print '</table>';
 
   if ($usegroups) {
-    print "<h3>Group Membership:</h3>";
+    print "<h3>".$GLOBALS['I18N']->get('Group Membership').":</h3>";
     print "<table border=1><tr>";
     print '<tr><td colspan=2><hr width=50%></td></tr>
-  <tr><td colspan=2>Please select the groups this user is a member of</td></tr>
+  <tr><td colspan=2>'.$GLOBALS['I18N']->get('Please select the groups this user is a member of').'</td></tr>
   <tr><td colspan=2>';
     $selected_groups = array();
     if ($id) {
@@ -332,7 +334,7 @@ if ($id) {
 
     print '</td></tr>';
     if ($access != "view")
-      print '<tr><td><input type=submit name="change" value="Save Changes"></td></tr>';
+      print '<tr><td><input type=submit name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'"></td></tr>';
     print '</table>';
   }
 
