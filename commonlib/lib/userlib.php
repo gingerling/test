@@ -230,8 +230,10 @@ function unBlackList($userid = 0) {
   Sql_Query(sprintf('delete from %s where email = "%s"',
     $GLOBALS["tables"]["user_blacklist_data"],$email[0]));
   Sql_Query(sprintf('update %s set blacklisted = 0 where id = %d',$GLOBALS["tables"]["user"],$userid));
-  $msg = "Removed from blacklist by ".$_SESSION["logindetails"]["adminname"];
-  addUserHistory($email[0],$msg,"");
+  if (isset($_SESSION["logindetails"]["adminname"])) {
+    $msg = "Removed from blacklist by ".$_SESSION["logindetails"]["adminname"];
+    addUserHistory($email[0],$msg,"");
+  }
 }
 
 function addUserToBlackList($email,$reason = '') {
@@ -939,7 +941,7 @@ function saveUserData($username,$fields) {
        }
     }
   }
-                                                                                                                            
+
   return $res;
 }
 
