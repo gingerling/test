@@ -53,7 +53,9 @@ if (!$findby) {
 }
 # hmm interesting, if they select a findby but not a find, use the Sql wildcard:
 if ($findby && !$find)
-  $find = '%';
+# this is very slow, so instead erase the findby
+#  $find = '%';
+$findby = '';
 
 $system_findby = array("email","foreignkey");
 if ($findby && $find && !in_array($findby,$system_findby) ) {
@@ -304,7 +306,7 @@ if ($total > MAX_USER_PP) {
 ?>
 <table border=0>
 <tr><td colspan=4><input type=hidden name=id value="<?php echo $listid?>">
-<?=$GLOBALS['I18N']->get('Find a user')?>: 
+<?=$GLOBALS['I18N']->get('Find a user')?>:
 <input type=text name=find value="<?php echo $find != '%' ? $find : ""?>" size=30>
 <select name="findby"><option value="email" <?php echo $findby == "email"? "selected":""?>><?=$GLOBALS['I18N']->get('Email')?></option>
 <option value="foreignkey" <?php echo $findby == "foreignkey"? "selected":""?>><?=$GLOBALS['I18N']->get('Foreign Key')?></option>
