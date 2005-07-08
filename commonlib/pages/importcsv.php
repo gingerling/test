@@ -4,45 +4,46 @@ print '<script language="Javascript" src="js/progressbar.js" type="text/javascri
 
 ignore_user_abort();
 set_time_limit(500);
+$illegal_cha = array(",", ";", ":", "#","\t");
 
 $system_tmpdir = ini_get("upload_tmp_dir");
 if (!isset($GLOBALS["tmpdir"]) && !empty($system_tmpdir)) {
-	$GLOBALS["tmpdir"] = $system_tmpdir;
+  $GLOBALS["tmpdir"] = $system_tmpdir;
 }
 if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"]) && !empty($system_tmpdir)) {
-	$GLOBALS["tmpdir"] = $system_tmpdir;
+  $GLOBALS["tmpdir"] = $system_tmpdir;
 }
 
 #if (ini_get("open_basedir")) {
 if (!is_dir($GLOBALS["tmpdir"]) || !is_writable($GLOBALS["tmpdir"])) {
-	Warn("The temporary directory for uploading (".$GLOBALS["tmpdir"].") is not writable, so import will fail");
+  Warn(sprintf($GLOBALS['I18N']->get('The temporary directory for uploading (%s) is not writable, so import will fail'),$GLOBALS["tmpdir"]));
 }
 
 if (!isset($GLOBALS["assign_invalid_default"]))
-	$GLOBALS["assign_invalid_default"] = 'Invalid Email [number]';
+  $GLOBALS["assign_invalid_default"] = $GLOBALS['I18N']->get('Invalid Email').' [number]';
 
 function my_shutdown () {
-#	print "Shutting down";
-#	print connection_status(); # with PHP 4.2.1 buggy. http://bugs.php.net/bug.php?id=17774
+# print "Shutting down";
+# print connection_status(); # with PHP 4.2.1 buggy. http://bugs.php.net/bug.php?id=17774
 }
 
 function parsePlaceHolders($templ,$data) {
-	$retval = $templ;
-	foreach ($data as $key => $val) {
-  	if (!is_array($val)) {
+  $retval = $templ;
+  foreach ($data as $key => $val) {
+    if (!is_array($val)) {
       $retval = preg_replace('/\['.preg_quote($key).'\]/i',$val,$retval);
-   	}
- 	}
+    }
+  }
   return $retval;
 }
 
 function clearImport() {
-	if (is_file($_SESSION["import_file"])) {
-  	unlink($_SESSION["import_file"]);
+  if (is_file($_SESSION["import_file"])) {
+    unlink($_SESSION["import_file"]);
   }
   $_SESSION["import_file"] = "";
-	$_SESSION["systemindex"] = "";
-	$_SESSION["import_attribute"] = "";
+  $_SESSION["systemindex"] = "";
+  $_SESSION["import_attribute"] = "";
   $_SESSION["test_import"] = "";
   $_SESSION["assign_invalid"] = "";
   $_SESSION["overwrite"] = "";
@@ -65,13 +66,13 @@ while (list ($key,$val) = each ($DBstruct["user"])) {
 ob_end_flush();
 
 if ($_GET["reset"] == "yes") {
-	clearImport();
-  print '<h1>Import cleared</h1>';
-  print PageLink2($_GET["page"],"Continue");
+  clearImport();
+  print '<h1>'.$GLOBALS['I18N']->get('Import cleared').'</h1>';
+  print PageLink2($_GET["page"],$GLOBALS['I18N']->get('Continue'));
   return;
 } else {
-	if ($_SESSION["test_import"])
-		print PageLink2($_GET["page"]."&amp;reset=yes","Reset Import session");
+  if ($_SESSION["test_import"])
+    print '<p>'.PageLink2($_GET["page"]."&amp;reset=yes",$GLOBALS['I18N']->get('Reset Import session')).'</p>';
 }
 
 if(isset($_POST["import"])) {
@@ -79,46 +80,46 @@ if(isset($_POST["import"])) {
   $_SESSION["test_import"] = $test_import;
 
   if(!$_FILES["import_file"]) {
-    Fatal_Error("File is either too large or does not exist.");
+    Fatal_Error($GLOBALS['I18N']->get('File is either too large or does not exist.'));
     return;
   }
   if(empty($_FILES["import_file"])) {
-    Fatal_Error("No file was specified. Maybe the file is too big? ");
+    Fatal_Error($GLOBALS['I18N']->get('No file was specified. Maybe the file is too big? '));
     return;
   }
   if (filesize($_FILES["import_file"]['tmp_name']) > 1000000) {
     # if we allow more, we will certainly run out of memory
-  	Fatal_Error("File too big, please split it up into smaller ones");
+    Fatal_Error($GLOBALS['I18N']->get('File too big, please split it up into smaller ones'));
     return;
   }
   if( !preg_match("/^[0-9A-Za-z_\.\-\/\s \(\)]+$/", $_FILES["import_file"]["name"]) ) {
-    Fatal_Error("Use of wrong characters in filename: ".$_FILES["import_file"]["name"]);
+    Fatal_Error($GLOBALS['I18N']->get('Use of wrong characters in filename: ').$_FILES["import_file"]["name"]);
     return;
   }
   if (!$_POST["notify"] && !$test_import) {
-    Fatal_Error("Please choose whether to sign up immediately or to send a notification");
+    Fatal_Error($GLOBALS['I18N']->get('Please choose whether to sign up immediately or to send a notification'));
     return;
   } else {
-  	$_SESSION["notify"] = $_POST["notify"];
+    $_SESSION["notify"] = $_POST["notify"];
   }
 
   if ($_FILES["import_file"] && $_FILES["import_file"]['size'] > 10) {
-		$newfile = $GLOBALS['tmpdir'].'/'. $_FILES['import_file']['name'].time();
-		move_uploaded_file($_FILES['import_file']['tmp_name'], $newfile);
+    $newfile = $GLOBALS['tmpdir'].'/'. $_FILES['import_file']['name'].time();
+    move_uploaded_file($_FILES['import_file']['tmp_name'], $newfile);
     $_SESSION["import_file"] = $newfile;
-		if( !($fp = fopen ($newfile, "r"))) {
-			Fatal_Error("Cannot read ".$newfile." is not readable !");
+    if( !($fp = fopen ($newfile, "r"))) {
+      Fatal_Error(sprintf($GLOBALS['I18N']->get('Cannot read %s. file is not readable !'),$newfile));
       return;
-   	}
+    }
     fclose($fp);
   } elseif ($_FILES["import_file"]) {
-    Fatal_Error("Something went wrong while uploading the file. Empty file received. Maybe the file is too big, or you have no permissions to read it.");
+    Fatal_Error($GLOBALS['I18N']->get('Something went wrong while uploading the file. Empty file received. Maybe the file is too big, or you have no permissions to read it.'));
     return;
   }
   if(isset($_POST["import_record_delimiter"]) && $_POST["import_record_delimiter"] != "") {
-  	$_SESSION["import_record_delimiter"] = $_POST["import_record_delimiter"];
+    $_SESSION["import_record_delimiter"] = $_POST["import_record_delimiter"];
   } else {
-  	$_SESSION["import_record_delimiter"] = "\n";
+    $_SESSION["import_record_delimiter"] = "\n";
   }
 
   if (!isset($_POST["import_field_delimiter"]) || $_POST["import_field_delimiter"] == "" || $_POST["import_field_delimiter"] == "TAB") {
@@ -127,10 +128,10 @@ if(isset($_POST["import"])) {
     $_SESSION["import_field_delimiter"] = $_POST["import_field_delimiter"];
   }
   $_SESSION["show_warnings"] = $_POST["show_warnings"];
-	$_SESSION["assign_invalid"] = $_POST["assign_invalid"];
+  $_SESSION["assign_invalid"] = $_POST["assign_invalid"];
   $_SESSION["omit_invalid"] = $_POST["omit_invalid"];
-	$_SESSION["lists"] = $_POST["lists"];
-	$_SESSION["groups"] = $_POST["groups"];
+  $_SESSION["lists"] = $_POST["lists"];
+  $_SESSION["groups"] = $_POST["groups"];
   $_SESSION["overwrite"] = $_POST["overwrite"];
   $_SESSION["notify"] = $_POST["notify"];
   $_SESSION["listname"] = $_POST["listname"];
@@ -138,16 +139,15 @@ if(isset($_POST["import"])) {
 }
 
 if ($_GET["confirm"]) {
-	$_SESSION["test_import"] = '';
+  $_SESSION["test_import"] = '';
 }
 
 if ($_SESSION["import_file"]) {
-	print "<p>Reading emails from file ... ";
+  print "<p>".$GLOBALS['I18N']->get('Reading emails from file ... ');
   flush();
   $fp =  fopen ($_SESSION["import_file"], "r");
   $email_list = fread($fp, filesize ($_SESSION["import_file"]));
   fclose($fp);
-  print "..ok</p>";
   flush();
 
   // Clean up email file
@@ -160,8 +160,25 @@ if ($_SESSION["import_file"]) {
     $email_list = str_replace($_SESSION["import_record_delimiter"],"\n",$email_list);
   };
 
+  # not sure if we need to check on errors
+/*
+  for($i=0; $i<count($illegal_cha); $i++) {
+    if( ($illegal_cha[$i] != $import_field_delimiter) && ($illegal_cha[$i] != $import_record_delimiter) && (strpos($header, $illegal_cha[$i]) != false) ) {
+      $errpos = strpos($email_list, $illegal_cha[$i]);
+      $startpos = ( $errpos > 20 ) ? $errpos - 20 : 0;
+      print '<h1>';
+      printf($GLOBALS['I18N']->get('Error was around here &quot;%s&quot;'),substr( $email_list, $startpos, 40 ));
+      print '</h1>';
+      printf('<h1>',$GLOBALS['I18N']->get('Illegal character was %s').'</h1>',$illegal_cha[$i]);
+      Fatal_Error($GLOBALS['I18N']->get('A character has been found in the import which is not the delimiter indicated, but is likely to be confused for one. Please clean up your import file and try again')." $import_field_delimiter, $import_record_delimiter");
+      return;
+    }
+  };
+*/
+#  error_reporting(E_ALL);
   // Split file/emails into array
   $email_list = explode("\n",$email_list);
+  printf('..'.$GLOBALS['I18N']->get('ok, %d lines').'</p>',sizeof($email_list));
   $header = array_shift($email_list);
   $header = str_replace('"','',$header);
   $total = sizeof($email_list);
@@ -176,55 +193,56 @@ if ($_SESSION["import_file"]) {
   $used_attributes = array();
   for ($i=0;$i<sizeof($headers);$i++) {
     $column = clean($headers[$i]);
-#    print "<h1>$column</h1>";
+#    print $i."<h1>$column</h1>".$_POST['column'.$i].'<br/>';
     $column = preg_replace('#/#','',$column);
     if (in_array(strtolower($column),array_keys($system_attributes))) {
+#      print "System $column => $i<br/>";
       $_SESSION["systemindex"][strtolower($column)] = $i;
       array_push($used_systemattr,strtolower($column));
-  #  	print "$column => $i<br/>";
-    } elseif (strtolower($column) == "list membership") {
+    } elseif (strtolower($column) == "list membership" || $_POST['column'.$i] == 'skip') {
       # skip this one
+      $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>'skip',"column" => "$column");
       array_push($used_systemattr,strtolower($column));
     } else {
-    	if ($_SESSION["import_attribute"]["$column"]["record"]) {
-      	# mapping has been defined
-     	} elseif (isset($_POST["column$i"])) {
-#        print "$column -> ".$_POST["column$i"].'<br/>';
-        $_SESSION["import_attribute"]["$column"] = array("index"=>$i,"record"=>$_POST["column$i"],"column" => "$column");
+      if (isset($_SESSION["import_attribute"][$column]["record"]) && $_SESSION["import_attribute"][$column]["record"]) {
+        # mapping has been defined
+      } elseif (isset($_POST["column$i"])) {
+        $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>$_POST["column$i"],"column" => "$column");
       } else {
         $existing = Sql_Fetch_Row_Query("select id from ".$tables["attribute"]." where name = \"$column\"");
-        $_SESSION["import_attribute"]["$column"] = array("index"=>$i,"record"=>$existing[0],"column" => $column);
+        $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>$existing[0],"column" => $column);
         array_push($used_attributes,$existing[0]);
       }
     }
   }
   if (!isset($_SESSION["systemindex"]["email"])) {
-    Fatal_Error("Cannot find column with email");
+    Fatal_Error($GLOBALS['I18N']->get('Cannot find column with email, please make sure the column is called &quot;email&quot; and not eg e-mail'));
     return;
   }
 
   $unused_systemattr = array_diff(array_keys($system_attributes),$used_systemattr);
   $unused_attributes = array_diff(array_keys($attributes),$used_attributes);
-  $options = '<option value="new">-- Create new one</option>';
+  $options = '<option value="new">-- '.$GLOBALS['I18N']->get('Create new one').'</option>';
+  $options .= '<option value="skip">-- '.$GLOBALS['I18N']->get('Skip Column').'</option>';
   foreach ($unused_systemattr as $sysindex) {
     $options .= sprintf('<option value="%s">%s</option>',$sysindex,substr($system_attributes[$sysindex],0,25));
   }
   foreach ($unused_attributes as $attindex) {
-    $options .= sprintf('<option value="%s">%s</option>',$attindex,substr($attributes[$attindex],0,25));
+    $options .= sprintf('<option value="%s">%s</option>',$attindex,substr(stripslashes($attributes[$attindex]),0,25));
   }
 
-  $ls = new WebblerListing("Import Attributes");
+  $ls = new WebblerListing($GLOBALS['I18N']->get('Import Attributes'));
   $request_mapping = 0;
   foreach ($_SESSION["import_attribute"] as $column => $rec) {
-    if (!$rec["record"]) {
+    if (trim($column) != '' && !$rec["record"]) {
       $request_mapping = 1;
       $ls->addElement($column);
-      $ls->addColumn($column,"select",'<select name="column'.$rec["index"].'">'.$options.'</select>');
+      $ls->addColumn($column,$GLOBALS['I18N']->get('select'),'<select name="column'.$rec["index"].'">'.$options.'</select>');
     }
   }
   if ($request_mapping) {
-    $ls->addButton('Continue','javascript:document.importform.submit()');
-    print '<p>Please identify the target of the following unknown columns</p>';
+    $ls->addButton($GLOBALS['I18N']->get('Continue'),'javascript:document.importform.submit()');
+    print '<p>'.$GLOBALS['I18N']->get('Please identify the target of the following unknown columns').'</p>';
     print '<form name="importform" method="post">';
     print $ls->display();
     print '</form>';
@@ -233,19 +251,25 @@ if ($_SESSION["import_file"]) {
 }
 
 if ($_SESSION["test_import"]) {
-	$ls = new WebblerListing("Summary");
+  $ls = new WebblerListing($GLOBALS['I18N']->get('Summary'));
   foreach ($_SESSION["import_attribute"] as $column => $rec) {
-    $ls->addElement($column);
-    if ($rec["record"] == "new") {
-	    $ls->addColumn($column,"maps to","Create new Attribute");
-    } else {
-			$ls->addColumn($column,"maps to",$attributes[$rec["record"]]);
-   	}
+    if (trim($column) != '') {
+      $ls->addElement($column);
+      if ($rec["record"] == "new") {
+        $ls->addColumn($column,$GLOBALS['I18N']->get('maps to'),$GLOBALS['I18N']->get('Create new Attribute'));
+     } elseif ($rec["record"] == "skip") {
+        $ls->addColumn($column,$GLOBALS['I18N']->get('maps to'),$GLOBALS['I18N']->get('Skip Column'));
+      } else {
+        $ls->addColumn($column,$GLOBALS['I18N']->get('maps to'),$attributes[$rec["record"]]);
+      }
+    }
   }
   print $ls->display();
-  print '<h3>'.$total.' lines will be imported</h3>';
-  print '<p>'.PageLink2($_GET["page"]."&amp;confirm=yes","Confirm Import").'</p>';
-  print '<p><h1>Test Output</h1></p>';
+  print '<h3>';
+  printf($GLOBALS['I18N']->get('%d lines will be imported'),$total);
+  print '</h3>';
+  print '<p>'.PageLink2($_GET["page"]."&amp;confirm=yes",$GLOBALS['I18N']->get('Confirm Import')).'</p>';
+  print '<p><h1>'.$GLOBALS['I18N']->get('Test Output').'</h1></p>';
 }
 
 if (sizeof($email_list)) {
@@ -259,7 +283,7 @@ if (sizeof($email_list)) {
     ini_set("memory_limit","16M");
   }
 
-#	print "A: ".sizeof($import_attribute);
+# print "A: ".sizeof($import_attribute);
   reset($system_attributes);
   foreach ($system_attributes as $key => $val) {
  #   print "<br/>$key => $val ".$_SESSION["systemindex"][$key];
@@ -286,44 +310,44 @@ if (sizeof($email_list)) {
   $count["dataupdate"] = 0;
   $additional_emails = 0;
   foreach ($email_list as $line) {
-  #	print $line.'<br/>';
-		$user = array();
+  # print $line.'<br/>';
+    $user = array();
     # get rid of text delimiters generally added by spreadsheet apps
-  	$line = str_replace('"','',$line);
+    $line = str_replace('"','',$line);
 
     $values = explode($_SESSION["import_field_delimiter"],$line);
 
     reset($system_attribute_mapping);
     $system_values = array();
     foreach ($system_attribute_mapping as $column => $index) {
-    	#print "$column = ".$values[$index]."<br/>";
+      #print "$column = ".$values[$index]."<br/>";
       $system_values[$column] = $values[$index];
     }
     $index = clean($system_values["email"]);
     $invalid = 0;
     if (!$index) {
       if ($_SESSION["show_warnings"])
-        Warn("Record has no email: $c -> $line");
-      $index = "Invalid Email $c";
-			$system_values["email"] = $_SESSION["assign_invalid"];
+        Warn($GLOBALS['I18N']->get('Record has no email').": $c -> $line");
+      $index = $GLOBALS['I18N']->get('Invalid Email')." $c";
+      $system_values["email"] = $_SESSION["assign_invalid"];
       $invalid = 1;
       $count["invalid_email"]++;
     }
     if (sizeof($values) != (sizeof($_SESSION["import_attribute"]) + sizeof($_SESSION["system_attributes"]))
-    	&& $test_import && $_POST["show_warnings"])
+      && $test_import && $_POST["show_warnings"])
       Warn("Record has more values than header indicated (".
-      	sizeof($values). "!=". 
+        sizeof($values). "!=".
         (sizeof($_SESSION["import_attribute"]) + sizeof($_SESSION["system_attributes"]))
       ."), this may cause trouble: $index");
     if (!$invalid || ($invalid && $_SESSION["omit_invalid"] != "yes")) {
       $user["systemvalues"] = $system_values;
       reset($_SESSION["import_attribute"]);
       $replace = array();
-			while (list($key,$val) = each ($_SESSION["import_attribute"])) {
+      while (list($key,$val) = each ($_SESSION["import_attribute"])) {
         $user[$val["index"]] = addslashes($values[$val["index"]]);
         $replace[$key] = addslashes($values[$val["index"]]);
-   		}
-		} else {
+      }
+    } else {
      # Warn("Omitting invalid one: $email");
     }
     $user["systemvalues"]["email"] = parsePlaceHolders($system_values["email"],array_merge($replace,$system_values,array("number" => $c)));
@@ -333,50 +357,53 @@ if (sizeof($email_list)) {
      # print "<br/><b>$index</b><br/>";
       $html = '';
       foreach ($user["systemvalues"] as $column => $value) {
-      	if ($value) {
-	        $html .= "$column -> $value<br/>\n";
+        if ($value) {
+          $html .= "$column -> $value<br/>\n";
         } else {
-        	$html .= "$column -> clear value<br/>\n";
+          $html .= "$column -> ".$GLOBALS['I18N']->get('clear value')."<br/>\n";
         }
       }
       reset($_SESSION["import_attribute"]);
       foreach ($_SESSION["import_attribute"] as $column => $item) {
         if ($user[$item["index"]]) {
-        	if ($item["record"] == "new") {
-          	$html .= ' New Attribute: '.$item["column"];
+          if ($item["record"] == "new") {
+            $html .= ' '.$GLOBALS['I18N']->get('New Attribute').': '.$item["column"];
+          } elseif ($item["record"] == "skip") {
+            # forget about it
+            $html .= ' '.$GLOBALS['I18N']->get('Skip value').': ';
           } else {
-          	$html .= $attributes[$item["record"]];
+            $html .= $attributes[$item["record"]];
           }
           $html .= " -> ".$user[$item["index"]]."<br>";
         }
       }
       if ($html) print '<blockquote>'.$html.'</blockquote>';
     } else {
-    	# do import
+      # do import
       # create new attributes
       foreach ($_SESSION["import_attribute"] as $column => $item) {
-       	if ($item["record"] == "new") {
-        	Sql_Query(sprintf('insert into %s (name,type) values("%s","textline")',
-          	$tables["attribute"],addslashes($column)));
-         	$attid = Sql_Insert_id();
+        if ($item["record"] == "new") {
+          Sql_Query(sprintf('insert into %s (name,type) values("%s","textline")',
+            $tables["attribute"],addslashes($column)));
+          $attid = Sql_Insert_id();
           Sql_Query(sprintf('update %s set tablename = "attr%d" where id = %d',
-          	$tables["attribute"],$attid,$attid));
-          Sql_Query("create table ".$GLOBALS["table_prefix"]."listattr_attr".$attid." 
-          	(id integer not null primary key auto_increment, name varchar(255) unique,
+            $tables["attribute"],$attid,$attid));
+          Sql_Query("create table ".$GLOBALS["table_prefix"]."listattr_attr".$attid."
+            (id integer not null primary key auto_increment, name varchar(255) unique,
             listorder integer default 0)");
           $_SESSION["import_attribute"][$column]["record"] = $attid;
         }
       }
-			$new = 0;
-			$cnt++;
+      $new = 0;
+      $cnt++;
       if ($cnt % 25 == 0) {
-      	print "<br/>\n$cnt/$total";
+        print "<br/>\n$cnt/$total";
         flush();
       }
       if ($user["systemvalues"]["foreign key"]) {
         $result = Sql_query(sprintf('select id,uniqid from %s where foreignkey = "%s"',
           $tables["user"],$user["systemvalues"]["foreign key"]));
-      #	print "<br/>Using foreign key for matching: ".$user["systemvalues"]["foreign key"];
+      # print "<br/>Using foreign key for matching: ".$user["systemvalues"]["foreign key"];
         $count["fkeymatch"]++;
         $exists = Sql_Affected_Rows();
         $existing_user = Sql_fetch_array($result);
@@ -384,27 +411,27 @@ if (sizeof($email_list)) {
         $clashcheck = Sql_Fetch_Row_Query(sprintf('select id from %s
           where email = "%s"',$tables["user"],$user["systemvalues"]["email"]));
         if ($clashcheck[0] != $existing_user["id"]) {
-        	$duplicatecount++;
+          $duplicatecount++;
           $notduplicate = 0;
           $c=0;
           while (!$notduplicate) {
             $c++;
             $req = Sql_Query(sprintf('select id from %s where email = "%s"',
-              $tables["user"],"duplicate$c ".$user["systemvalues"]["email"]));
+              $tables["user"],$GLOBALS['I18N']->get('duplicate')."$c ".$user["systemvalues"]["email"]));
             $notduplicate = !Sql_Affected_Rows();
           }
           if (!$_SESSION["retainold"]) {
-          	Sql_Query(sprintf('update %s set email = "%s" where email = "%s"',
-							$tables["user"],"duplicate$c ".$user["systemvalues"]["email"],$user["systemvalues"]["email"]));
-     		    addUserHistory("duplicate$c ".$user["systemvalues"]["email"],"Duplication clash ",' User marked duplicate email after clash with imported record');
-					} else {
-	          if ($_SESSION["show_warnings"]) print Warn("Duplicate Email".$user["systemvalues"]["email"]. " user imported as &quot;duplicate$c ".$user["systemvalues"]["email"]."&quot;");
-	          $user["systemvalues"]["email"] = "duplicate$c ".$user["systemvalues"]["email"];
-     			}
+            Sql_Query(sprintf('update %s set email = "%s" where email = "%s"',
+              $tables["user"],"duplicate$c ".$user["systemvalues"]["email"],$user["systemvalues"]["email"]));
+            addUserHistory("duplicate$c ".$user["systemvalues"]["email"],"Duplication clash ",' User marked duplicate email after clash with imported record');
+          } else {
+            if ($_SESSION["show_warnings"]) print Warn($GLOBALS['I18N']->get('Duplicate Email').' '.$user["systemvalues"]["email"]. $GLOBALS['I18N']->get(' user imported as ').'&quot;'.$GLOBALS['I18N']->get('duplicate')."$c ".$user["systemvalues"]["email"]."&quot;");
+            $user["systemvalues"]["email"] = $GLOBALS['I18N']->get('duplicate')."$c ".$user["systemvalues"]["email"];
+          }
         }
       } else {
         $result = Sql_query(sprintf('select id,uniqid from %s where email = "%s"',$tables["user"],$user["systemvalues"]["email"]));
-      #	print "<br/>Using email for matching: ".$user["systemvalues"]["email"];
+      # print "<br/>Using email for matching: ".$user["systemvalues"]["email"];
         $count["emailmatch"]++;
         $exists = Sql_Affected_Rows();
         $existing_user = Sql_fetch_array($result);
@@ -432,7 +459,7 @@ if (sizeof($email_list)) {
         $userid = Sql_insert_id();
         if (!$userid) {
           # no id returned, so it must have been a duplicate entry
-          if ($_SESSION["show_warnings"]) print Warn("Duplicate Email".$user["systemvalues"]["email"]);
+          if ($_SESSION["show_warnings"]) print Warn($GLOBALS['I18N']->get('Duplicate Email').' '.$user["systemvalues"]["email"]);
           $c = 0;
           while (!$userid) {
             $c++;
@@ -454,8 +481,8 @@ if (sizeof($email_list)) {
         $query = "";
         $count["dataupdate"]++;
         $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$userid));
-  			$old_data = array_merge($old_data,getUserAttributeValues('',$userid));
-  			$history_entry = 'http://'.getConfig("website").$GLOBALS["adminpages"].'/?page=user&id='.$userid."\n\n";
+        $old_data = array_merge($old_data,getUserAttributeValues('',$userid));
+        $history_entry = 'http://'.getConfig("website").$GLOBALS["adminpages"].'/?page=user&id='.$userid."\n\n";
 
         foreach ($user["systemvalues"] as $column => $value) {
           $query .= sprintf('%s = "%s",',$system_attributes[$column],$value);
@@ -466,7 +493,7 @@ if (sizeof($email_list)) {
           Sql_Query("update ignore {$tables["user"]} set $query where id = $userid");
         }
         foreach ($_SESSION["import_attribute"] as $item) {
-          if ($user[$item["index"]]) {
+          if ($user[$item["index"]] && $item['record'] != 'skip') {
             $attribute_index = $item["record"];
             $uservalue = $user[$item["index"]];
             # check whether this is a textline or a selectable item
@@ -502,9 +529,11 @@ if (sizeof($email_list)) {
             Sql_query(sprintf('replace into %s (attributeid,userid,value) values(%d,%d,"%s")',
               $tables["user_attribute"],$attribute_index,$userid,$user_att_value));
           } else {
-            # add an empty entry if none existed
-            Sql_Query(sprintf('insert ignore into %s (attributeid,userid,value) values(%d,%d,"")',
-              $tables["user_attribute"],$item["record"],$userid));
+            if ($item["record"] != "skip") {
+              # add an empty entry if none existed
+              Sql_Query(sprintf('insert ignore into %s (attributeid,userid,value) values(%d,%d,"")',
+                $tables["user_attribute"],$item["record"],$userid));
+            }
           }
         }
         $current_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$userid));
@@ -519,7 +548,7 @@ if (sizeof($email_list)) {
         if (!$information_changed) {
           $history_entry .= "\nNo user details changed";
         }
-      	addUserHistory($user["systemvalues"]["email"],"Import by ".adminName(),$history_entry);
+        addUserHistory($user["systemvalues"]["email"],"Import by ".adminName(),$history_entry);
       }
 
       #add this user to the lists identified
@@ -564,44 +593,45 @@ if (sizeof($email_list)) {
         if ($groupaddition)
           $count["group_add"]++;
       }
-		} // end else
+    } // end else
     if ($_SESSION["test_import"] && $c > 50) break;
   }
 
-	if (!$_SESSION["test_import"]) {
+  if (!$_SESSION["test_import"]) {
     print '<script language="Javascript" type="text/javascript"> finish(); </script>';
-    # be gramatically correct :-)
-    $displists = ($num_lists == 1) ? "list": "lists";
-    $dispemail = ($count["email_add"] == 1) ? "new email was ": "new emails were ";
-    $dispemail2 = ($count["list_add"] == 1) ? "email was ":"emails were ";
 
     $report = "";
     if(!$some && !$count["list_add"]) {
-      $report .= "<br>All the emails already exist in the database and are member of the $displists.";
+      $report .= '<br/>'.$GLOBALS['I18N']->get('All the emails already exist in the database and are member of the lists');
     } else {
-      $report .= "<br/>".$count["email_add"]." $dispemail succesfully imported to the database and added to $num_lists $displists.<br>".$count["list_add"]." $dispemail2 subscribed to the $displists";
-      if ($count["exist"])
-        $report .= "<br/>".$count["exist"]." emails already existed in the database";
+      $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('%s emails succesfully imported to the database and added to %d lists.'),$count["email_add"],$num_lists);
+      $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('%d emails subscribed to the lists'),$count["list_add"]);
+      if ($count["exist"]) {
+        $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('%s emails already existed in the database'),$count["exist"]);
+      }
     }
     if ($count["invalid_email"]) {
-      $report .= "<br/>".$count["invalid_email"] ." Invalid Emails found.";
-      if (!$_SESSION["omit_invalid"])
-        $report .= " These records were added, but the email has been made up from ".$_SESSION["assign_invalid"];
-      else
-        $report .= " These records were deleted. Check your source and reimport the data. Duplicates will be identified.";
+      $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('%d Invalid Emails found.'),$count["invalid_email"]);
+      if (!$_SESSION["omit_invalid"]) {
+        $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('These records were added, but the email has been made up from ').$_SESSION["assign_invalid"]);
+      } else {
+        $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('These records were deleted. Check your source and reimport the data. Duplicates will be identified.'));
+      }
     }
     if ($_SESSION["overwrite"] == "yes") {
-      $report .= "<br/>User data was updated for ".$count["dataupdate"]." users";
+      $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('User data was updated for %d users'),$count["dataupdate"]);
     }
-    $report .= sprintf('<br/>%d users were matched by foreign key, %d by email',$count["fkeymatch"],$count["emailmatch"]);
+    $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('%d users were matched by foreign key, %d by email'),$count["fkeymatch"],$count["emailmatch"]);
     print $report;
-    sendMail (getConfig("admin_address"),"phplist Import Results",$report);
+    if (function_exists('sendmail')) {
+      sendMail (getConfig("admin_address"),$GLOBALS['I18N']->get('phplist Import Results'),$report);
+    }
     clearImport();
   } else {
-	  print 'Test output<br/>If the output looks ok, click '.PageLink2($_GET["page"]."&amp;confirm=yes","Confirm Import").' to submit for real<br/><br/>';
+    printf($GLOBALS['I18N']->get('Test output<br/>If the output looks ok, click %s to submit for real').'<br/><br/>',PageLink2($_GET["page"]."&amp;confirm=yes",$GLOBALS['I18N']->get('Confirm Import')));
   }
 
-	print '<p>'.PageLink2($_GET["page"],"Import some more emails");
+  print '<p>'.PageLink2($_GET["page"],$GLOBALS['I18N']->get('Import some more emails'));
 
   return;
 }
@@ -626,16 +656,17 @@ if (Sql_Table_Exists($tables["list"])) {
   $c=0;
   if (Sql_Affected_Rows() == 1) {
     $row = Sql_fetch_array($result);
-    printf('<input type=hidden name="listname[%d]" value="%s"><input type=hidden name="lists[%d]" value="%d">Adding users to list <b>%s</b>',$c,stripslashes($row["name"]),$c,$row["id"],stripslashes($row["name"]));
+    printf('<input type=hidden name="listname[%d]" value="%s"><input type=hidden name="lists[%d]" value="%d">%s <b>%s</b>',$c,stripslashes($row["name"]),$c,$row["id"],$GLOBALS['I18N']->get('Adding users to list'),stripslashes($row["name"]));
   } else {
-    print '<p>Select the lists to add the emails to</p>';
+    print '<p>'.$GLOBALS['I18N']->get('Select the lists to add the emails to').'</p>';
     while ($row = Sql_fetch_array($result)) {
       printf('<li><input type=hidden name="listname[%d]" value="%s"><input type=checkbox name="lists[%d]" value="%d">%s',$c,stripslashes($row["name"]),$c,$row["id"],stripslashes($row["name"]));
       $some = 1;$c++;
     }
 
-    if (!$some)
-      echo 'No lists available, '.PageLink2("editlist","Add a list");
+    if (!$some) {
+      echo $GLOBALS['I18N']->get('No lists available').' '.PageLink2("editlist",$GLOBALS['I18N']->get('Add a list'));
+    }
   }
 }
 
@@ -646,10 +677,10 @@ if (Sql_Table_Exists("groups")) {
     $row = Sql_fetch_array($result);
     printf('<p><input type=hidden name="groupname[%d]" value="%s"><input type=hidden name="groups[%d]" value="%d">Adding users to group <b>%s</b></p>',$c,$row["name"],$c,$row["id"],$row["name"]);;
   } else {
-    print '<p>Select the groups to add the users to</p>';
+    print '<p>'.$GLOBALS['I18N']->get('Select the groups to add the users to').'</p>';
     while ($row = Sql_fetch_array($result)) {
       if ($row["id"] == $everyone_groupid) {
-        printf('<li><input type=hidden name="groupname[%d]" value="%s"><input type=hidden name="groups[%d]" value="%d"><b>%s</b> - automatically added',$c,$row["name"],$c,$row["id"],$row["name"]);;
+        printf('<li><input type=hidden name="groupname[%d]" value="%s"><input type=hidden name="groups[%d]" value="%d"><b>%s</b> - '.$GLOBALS['I18N']->get('automatically added'),$c,$row["name"],$c,$row["id"],$row["name"]);
       } else {
         printf('<li><input type=hidden name="groupname[%d]" value="%s"><input type=checkbox name="groups[%d]" value="%d">%s',$c,$row["name"],$c,$row["id"],$row["name"]);;
       }
@@ -663,50 +694,32 @@ if (Sql_Table_Exists("groups")) {
 </ul>
 
 <table border="1">
-<tr><td colspan=2><p>
-The file you upload will need to have the attributes of the records on the first line.
-Make sure that the email column is called "email" and not something like "e-mail" or
-"Email Address".
-Case is not important.
-</p>
-If you have a column called "Foreign Key", this will be used for synchronisation between an
-external database and the PHPlist database. The foreignkey will take precedence when matching
-an existing user. This will slow down the import process. If you use this, it is allowed to have
-records without email, but an "Invalid Email" will be created instead. You can then do
-a search on "invalid email" to find those records. Maximum size of a foreign key is 100.
-<br/><br/>
-<b>Warning</b>: the file needs to be plain text. Do not upload binary files like a Word Document.
-<br/>
+<tr><td colspan=2>
+<?php echo $GLOBALS['I18N']->get('importintro')?>
 </td></tr>
-<tr><td>File containing emails:<br/>
+<tr><td><?php echo $GLOBALS['I18N']->get('File containing emails')?>:<br/>
 </td><td><input type="file" name="import_file">
-<br/>The following limits are set by your server:<br/>
-Maximum size of a total data sent to server: <b><?=ini_get("post_max_size")?></b><br/>
-Maximum size of each individual file: <b><?=ini_get("upload_max_filesize")?></b>
-<br/>PHPlist will not process files larger that 1Mb
+<br/><?php printf($GLOBALS['I18N']->get('uploadlimits'),ini_get("post_max_size"),ini_get("upload_max_filesize"));?>
 </td></tr>
-<tr><td>Field Delimiter:</td><td><input type="text" name="import_field_delimiter" size=5> (default is TAB)</td></tr>
-<tr><td>Record Delimiter:</td><td><input type="text" name="import_record_delimiter" size=5> (default is line break)</td></tr>
-<tr><td colspan=2>If you check "Test Output", you will get the list of parsed emails on screen, and the database will not be filled with the information. This is useful to find out whether the format of your file is correct. It will only show the first 50 records.</td></tr>
-<tr><td>Test output:</td><td><input type="checkbox" name="import_test" value="yes"></td></tr>
-<tr><td colspan=2>If you check "Show Warnings", you will get warnings for invalid records. Warnings will only be shown if you check "Test Output". They will be ignored when actually importing. </td></tr>
-<tr><td>Show Warnings:</td><td><input type="checkbox" name="show_warnings" value="yes"></td></tr>
-<tr><td colspan=2>If you check "Omit Invalid", invalid records will not be added. Invalid records are records without an email. Any other attributes will be added automatically, ie if the country of a record is not found, it will be added to the list of countries.</td></tr>
-<tr><td>Omit Invalid:</td><td><input type="checkbox" name="omit_invalid" value="yes"></td></tr>
-<tr><td colspan=2>Assign Invalid will be used to create an email for users with an invalid email address.
-You can use values between [ and ] to make up a value for the email. For example if your import file contains a column "First Name" and one called "Last Name", you can use
-"[first name] [last name]" to construct a new value for the email for this user containing their first name and last name.
-The value [number] can be used to insert the sequence number for importing.
+<tr><td><?php echo $GLOBALS['I18N']->get('Field Delimiter')?>:</td><td><input type="text" name="import_field_delimiter" size=5> <?php echo $GLOBALS['I18N']->get('(default is TAB)')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Record Delimiter')?>:</td><td><input type="text" name="import_record_delimiter" size=5> <?php echo $GLOBALS['I18N']->get('(default is line break)')?></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('testoutput_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Test output')?>:</td><td><input type="checkbox" name="import_test" value="yes"></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('warnings_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Show Warnings')?>:</td><td><input type="checkbox" name="show_warnings" value="yes"></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('omitinvalid_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Omit Invalid')?>:</td><td><input type="checkbox" name="omit_invalid" value="yes"></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('assigninvalid_blurb')?>
 </td></tr>
-<tr><td>Assign Invalid:</td><td><input type="text" name="assign_invalid" value="<?=$GLOBALS["assign_invalid_default"]?>"></td></tr>
-<tr><td colspan=2>If you check "Overwrite Existing", information about a user in the database will be replaced by the imported information. Users are matched by email or foreign key.</td></tr>
-<tr><td>Overwrite Existing:</td><td><input type="checkbox" name="overwrite" value="yes"></td></tr>
-<tr><td colspan=2>If you check "Retain Old User Email", a conflict of two emails being the same will keep the old one and add "duplicate" to the new one. If you don't check it, the old one will get "duplicate" and the new one will take precedence.</td></tr>
-<tr><td>Retain Old User Email:</td><td><input type="checkbox" name="retainold" value="yes"></td></tr>
-<tr><td colspan=2>If you choose "send notification email" the users you are adding will be sent the request for confirmation of subscription to which they will have to reply. This is recommended, because it will identify invalid emails.</td></tr>
-<tr><td>Send&nbsp;Notification&nbsp;email&nbsp;<input type="radio" name="notify" value="yes"></td><td>Make confirmed immediately&nbsp;<input type="radio" name="notify" value="no"></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Assign Invalid')?>:</td><td><input type="text" name="assign_invalid" value="<?=$GLOBALS["assign_invalid_default"]?>"></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('overwriteexisting_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Overwrite Existing')?>:</td><td><input type="checkbox" name="overwrite" value="yes"></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('retainold_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Retain Old User Email')?>:</td><td><input type="checkbox" name="retainold" value="yes"></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('sendnotification_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Send&nbsp;Notification&nbsp;email')?>&nbsp;<input type="radio" name="notify" value="yes"></td><td><?php echo $GLOBALS['I18N']->get('Make confirmed immediately')?>&nbsp;<input type="radio" name="notify" value="no"></td></tr>
 
-<tr><td><input type="submit" name="import" value="Import"></td><td>&nbsp;</td></tr>
+<tr><td><input type="submit" name="import" value="<?php echo $GLOBALS['I18N']->get('Import')?>"></td><td>&nbsp;</td></tr>
 </table>
 </p>
 </form>
