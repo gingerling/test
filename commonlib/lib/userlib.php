@@ -670,6 +670,9 @@ function saveUserAttribute($userid,$attid,$data) {
     dbg("Not saving $attid");
     return;
   }
+  if (strtolower($data) == 'invalid attribute index') {
+    return;
+  }
   if ($attid == "emailcheck" || $attid == "passwordcheck") {
     dbg("Not saving $attid");
     return;
