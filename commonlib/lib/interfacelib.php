@@ -12,6 +12,8 @@ class WebblerListing {
   var $sort = 0;
   var $buttons = array();
   var $initialstate = "block";
+  var $duplicatebuttons = array();
+  var $buttonduplicate = 0;
 
   function WebblerListing($title,$help = "") {
     $this->title = $title;
@@ -84,6 +86,15 @@ class WebblerListing {
 
   function addButton($name,$url) {
     $this->buttons[$name] = $url;
+  }
+
+  function duplicateButton($name,$rows) {
+    $this->duplicatebuttons[$name] = array(
+      "button" => $name,
+      "rows" => $rows,
+      "rowcount" => 1
+    );
+    $this->buttonduplicate = 1;
   }
 
   function listingStart() {
@@ -179,6 +190,32 @@ class WebblerListing {
       </tr>
       <!--greenline end-->
     ',sizeof($this->columns)+2);
+#    $this->duplicatebuttons[$name] = array(
+#      "button" => $name,
+#      "rows" => $rows,
+#      "rowcount" => 0
+#    );
+    $this->buttonduplicate = 1;
+    if ($this->buttonduplicate) {
+      $buttons = '';
+      foreach ($this->duplicatebuttons as $key => $val) {
+        $this->duplicatebuttons[$key]['rowcount']++;
+        if ($val['rowcount'] >= $val['rows']) {
+          if ($this->buttons[$val['button']]) {
+            $buttons .= sprintf('<a class="button" href="%s">%s</a>',$this->buttons[$val['button']],strtoupper($val['button']));
+          }
+          $this->duplicatebuttons[$key]['rowcount'] = 1;
+        }
+      }
+      if ($buttons) {
+          $html .= sprintf('
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr><td colspan="%d" align="right">%s</td></tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        ',sizeof($this->columns)+2,$buttons);
+      }
+    }
+
     return $html;
   }
 
