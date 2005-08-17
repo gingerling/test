@@ -17,6 +17,7 @@ if (isset($_GET['sortby'])) {
 } else {
   $sortby = '';
 }
+$searchdone = 1;
 $unconfirmed = $_GET['unconfirmed'];
 $blacklisted = $_GET['blacklisted'];
 if (isset($_GET['sortorder'])) {
@@ -118,9 +119,9 @@ if ($require_login && !isSuperUser()) {
         $count = Sql_query("SELECT count({$tables["user"]}.id) FROM ".$table_list ." where $subselect");
         $unconfirmedcount = Sql_query("SELECT count({$tables["user"]}.id) FROM ".$table_list ." where !confirmed and $subselect");
       }
-      if ($_GET["unconfirmed"])
+      if ($unconfirmed)
         $listquery .= ' and !confirmed ';
-      if ($_GET["blacklisted"])
+      if ($blacklisted)
         $listquery .= ' and blacklisted ';
       break;
     case "all":
@@ -130,14 +131,15 @@ if ($require_login && !isSuperUser()) {
         $listquery = "select {$tables["user"]}.email,{$tables["user"]}.id,$findfield,{$tables["user"]}.confirmed from ".$table_list." where $findbyselect";
         $count = Sql_query("SELECT count(*) FROM ".$table_list ." where $findbyselect");
         $unconfirmedcount = Sql_query("SELECT count(*) FROM ".$table_list ." where !confirmed && $findbyselect");
-        if ($_GET["unconfirmed"])
+        if ($unconfirmed)
           $listquery .= ' and !confirmed ';
-        if ($_GET["blacklisted"])
+        if ($blacklisted)
           $listquery .= ' and blacklisted ';
       } else {
         $listquery = "select {$tables["user"]}.email,{$tables["user"]}.id,$findfield,{$tables["user"]}.confirmed from ".$table_list;
         $count = Sql_query("SELECT count(*) FROM ".$table_list);
         $unconfirmedcount = Sql_query("SELECT count(*) FROM ".$table_list." where !confirmed");
+        $searchdone = 0;
       }
       $delete_message = '<br />'.$GLOBALS['I18N']->get('Delete will delete user and all listmemberships').'<br />';
       break;
@@ -153,18 +155,27 @@ if ($require_login && !isSuperUser()) {
     $listquery = "select {$tables["user"]}.email,{$tables["user"]}.id,$findfield,{$tables["user"]}.confirmed from ".$table_list." where $findbyselect";
     $count = Sql_query("SELECT count(*) FROM ".$table_list ." where $findbyselect");
     $unconfirmedcount = Sql_query("SELECT count(*) FROM ".$table_list ." where !confirmed and $findbyselect");
-    if ($_GET["unconfirmed"])
+    if ($unconfirmed)
       $listquery .= ' and !confirmed ';
-    if ($_GET["blacklisted"])
+    if ($blacklisted)
       $listquery .= ' and blacklisted ';
   } else {
     $listquery = "select {$tables["user"]}.email,{$tables["user"]}.id,$findfield,{$tables["user"]}.confirmed from ".$table_list;
     $count = Sql_query("SELECT count(*) FROM ".$table_list);
     $unconfirmedcount = Sql_query("SELECT count(*) FROM ".$table_list." where !confirmed");
-    if (isset($_GET["unconfirmed"]) && $_GET["unconfirmed"])
-      $listquery .= ' where !confirmed';
-    if (isset($_GET["blacklisted"]) && $_GET["blacklisted"])
-      $listquery .= ' and blacklisted ';
+
+    if ($unconfirmed || $blacklisted) {
+      $listquery .= ' where ';
+      if ($unconfirmed && $blacklisted) {
+        $listquery .= ' !confirmed and blacklisted ';
+      } elseif ($unconfirmed) {
+        $listquery .= ' !confirmed ';
+      } else {
+        $listquery .= ' blacklisted';
+      }
+    } else {
+      $searchdone = 0;
+    }
   }
   $delete_message = '<br />'.$GLOBALS['I18N']->get('Delete will delete user and all listmemberships').'<br />';
 }
@@ -268,8 +279,8 @@ if ($sortby) {
   } else {
     $order .= ' desc';
   }
-  $find_url .= "&amp;sortby=$sortby&amp;sortorder=$sortorder&amp;unconfirmed=$unconfirmed&amp;blacklisted=$blacklisted";
 }
+$find_url .= "&amp;sortby=$sortby&amp;sortorder=$sortorder&amp;unconfirmed=$unconfirmed&amp;blacklisted=$blacklisted";
 
 $dolist = 1;
 if ($total > MAX_USER_PP) {
@@ -277,7 +288,7 @@ if ($total > MAX_USER_PP) {
     $listing = sprintf($GLOBALS['I18N']->get('Listing user %d to %d'),$start,$start + MAX_USER_PP);
     $limit = "limit $start,".MAX_USER_PP;
   } else {
-    if ($total < 1000) {
+    if ($total < 1000 || $searchdone) {
       $listing =  sprintf($GLOBALS['I18N']->get('Listing user %d to %d'),1,50);
       $limit = "limit 0,50";
       $start = 0;
@@ -286,8 +297,8 @@ if ($total > MAX_USER_PP) {
       $dolist = 0;
     }
   }
-  if ($_GET["unconfirmed"])
-     $find_url .= "&unconfirmed=".$_GET["unconfirmed"];
+#  if ($_GET["unconfirmed"])
+#     $find_url .= "&unconfirmed=".$_GET["unconfirmed"];
   printf ('<table border=1><tr><td colspan=4 align=center>%s</td></tr><tr><td>%s</td>
   <td>%s</td><td>
           %s</td><td>%s</td></tr></table><p><hr>',
