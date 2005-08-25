@@ -71,7 +71,7 @@ if ($_GET["reset"] == "yes") {
   print PageLink2($_GET["page"],$GLOBALS['I18N']->get('Continue'));
   return;
 } else {
-  if ($_SESSION["test_import"])
+#  if ($_SESSION["test_import"])
     print '<p>'.PageLink2($_GET["page"]."&amp;reset=yes",$GLOBALS['I18N']->get('Reset Import session')).'</p>';
 }
 
@@ -143,6 +143,10 @@ if ($_GET["confirm"]) {
 }
 
 if ($_SESSION["import_file"]) {
+  # output some stuff to make sure it's not buffered in the browser
+  for ($i=0;$i<10000; $i++) {
+    print '  '."\n";
+  }
   print "<p>".$GLOBALS['I18N']->get('Reading emails from file ... ');
   flush();
   $fp =  fopen ($_SESSION["import_file"], "r");
