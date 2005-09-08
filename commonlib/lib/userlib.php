@@ -69,11 +69,11 @@ function addNewUser($email,$password = "") {
     "extradata" => array("text","Additional data"),
 */
   // insert into user db
-  Sql_Query(sprintf('insert into user set email = "%s",
+  Sql_Query(sprintf('insert into %s set email = "%s",
     entered = now(),modified = now(),password = "%s",
     passwordchanged = now(),disabled = 0,
     uniqid = "%s",htmlemail = 1
-    ', $email,$password,getUniqid()));
+    ',$GLOBALS['tables']['user'],$email,$password,getUniqid()));
   $id = Sql_Insert_Id();
   return $id;
 }
