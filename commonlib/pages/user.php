@@ -36,8 +36,6 @@ if ($access != "all") {
   $delete_message = '<br />'.$GLOBALS['I18N']->get('Delete will delete user and all listmemberships').'<br />';
 }
 $usegroups = Sql_Table_exists("groups");
-print $access;
-exit;
 
 if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
   if (!$id) {
@@ -48,8 +46,6 @@ if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
     print $GLOBALS['I18N']->get('Error adding user, please check that the user exists');
     return;
   }
-  print "New user: $id";
-  exit;
   # read the current values to compare changes
   $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$id));
   $old_data = array_merge($old_data,getUserAttributeValues('',$id));
@@ -348,6 +344,3 @@ if ($id) {
 
   print '</form>';
 ?>
-
-
-asdasd

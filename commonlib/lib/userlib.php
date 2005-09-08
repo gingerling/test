@@ -74,7 +74,12 @@ function addNewUser($email,$password = "") {
     passwordchanged = now(),disabled = 0,
     uniqid = "%s",htmlemail = 1
     ',$GLOBALS['tables']['user'],$email,$password,getUniqid()));
-  $id = Sql_Insert_Id();
+  $ar = Sql_Affected_Rows();
+  if ($ar > 0) {
+    $id = Sql_Insert_Id();
+  } else {
+    $id = 0;
+  }
   return $id;
 }
 
