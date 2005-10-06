@@ -391,12 +391,12 @@ function closeadminbar() {
 <div></div>
 <ul id="adminnavlist">
 <li>&nbsp;</li>
-<li><a href="'.$config["uploader_dir"]."/?page=edit&b=$bid&id=$lid".'" title="use this link to edit this page">edit page</a></li>
-<li><a href="'.$config["uploader_dir"].'/?page=list&id='.$bid.'" title="use this link to edit this branch">branch</a></li>
-<li><a href="'.$config["uploader_dir"].'/?page=sitemap" title="use this link to view the sitemap">sitemap</a></li>
-<li><a href="'.$config["uploader_dir"].'/" title="use this link to go to the webbler admin homepage">webbler home</a></li>
+<li><a href="/'.$config["uploader_dir"]."/?page=edit&b=$bid&id=$lid".'" title="use this link to edit this page">edit page</a></li>
+<li><a href="/'.$config["uploader_dir"].'/?page=list&id='.$bid.'" title="use this link to edit this branch">branch</a></li>
+<li><a href="/'.$config["uploader_dir"].'/?page=sitemap" title="use this link to view the sitemap">sitemap</a></li>
+<li><a href="/'.$config["uploader_dir"].'/" title="use this link to go to the webbler admin homepage">webbler home</a></li>
 '.$validate.'
-<li><a href="'.$config["uploader_dir"]."/?page=logout&return=".urlencode("lid=$lid").'" title="use this link to logout of the webbler">logout</a></li>
+<li><a href="/'.$config["uploader_dir"]."/?page=logout&return=".urlencode("lid=$lid").'" title="use this link to logout of the webbler">logout</a></li>
 <li><a href="javascript:hideadminbar();" title="use this link to hide this admin bar on this page">hide bar</a></li>
 <li><a href="javascript:closeadminbar();" title="use this link to hide the admin bar for this session">close bar</a></li>
 <li>&nbsp;TEMPLATE:&nbsp; <b>'.getLeafTemplate($lid).'</b></li>
