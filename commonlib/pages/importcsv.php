@@ -571,7 +571,9 @@ if (sizeof($email_list)) {
           $count["list_add"]++;
         if (!TEST && $_SESSION["notify"] == "yes" && $addition) {
           $subscribemessage = ereg_replace('\[LISTS\]', $listoflists, getUserConfig("subscribemessage",$userid));
-          sendMail($user["systemvalues"]["email"], getConfig("subscribesubject"), $subscribemessage,system_messageheaders(),$envelope);
+          if (function_exists('sendmail')) {
+            sendMail($user["systemvalues"]["email"], getConfig("subscribesubject"), $subscribemessage,system_messageheaders(),$envelope);
+          }
         }
       }
       if (!is_array($_SESSION["groups"])) {
