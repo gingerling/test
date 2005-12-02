@@ -6,20 +6,19 @@
 if (!isset($_SESSION["userlistfilter"]) || !$_SESSION["userlistfilter"]) {
   $_SESSION["userlistfilter"] = array();
 }
-if (!isset($_GET["unconfirmed"])) {
-  $_GET['unconfirmed'] = 0;
-}
-if (!isset($_GET["blacklisted"])) {
-  $_GET['blacklisted'] = 0;
-}
 if (isset($_GET['sortby'])) {
-  $sortby = $_GET['sortby'];
+  $sortby = removeXss($_GET['sortby']);
 } else {
   $sortby = '';
 }
 $searchdone = 1;
-$unconfirmed = $_GET['unconfirmed'];
-$blacklisted = $_GET['blacklisted'];
+if (!empty($_GET['start'])) {
+  $start = sprintf('%d',$_GET['start']);
+} else {
+  $start = 0;
+}
+$unconfirmed = !empty($_GET['unconfirmed']) ? sprintf('%d',$_GET['unconfirmed']) : 0;
+$blacklisted = !empty($_GET['blacklisted']) ? sprintf('%d',$_GET['blacklisted']) : 0;
 if (isset($_GET['sortorder'])) {
   if ($_GET['sortorder'] == 'asc') {
     $sortorder = 'asc';
@@ -43,8 +42,8 @@ if (isset($_GET["find"])) {
     $_SESSION["userlistfilter"]["find"] = "";
     $_SESSION["userlistfilter"]["findby"] = "";
   } else {
-    $_SESSION["userlistfilter"]["find"] = $_GET["find"];
-    $_SESSION["userlistfilter"]["findby"] = $_GET["findby"];
+    $_SESSION["userlistfilter"]["find"] = removeXss($_GET["find"]);
+    $_SESSION["userlistfilter"]["findby"] = removeXss($_GET["findby"]);
    }
 }
 $find = $_SESSION["userlistfilter"]["find"];
@@ -52,6 +51,7 @@ $findby = $_SESSION["userlistfilter"]["findby"];
 if (!$findby) {
   $findby = "email";
 }
+
 # hmm interesting, if they select a findby but not a find, use the Sql wildcard:
 if ($findby && !$find)
 # this is very slow, so instead erase the findby
@@ -206,7 +206,7 @@ if (isset($add)) {
   echo "<br><font color=red size=+2>".$GLOBALS['I18N']->get('User added')."</font><br>";
 }
 
-printf($GLOBALS['I18N']->get('%s users apply'),$total);
+printf($GLOBALS['I18N']->get('%s users in total'),$total);
 if ($find && !$findby && !$total) { # a search for an email has been done and not found
   print "<hr><h2>".$GLOBALS['I18N']->get('Add this user')."</h2>";
   $req = Sql_Query(sprintf('select * from %s where active',$tables["subscribepage"]));
@@ -225,12 +225,12 @@ if ($find && !$findby && !$total) { # a search for an email has been done and no
 print "<br/>".$GLOBALS['I18N']->get('Users marked <font color=red>red</font> are unconfirmed')." ($totalunconfirmed)<br/>";
 
 $url = getenv("REQUEST_URI");
-if ($_GET["unconfirmed"]) {
+if ($unconfirmed) {
   $unc = "checked";
 } else {
   $unc = "unchecked";
 }
-if ($_GET["blacklisted"]) {
+if ($blacklisted) {
   $bll = "checked";
 } else {
   $bll = "unchecked";
@@ -242,12 +242,12 @@ if (!isset($start)) {
 print '<table><tr><td valign=top>';
 printf ('<form method="get" name="listcontrol">
   <input type=hidden name="page" value="users">
-  <input type=hidden name="start" value="%s">
+  <input type=hidden name="start" value="%d">
   <input type=hidden name="find" value="%s">
   <input type=hidden name="findby" value="%s"><br/>%s:
-  <input type="checkbox" name="unconfirmed" value="on" %s><br/>%s:
-  <input type="checkbox" name="blacklisted" value="on" %s>',
-  $start,$find,$findby,$GLOBALS['I18N']->get('Show only unconfirmed users'),$unc,
+  <input type="checkbox" name="unconfirmed" value="1" %s><br/>%s:
+  <input type="checkbox" name="blacklisted" value="1" %s>',
+  $start,htmlspecialchars(stripslashes($find)),htmlspecialchars(stripslashes($findby)),$GLOBALS['I18N']->get('Show only unconfirmed users'),$unc,
   $GLOBALS['I18N']->get('Show only blacklisted users'),$bll);
 print '</td><td valign=top>';
 $select = '';
@@ -282,6 +282,7 @@ if ($sortby) {
 }
 $find_url .= "&amp;sortby=$sortby&amp;sortorder=$sortorder&amp;unconfirmed=$unconfirmed&amp;blacklisted=$blacklisted";
 
+$listing = '';
 $dolist = 1;
 if ($total > MAX_USER_PP) {
   if (isset($start) && $start) {
@@ -299,16 +300,19 @@ if ($total > MAX_USER_PP) {
   }
 #  if ($_GET["unconfirmed"])
 #     $find_url .= "&unconfirmed=".$_GET["unconfirmed"];
-  printf ('<table border=1><tr><td colspan=4 align=center>%s</td></tr><tr><td>%s</td>
-  <td>%s</td><td>
-          %s</td><td>%s</td></tr></table><p><hr>',
-          $listing,
-          PageLink2("users","&lt;&lt;","start=0".$find_url),
-          PageLink2("users","&lt;",sprintf('start=%d',max(0,$start-MAX_USER_PP)).$find_url),
-          PageLink2("users","&gt;",sprintf('start=%d',min($total,$start+MAX_USER_PP)).$find_url),
-          PageLink2("users","&gt;&gt;",sprintf('start=%d',$total-MAX_USER_PP).$find_url));
   if ($dolist) {
+    printf ('<table border=1><tr><td colspan=4 align=center>%s</td></tr><tr><td>%s</td>
+    <td>%s</td><td>
+            %s</td><td>%s</td></tr></table><p><hr>',
+            $listing,
+            PageLink2("users","&lt;&lt;","start=0".$find_url),
+            PageLink2("users","&lt;",sprintf('start=%d',max(0,$start-MAX_USER_PP)).$find_url),
+            PageLink2("users","&gt;",sprintf('start=%d',min($total,$start+MAX_USER_PP)).$find_url),
+            PageLink2("users","&gt;&gt;",sprintf('start=%d',$total-MAX_USER_PP).$find_url));
     $result = Sql_query("$listquery $order $limit");
+  } else {
+    print $GLOBALS['I18N']->get('too many users, use a search query to list some');
+    $result = 0;
   }
 } else {
   $result = Sql_Query("$listquery $order");
@@ -318,7 +322,7 @@ if ($total > MAX_USER_PP) {
 <table border=0>
 <tr><td colspan=4><input type=hidden name=id value="<?php echo $listid?>">
 <?=$GLOBALS['I18N']->get('Find a user')?>:
-<input type=text name=find value="<?php echo $find != '%' ? $find : ""?>" size=30>
+<input type=text name=find value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size=30>
 <select name="findby"><option value="email" <?php echo $findby == "email"? "selected":""?>><?=$GLOBALS['I18N']->get('Email')?></option>
 <option value="foreignkey" <?php echo $findby == "foreignkey"? "selected":""?>><?=$GLOBALS['I18N']->get('Foreign Key')?></option>
 <?php
@@ -341,6 +345,7 @@ if ($total > MAX_USER_PP) {
 
 $some = 0;
 $ls = new WebblerListing("users");
+if ($result)
 while ($user = Sql_fetch_array($result)) {
   $some = 1;
   $ls->addElement($user["email"],PageURL2("user&start=$start&id=".$user["id"].$find_url));

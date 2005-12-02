@@ -242,6 +242,8 @@ if ($id) {
       }
     } elseif ($key == "password" && ENCRYPTPASSWORD) {
       printf('<tr><td>%s (%s)</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$GLOBALS['I18N']->get('encrypted'),$val[1],$key,"");
+    } elseif ($key == "blacklisted") {
+      printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),isBlackListed($user['email']));
     } else {
       if ($key != "unique" && $key != "index" && $key != "primary key")
       if (ereg("sys",$a))

@@ -308,6 +308,8 @@ class topBar {
     if ($config["validator"] && in_array($_SESSION["me"]["loginname"],$config["validator_users"])) {
       $validate = sprintf ('<li><a href="http://%s/check?uri=%s" target="_validate" title="use this link to validate this page" target="_validate">validate</a></li>',
       $config["validator"],urlencode($uri));
+    } else {
+      $validate = '';
     }
     return '
 <STYLE TYPE="text/css">
@@ -714,6 +716,5 @@ class WebblerShader {
   }
 
 }
-
 
 ?>
