@@ -28,8 +28,13 @@ class WebblerListing {
         "colsize" => $colsize,
         "columns" => array(),
         "rows" => array(),
+        "class" => "",
       );
     }
+  }
+
+  function setClass($name,$class) {
+    $this->elements[$name]['class'] = $class;
   }
 
   function deleteElement($name) {
@@ -133,7 +138,12 @@ class WebblerListing {
       $width = 'width='.$element["colsize"];
     else
       $width = "";
-    $html = '<tr valign="middle">';
+    if (isset($element['class'])) {
+      $html = '<tr valign="middle" class="'.$element['class'].'">';
+    } else {
+      $html = '<tr valign="middle">';
+    }
+
     if ($element["url"]) {
       $html .= sprintf('<td valign="top" %s class="listingname"><span class="listingname"><a href="%s" class="listingname">%s</a></span></td>',$width,$element["url"],$element["name"]);
     } else {
