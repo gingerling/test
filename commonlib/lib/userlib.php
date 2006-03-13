@@ -877,6 +877,8 @@ function saveUserData($username,$fields) {
     }
   }
 
+
+
  # dbg("Checking required fields");
   reset($required_fields);
   while (list($index,$field) = each ($required_fields)) {
@@ -890,6 +892,9 @@ function saveUserData($username,$fields) {
       break;
     } else if ($field == "email" && !validateEmail($_SESSION["userdata"][$field]["value"])) {
       $res = "Sorry, the following field cannot be validated: ".$description_fields[$index].": ".$_SESSION["userdata"][$field]["value"];
+      break;
+    } elseif ($field == "emailcheck" && $_SESSION["userdata"]["email"]["value"] != $_SESSION["userdata"]["emailcheck"]["value"]) {
+      $res = "Emails entered are not the same";
       break;
     } else if ($field == "cardtype" && $_SESSION["userdata"][$field]["value"] == "WSWITCH" && !preg_match("/\d/",$_SESSION["userdata"]["attribute82"]["value"])) {
       $res = "Sorry, a Switch Card requires a valid issue number. If you have a new Switch card without an issue number, please use 0 as the issue number.";
