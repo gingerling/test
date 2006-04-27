@@ -370,7 +370,11 @@ color: #000;
 background: #CCCC99;
 border-color: #CCCC99;
 }
-
+#unhideadminbar {
+  text-align: right;
+  display: block;
+  text-decoration: none;
+}
 </style>
 
 <script language="Javascript" type="text/javascript" src="/codelib/js/cookielib.js"></script>
@@ -387,6 +391,15 @@ function hideadminbar() {
     alert("To hide the bar, you need to logout");
   }
 }
+
+function unhideadminbar() {
+  if (document.getElementById) {
+    var el = document.getElementById(\'adminnavcontainer\');
+    el.style.visibility="visible";
+  }
+  SetCookie("webbleradminbar","",exp);
+}
+
 function closeadminbar() {
   if (document.getElementById) {
     var el = document.getElementById(\'adminnavcontainer\');
@@ -419,6 +432,7 @@ function closeadminbar() {
 var state = GetCookie("webbleradminbar");
 if (state == "closed") {
   hideadminbar();
+  document.write(\'<div id="unhideadminbar"><a href="#" onclick="unhideadminbar()">&sect;</a></div>\');
 }
 
 </script>
