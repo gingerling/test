@@ -35,7 +35,7 @@ if ($access != "all") {
 } else {
   $delete_message = '<br />'.$GLOBALS['I18N']->get('Delete will delete user and all listmemberships').'<br />';
 }
-$usegroups = Sql_Table_exists("groups");
+$usegroups = Sql_Table_exists("groups") && Sql_Table_exists('user_group');
 
 if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
   if (!$id) {
@@ -245,11 +245,12 @@ if ($id) {
     } elseif ($key == "blacklisted") {
       printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),isBlackListed($user['email']));
     } else {
-      if ($key != "unique" && $key != "index" && $key != "primary key")
-      if (ereg("sys",$a))
-        printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),$user[$key]);
-      elseif ($val[1])
-        printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,$user[$key]);
+      if (!strpos($key,'_')) {
+        if (ereg("sys",$a))
+          printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),$user[$key]);
+        elseif ($val[1])
+          printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,$user[$key]);
+      }
     }
   }
   $res = Sql_Query("select * from $tables[attribute] order by listorder");

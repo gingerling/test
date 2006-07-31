@@ -167,6 +167,7 @@ function UserAttributeValue($user = 0,$attribute = 0) {
     case "checkboxgroup":
       $val_ids  = Sql_Fetch_Row_Query("select value from $user_att_table where userid = $user and attributeid = $attribute");
       if ($val_ids[0]) {
+        $value = '';
         $res = Sql_Query("select $table_prefix"."listattr_".$att["tablename"].".name
           from $user_att_table,$table_prefix"."listattr_".$att["tablename"]."
           where $user_att_table".".userid = ".$user." and
@@ -392,14 +393,17 @@ function addUserHistory($email,$msg,$detail) {
 function validateEmail($email) {
   if ($GLOBALS["config"]["dont_require_validemail"])
     return 1;
-  if (isset($email) && (!isset($GLOBALS["check_for_host"]) || $GLOBALS["check_for_host"])) {
+  if (!isset($GLOBALS["check_for_host"])) {
+    $GLOBALS["check_for_host"] = 0;
+  }
+  if (isset($email) && $GLOBALS["check_for_host"]) {
     list($username,$domaincheck) = split('@',$email);
     # checking for an MX is not sufficient
 #    $mxhosts = array();
 #    $validhost = getmxrr ($domaincheck,$mxhosts);
     $validhost = checkdnsrr($domaincheck, "MX") || checkdnsrr($domaincheck, "A");
   } else {
-    $validhost = 0;
+    $validhost = 1;
   }
   return $validhost && is_email($email);
 }

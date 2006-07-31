@@ -45,7 +45,11 @@ if (isset($_GET["find"])) {
     $_SESSION["userlistfilter"]["find"] = removeXss($_GET["find"]);
     $_SESSION["userlistfilter"]["findby"] = removeXss($_GET["findby"]);
    }
+} else {
+  $_SESSION["userlistfilter"]["find"] = "";
+  $_SESSION["userlistfilter"]["findby"] = "";
 }
+
 $find = $_SESSION["userlistfilter"]["find"];
 $findby = $_SESSION["userlistfilter"]["findby"];
 if (!$findby) {
@@ -335,7 +339,7 @@ if ($total > MAX_USER_PP) {
 <tr><td colspan=4>
 <?php
 #if (($require_login && isSuperUser()) || !$require_login)
-  print '<p>'.PageLink2("dlusers",$GLOBALS['I18N']->get('Download all users as CSV file'),"nocache=".uniqid("")).'&nbsp;';
+  print '<p>'.PageLink2("dlusers",$GLOBALS['I18N']->get('Download all users as CSV file'),"nocache=".uniqid("")).'&nbsp;<br/>';
   print PageLink2("user",$GLOBALS['I18N']->get('Add a User')).'</p>';
 
 ?></td></tr>
