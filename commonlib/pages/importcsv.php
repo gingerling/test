@@ -1,5 +1,5 @@
 <?php
-
+ob_end_flush();
 print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
 
 ignore_user_abort();
