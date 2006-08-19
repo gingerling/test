@@ -813,9 +813,9 @@ function saveUserData($username,$fields) {
   $description_fields = explode(",",$_POST["required_description"]);
 
   reset($fields);
- # dbg("Checking fields");
+#  dbg("Checking fields");
   foreach ($fields as $fname => $fielddetails) {
- #  dbg($fname);
+#    dbg($fname);
     $key = $fname;
     $val = $_POST[$fname];
     if (!ereg("required",$key) && $key != "unrequire" &&
@@ -855,7 +855,7 @@ function saveUserData($username,$fields) {
           }
 */
        } else {
-         $_SESSION["userdata"][$key]["displayvalue"] = $val;
+          $_SESSION["userdata"][$key]["displayvalue"] = $val;
        }
 
        foreach ($fielddetails as $field_attr => $field_attr_value) {
@@ -880,8 +880,6 @@ function saveUserData($username,$fields) {
       $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["displayvalue"] = trim($regs[1])." ".$regs[2];
     }
   }
-
-
 
  # dbg("Checking required fields");
   reset($required_fields);

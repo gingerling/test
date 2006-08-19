@@ -323,7 +323,6 @@ class topBar {
     }
     return '
 <STYLE TYPE="text/css">
-body {margin: 0; padding: 0 0 0 0}
 
 #adminnavcontainer {margin: 0 0 0 0; padding: 0; background-color: #DEDEB6; position: absolute; top: 0px; left:0px}
 
