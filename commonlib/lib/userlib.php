@@ -690,7 +690,7 @@ function saveUserAttribute($userid,$attid,$data) {
   if (!$data["type"])
     $data["type"] = "textline";
 
-  if ($data["type"] == "static" || $data["type"] == "password") {
+  if ($data["type"] == "static" || $data["type"] == "password" || $data['type'] == 'htmlpref') {
     Sql_Query(sprintf('update user set %s = "%s" where id = %d',
       $attid,$data["value"],$userid));
     if ($data["type"] == "password") {
