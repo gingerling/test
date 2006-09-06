@@ -633,7 +633,7 @@ function loadUser($loginname = "") {
     foreach ($GLOBALS['config']['usergreeting'] as $att) {
       $_SESSION['usergreeting'] .= $_SESSION["userdata"][$att]["displayvalue"].' ';
     }
-    rtrim($_SESSION['usergreeting']);
+    $_SESSION['usergreeting'] = rtrim($_SESSION['usergreeting']);
   }
   return 1;
 }
