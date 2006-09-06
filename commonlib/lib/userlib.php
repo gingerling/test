@@ -209,6 +209,7 @@ function userName() {
   }
   return rtrim($res);
 }
+
 function isBlackListed($email = "") {
   if (!$email) return 0;
   if (!Sql_Table_exists($GLOBALS["tables"]["user_blacklist"])) return 0;
@@ -627,6 +628,13 @@ function loadUser($loginname = "") {
   }
   dbg("done loading user");
   $_SESSION["usergroups"] = userGroups($loginname);
+  if (is_array($GLOBALS['config']['usergreeting'])) {
+    $_SESSION['usergreeting'] = '';
+    foreach ($GLOBALS['config']['usergreeting'] as $att) {
+      $_SESSION['usergreeting'] .= $_SESSION["userdata"][$att]["displayvalue"].' ';
+    }
+    rtrim($_SESSION['usergreeting']);
+  }
   return 1;
 }
 
