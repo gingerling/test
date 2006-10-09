@@ -5,6 +5,11 @@ print '<script language="Javascript" src="js/progressbar.js" type="text/javascri
 ignore_user_abort();
 set_time_limit(500);
 $illegal_cha = array(",", ";", ":", "#","\t");
+$email_list = array();
+$subselect = '';
+if (!isset($GLOBALS['scheme'])) {
+  $GLOBALS['scheme'] = 'http';
+}
 
 $system_tmpdir = ini_get("upload_tmp_dir");
 if (!isset($GLOBALS["tmpdir"]) && !empty($system_tmpdir)) {
@@ -25,6 +30,17 @@ if (!isset($GLOBALS["assign_invalid_default"]))
 function my_shutdown () {
 # print "Shutting down";
 # print connection_status(); # with PHP 4.2.1 buggy. http://bugs.php.net/bug.php?id=17774
+}
+
+function output($msg) {
+  if ($GLOBALS['commandline']) {
+    @ob_end_clean();
+    $msg = str_replace('<br/>',"\n",$msg);
+    print strip_tags($msg);
+    @ob_start();
+  } else {
+    print $msg ."\n";
+  }
 }
 
 function parsePlaceHolders($templ,$data) {
@@ -65,7 +81,7 @@ while (list ($key,$val) = each ($DBstruct["user"])) {
 
 ob_end_flush();
 
-if ($_GET["reset"] == "yes") {
+if (!empty($_GET["reset"]) && $_GET["reset"] == "yes") {
   clearImport();
   print '<h1>'.$GLOBALS['I18N']->get('Import cleared').'</h1>';
   print PageLink2($_GET["page"],$GLOBALS['I18N']->get('Continue'));
@@ -87,7 +103,8 @@ if(isset($_POST["import"])) {
     Fatal_Error($GLOBALS['I18N']->get('No file was specified. Maybe the file is too big? '));
     return;
   }
-  if (filesize($_FILES["import_file"]['tmp_name']) > 1000000) {
+
+  if (!$GLOBALS['commandline'] && filesize($_FILES["import_file"]['tmp_name']) > 1000000) {
     # if we allow more, we will certainly run out of memory
     Fatal_Error($GLOBALS['I18N']->get('File too big, please split it up into smaller ones'));
     return;
@@ -104,8 +121,12 @@ if(isset($_POST["import"])) {
   }
 
   if ($_FILES["import_file"] && $_FILES["import_file"]['size'] > 10) {
-    $newfile = $GLOBALS['tmpdir'].'/'. $_FILES['import_file']['name'].time();
-    move_uploaded_file($_FILES['import_file']['tmp_name'], $newfile);
+    $newfile = $GLOBALS['tmpdir'].'/'. basename($_FILES['import_file']['name']).time();
+    if (!$GLOBALS['commandline']) {
+      move_uploaded_file($_FILES['import_file']['tmp_name'], $newfile);
+    } else {
+      copy($_FILES["import_file"]['tmp_name'],$newfile);
+    }
     $_SESSION["import_file"] = $newfile;
     if( !($fp = fopen ($newfile, "r"))) {
       Fatal_Error(sprintf($GLOBALS['I18N']->get('Cannot read %s. file is not readable !'),$newfile));
@@ -138,7 +159,7 @@ if(isset($_POST["import"])) {
   $_SESSION["retainold"] = $_POST["retainold"];
 }
 
-if ($_GET["confirm"]) {
+if (!empty($_GET["confirm"])) {
   $_SESSION["test_import"] = '';
 }
 
@@ -147,13 +168,11 @@ if ($_SESSION["import_file"]) {
   for ($i=0;$i<10000; $i++) {
     print '  '."\n";
   }
-  print "<p>".$GLOBALS['I18N']->get('Reading emails from file ... ');
+  output( "<p>".$GLOBALS['I18N']->get('Reading emails from file ... '));
   flush();
-  $fp =  fopen ($_SESSION["import_file"], "r");
-  $email_list = fread($fp, filesize ($_SESSION["import_file"]));
-  fclose($fp);
+  @ini_set("memory_limit",memory_get_usage() +50 * filesize($_SESSION['import_file']));
+  $email_list = file_get_contents($_SESSION["import_file"]);
   flush();
-
   // Clean up email file
   $email_list = trim($email_list);
   $email_list = str_replace("\r","\n",$email_list);
@@ -182,7 +201,7 @@ if ($_SESSION["import_file"]) {
 #  error_reporting(E_ALL);
   // Split file/emails into array
   $email_list = explode("\n",$email_list);
-  printf('..'.$GLOBALS['I18N']->get('ok, %d lines').'</p>',sizeof($email_list));
+  output(sprintf('..'.$GLOBALS['I18N']->get('ok, %d lines').'</p>',sizeof($email_list)));
   $header = array_shift($email_list);
   $header = str_replace('"','',$header);
   $total = sizeof($email_list);
@@ -284,7 +303,8 @@ if (sizeof($email_list)) {
     print '<script language="Javascript" type="text/javascript"> document.write(progressmeter); start();</script>';
     flush();
     # increase the memory to make sure we are not running out
-    ini_set("memory_limit","16M");
+#    $mem = sizeof($email_list);
+    ini_set("memory_limit","32M");
   }
 
 # print "A: ".sizeof($import_attribute);
@@ -401,7 +421,7 @@ if (sizeof($email_list)) {
       $new = 0;
       $cnt++;
       if ($cnt % 25 == 0) {
-        print "<br/>\n$cnt/$total";
+        output("<br/>$cnt/$total");
         flush();
       }
       if ($user["systemvalues"]["foreign key"]) {
@@ -486,7 +506,7 @@ if (sizeof($email_list)) {
         $count["dataupdate"]++;
         $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$userid));
         $old_data = array_merge($old_data,getUserAttributeValues('',$userid));
-        $history_entry = 'http://'.getConfig("website").$GLOBALS["adminpages"].'/?page=user&id='.$userid."\n\n";
+        $history_entry = $GLOBALS['scheme'].'://'.getConfig("website").$GLOBALS["adminpages"].'/?page=user&id='.$userid."\n\n";
 
         foreach ($user["systemvalues"] as $column => $value) {
           $query .= sprintf('%s = "%s",',$system_attributes[$column],$value);
@@ -497,7 +517,7 @@ if (sizeof($email_list)) {
           Sql_Query("update ignore {$tables["user"]} set $query where id = $userid");
         }
         foreach ($_SESSION["import_attribute"] as $item) {
-          if ($user[$item["index"]] && $item['record'] != 'skip') {
+          if (isset($user[$item["index"]]) && $item['record'] != 'skip') {
             $attribute_index = $item["record"];
             $uservalue = $user[$item["index"]];
             # check whether this is a textline or a selectable item
@@ -628,9 +648,13 @@ if (sizeof($email_list)) {
       $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('User data was updated for %d users'),$count["dataupdate"]);
     }
     $report .= sprintf('<br/>'.$GLOBALS['I18N']->get('%d users were matched by foreign key, %d by email'),$count["fkeymatch"],$count["emailmatch"]);
-    print $report;
-    if (function_exists('sendmail')) {
-      sendMail (getConfig("admin_address"),$GLOBALS['I18N']->get('phplist Import Results'),$report);
+    if (!$GLOBALS['commandline']) {
+      print $report;
+      if (function_exists('sendmail')) {
+        sendMail (getConfig("admin_address"),$GLOBALS['I18N']->get('phplist Import Results'),$report);
+      }
+    } else {
+      output($report);
     }
     clearImport();
   } else {
