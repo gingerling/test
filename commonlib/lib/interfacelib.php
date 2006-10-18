@@ -334,7 +334,7 @@ color: #C2C283
 }
 
 #adminnavcontainer div {padding: 15px 0 0 0;}
-ul {margin: 0 0 0 0; padding: 10px 0 0 0 ;}
+#adminnavcontainer ul {margin: 0 0 0 0; padding: 10px 0 0 0 ;}
 #adminnavlist
 {
 padding: 3px 0 3px 0;
