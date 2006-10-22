@@ -205,7 +205,9 @@ function userName() {
   if (!is_array($config["nameattributes"])) return "";
   $res = "";
   foreach ($config["nameattributes"] as $att) {
-    $res .= $_SESSION["userdata"][$att]["displayvalue"].' ';
+    if (isset($_SESSION["userdata"][$att]["displayvalue"])) {
+      $res .= $_SESSION["userdata"][$att]["displayvalue"].' ';
+    }
   }
   return rtrim($res);
 }
