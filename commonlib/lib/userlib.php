@@ -911,24 +911,24 @@ function saveUserData($username,$fields) {
     } else if ($field == "cardtype" && $_SESSION["userdata"][$field]["value"] == "WSWITCH" && !preg_match("/\d/",$_SESSION["userdata"]["attribute82"]["value"])) {
       $res = "Sorry, a Switch Card requires a valid issue number. If you have a new Switch card without an issue number, please use 0 as the issue number.";
       break;
-    } else if ($field == "cardtype" && $_SESSION["userdata"][$field]["value"] != "WSWITCH" && $_SESSION["userdata"]["attribute82"]["value"]) {
+    } else if ($field == "cardtype" && isset($_SESSION["userdata"][$field]["value"]) && $_SESSION["userdata"][$field]["value"] != "WSWITCH" && $_SESSION["userdata"]["attribute82"]["value"]) {
       $res = "Sorry, an issue number is not valid when not using a Switch Card";
       break;
-    } else if (($type == "creditcardno" || $field == "cardnumber") && !checkCCrange($_SESSION["userdata"][$field]["value"])) {
+    } else if (($type == "creditcardno" || $field == "cardnumber") && isset($_SESSION["userdata"][$field]["value"]) &&  !checkCCrange($_SESSION["userdata"][$field]["value"])) {
       list($cid,$cname) = ccCompany($_SESSION["userdata"][$field]["value"]);
       if (!$cname)
         $cname = '(Unknown Credit card)';
       $res = "Sorry, we currently don't accept $cname cards";
       break;
-    } else if (($type == "creditcardno" || $field == "cardnumber") && !validateCC($_SESSION["userdata"][$field]["value"])) {
+    } else if (($type == "creditcardno" || $field == "cardnumber") && isset($_SESSION["userdata"][$field]["value"]) && !validateCC($_SESSION["userdata"][$field]["value"])) {
       $res = "Sorry, you entered an invalid ".$description_fields[$index];#.": ".$_SESSION["userdata"][$field]["value"];
       break;
-    } else if (($type == "creditcardexpiry" ||$field == "cardexpiry") && !validateCCExpiry($_SESSION["userdata"][$field]["value"])) {
+    } else if (($type == "creditcardexpiry" ||$field == "cardexpiry") &&  isset($_SESSION["userdata"][$field]["value"]) && !validateCCExpiry($_SESSION["userdata"][$field]["value"])) {
       $res = "Sorry, you entered an invalid ".$description_fields[$index].": ".$_SESSION["userdata"][$field]["value"];
       break;
     }
   }
-  if ($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom") {
+  if (isset($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"]) && $_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom") {
     $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["displayvalue"];
     if (!preg_match("/(.*)(\d\w\w)$/",$postcode,$regs)) {
       $res = "That does not seem to be a valid UK postcode";
@@ -936,7 +936,7 @@ function saveUserData($username,$fields) {
       $res = "That does not seem to be a valid UK postcode";
     }
   }
-  if (is_array($GLOBALS["config"]["bocs_dpa"])) {
+/*  if (is_array($GLOBALS["config"]["bocs_dpa"])) {
     if (!is_array($_SESSION["DPA"]))
       $_SESSION["DPA"] = array();
     foreach ($GLOBALS["config"]["bocs_dpa"] as $dpaatt => $val) {
@@ -946,14 +946,14 @@ function saveUserData($username,$fields) {
         $_SESSION["DPA"][$val] = "N";
       }
     }
-  }
+  }*/
   # if no error in form check for subscriptions
   if (!$res && is_object($GLOBALS["config"]["plugins"]["phplist"])) {
     $phplist = $GLOBALS["config"]["plugins"]["phplist"];
     foreach ($_SESSION["userdata"] as $key => $field) {
       if (($field["formtype"] == "List Subscription" || $field["type"] == "List Subscription") && $field["listid"]) {
          $listid = $field["listid"];
-         if ($field["value"]) {
+         if ($field["value"] && isset($_SESSION["userdata"]["email"])) {
            if ($phplist->addEmailToList($_SESSION["userdata"]["email"]["value"],$listid)) {
              $phplist->confirmEmail($_SESSION["userdata"]["email"]["value"]);
              #  sendError("User added to list: $listid");
