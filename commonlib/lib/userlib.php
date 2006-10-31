@@ -329,6 +329,8 @@ function userGroups($loginname) {
     while ($row = Sql_Fetch_Row($req))
       array_push($result,$row[0]);
   }
+  $ev = getEveryoneGroupID();
+  array_push($result,$ev);
   return $result;
 }
 
