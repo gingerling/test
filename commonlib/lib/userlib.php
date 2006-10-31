@@ -325,7 +325,7 @@ function UserAttributeValueCbGroup($user = 0,$attribute = 0) {
 function userGroups($loginname) {
   $result = array();
   if (Sql_Table_exists("user_group")) {
-    $req = Sql_Query("select groupid from user_group,user where user_group.userid = user.id and user.email = \"$loginname\"");
+    $req = Sql_Query(sprintf('select groupid from user_group,user where user_group.userid = user.id and user.email = "%s"',addslashes($loginname)));
     while ($row = Sql_Fetch_Row($req))
       array_push($result,$row[0]);
   }
