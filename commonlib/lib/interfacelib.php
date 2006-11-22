@@ -555,6 +555,7 @@ class WebblerShader {
   var view;
 
   function getItem (id) {
+    var view;
     if (is_ie4) {
       view = eval(id);
     }
@@ -569,7 +570,8 @@ class WebblerShader {
 
       var shaderDiv = getItem(\'shader\'+id);
       var shaderSpan = getItem(\'shaderspan\'+id);
-      var shaderImg = getItem(\'shaderimg\'+id);
+  //    var shaderImg = getItem(\'shaderimg\'+id);
+      var shaderImg = false;
       var footerTitle = getItem(\'title\'+id);
       if(shaderDiv.style.display == \'block\') {
         states[id] = "closed";
