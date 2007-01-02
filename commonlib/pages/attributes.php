@@ -131,7 +131,8 @@ if (isset($_POST["action"])) {
   }
 } elseif (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
 	ksort($_POST["tag"]);
-  if ($_POST["tagaction"] == $GLOBALS['I18N']->get('delete')) {
+  $tagaction = htmlentities($_POST["tagaction"],ENT_QUOTES,'UTF-8');
+  if ($tagaction == $GLOBALS['I18N']->get('delete')) {
     while (list($k,$id) = each ($_POST["tag"])) {
       # check for dependencies
       if ($formtable_exists) {
@@ -154,7 +155,7 @@ if (isset($_POST["action"])) {
         }
       }
     }
- 	} elseif ($_POST["tagaction"] == $GLOBALS['I18N']->get('merge')) {
+ 	} elseif ($tagaction == $GLOBALS['I18N']->get('merge')) {
     $first = array_shift($_POST["tag"]);
     $firstdata = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["attribute"],$first));
     if (!sizeof($_POST["tag"])) {
