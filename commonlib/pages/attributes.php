@@ -125,6 +125,11 @@ if (isset($_POST["action"])) {
         $query = sprintf('update %s set name = "%s" ,type = "%s" ,listorder = %d,default_value = "%s" ,required = %d where id = %d',
         $tables["attribute"],addslashes($_POST["name"][$id]),$_POST["type"][$id],$listorder[$id],$default[$id],$required[$id],$id);
         Sql_Query($query);
+        # save keywordlib seperately in case the DB hasn't been upgraded
+        if (IN_WEBBLER) {
+          Sql_Query(sprintf('update ignore %s set keywordlib = %d where id = %d',
+            $GLOBALS['tables']['attribute'],$_POST['keywordlib'][$id],$id));
+        }
       }
     }
     print '<script language="Javascript" type="text/javascript"> finish();</script>';flush();
@@ -326,6 +331,18 @@ while ($row = Sql_Fetch_array($res)) {
   }
   print ' 
    </select>';
+
+  if (IN_WEBBLER) {
+    if ($row['type'] == 'select' || $row['type'] == 'radio' || $row['type'] == 'checkboxgroup') {
+      print ' '.$I18N->get('authoritative list') .'&nbsp;';
+      printf('<select name="keywordlib[%d]"><option value="">-- select</option>',$row['id']);
+      $req = Sql_Query(sprintf('select id,name from keywordlib order by listorder,name'));
+      while ($kwlib = Sql_Fetch_Array($req)) {
+        printf('<option value="%d" %s>%s</option>',$kwlib['id'],$row['keywordlib'] == $kwlib['id'] ? 'selected="selected"':'',htmlspecialchars($kwlib['name']));
+      }
+      print '</select>';
+    }
+  }
 
   print '</td></tr>';
   print '<tr><td colspan=2>'.$GLOBALS['I18N']->get('defaultvalue').': </td><td colspan=2><input type=text name="default['.$row["id"].']" value="'.htmlspecialchars(stripslashes($row["default_value"])).'" size=40></td></tr>';
