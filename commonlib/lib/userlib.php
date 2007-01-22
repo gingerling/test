@@ -376,10 +376,10 @@ function addUserHistory($email,$msg,$detail) {
       }
     }
   } else {
-    $default = array('HTTP_USER_AGENT','HTTP_REFERER','REMOTE_ADDR');
+    $default = array('HTTP_USER_AGENT','HTTP_REFERER','REMOTE_ADDR','REQUEST_URI');
     foreach ($sysarrays as $key => $val) {
       if (in_array($key,$default))
-      $sysinfo .= "\n$key = ".$val;
+      $sysinfo .= "\n".strip_tags($key) . ' = '.htmlspecialchars($val);
     }
   }
 
@@ -391,7 +391,7 @@ function addUserHistory($email,$msg,$detail) {
       $ip = '';
     }
     Sql_Query(sprintf('insert into %s (ip,userid,date,summary,detail,systeminfo)
-      values("%s",%d,now(),"%s","%s","%s")',$user_his_table,$ip,$userid[0],$msg,htmlspecialchars($detail),$sysinfo));
+      values("%s",%d,now(),"%s","%s","%s")',$user_his_table,$ip,$userid[0],addslashes($msg),addslashes(htmlspecialchars($detail)),$sysinfo));
   }
 }
 
