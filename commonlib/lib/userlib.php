@@ -884,7 +884,7 @@ function saveUserData($username,$fields) {
   }
 
   # fix UK postcodes to correct format
-  if ($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom") {
+  if ($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom" && isset($_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"])) {
     $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"];
     $postcode = strtoupper(str_replace(" ","",$postcode));
     if (preg_match("/(.*)(\d\w\w)$/",$postcode,$regs)) {
@@ -930,7 +930,7 @@ function saveUserData($username,$fields) {
       break;
     }
   }
-  if (isset($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"]) && $_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom") {
+  if (isset($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"]) && $_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom" && isset($_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"])) {
     $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["displayvalue"];
     if (!preg_match("/(.*)(\d\w\w)$/",$postcode,$regs)) {
       $res = "That does not seem to be a valid UK postcode";
