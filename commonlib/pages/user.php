@@ -142,6 +142,7 @@ if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
   foreach ($current_data as $key => $val) {
     if (!is_numeric($key))
     if ($old_data[$key] != $val && $key != "modified") {
+      if ($old_data[$key] == '') $old_data[$key] = '(no data)';
       $history_entry .= "$key = $val\nchanged from $old_data[$key]\n";
      }
   }
