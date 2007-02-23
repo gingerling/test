@@ -653,6 +653,9 @@ if (sizeof($email_list)) {
       if (function_exists('sendmail')) {
         sendMail (getConfig("admin_address"),$GLOBALS['I18N']->get('phplist Import Results'),$report);
       }
+      if (function_exists('logevent')) {
+        logEvent ($report);
+      }
     } else {
       output($report);
     }
