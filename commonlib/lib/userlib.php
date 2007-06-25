@@ -351,6 +351,10 @@ function is_email($email) {
 
   $email = trim($email);
 
+  # quite often emails have two @ signs
+  $ats = substr_count($email,'@');
+  if ($ats != 1) return 0;
+
   # hmm, it seems people are starting to have emails with & and ' or ` chars in the name
   #'
 
