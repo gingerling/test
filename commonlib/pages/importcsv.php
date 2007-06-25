@@ -170,7 +170,9 @@ if ($_SESSION["import_file"]) {
   }
   output( "<p>".$GLOBALS['I18N']->get('Reading emails from file ... '));
   flush();
-  @ini_set("memory_limit",memory_get_usage() +50 * filesize($_SESSION['import_file']));
+  if (filesize($_SESSION['import_file']) > 50000) {
+    @ini_set("memory_limit",memory_get_usage() +50 * filesize($_SESSION['import_file']));
+  }
   $email_list = file_get_contents($_SESSION["import_file"]);
   flush();
   // Clean up email file
