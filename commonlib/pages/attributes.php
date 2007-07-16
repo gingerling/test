@@ -300,7 +300,7 @@ function warn() {
   warned = 1;
 }
 </script>
-<?=formStart()?>
+<?php echo formStart()?>
 <?php
 print $GLOBALS['I18N']->get('loadfrom')." ".PageLink2("defaults",$GLOBALS['I18N']->get('defaults')).'<br />';
 

@@ -325,16 +325,16 @@ if ($total > MAX_USER_PP) {
 ?>
 <table border=0>
 <tr><td colspan=4><input type=hidden name=id value="<?php echo $listid?>">
-<?=$GLOBALS['I18N']->get('Find a user')?>:
+<?php echo $GLOBALS['I18N']->get('Find a user')?>:
 <input type=text name=find value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size=30>
-<select name="findby"><option value="email" <?php echo $findby == "email"? "selected":""?>><?=$GLOBALS['I18N']->get('Email')?></option>
-<option value="foreignkey" <?php echo $findby == "foreignkey"? "selected":""?>><?=$GLOBALS['I18N']->get('Foreign Key')?></option>
+<select name="findby"><option value="email" <?php echo $findby == "email"? "selected":""?>><?php echo $GLOBALS['I18N']->get('Email')?></option>
+<option value="foreignkey" <?php echo $findby == "foreignkey"? "selected":""?>><?php echo $GLOBALS['I18N']->get('Foreign Key')?></option>
 <?php
   $att_req = Sql_Query("select id,name from ".$tables["attribute"]." where type = \"hidden\" or type = \"textline\" or type = \"select\"");
   while ($row = Sql_Fetch_Array($att_req)) {
     printf('<option value="%d" %s>%s</option>',$row["id"],$row["id"] == $findby ? "selected":"",substr($row["name"],0,20));
   }
-?></select><input type=submit value="Go">&nbsp;&nbsp;<a href="./?page=users&find=NULL"><?=$GLOBALS['I18N']->get('reset')?></a>
+?></select><input type=submit value="Go">&nbsp;&nbsp;<a href="./?page=users&find=NULL"><?php echo $GLOBALS['I18N']->get('reset')?></a>
 </form></td></tr>
 <tr><td colspan=4>
 <?php

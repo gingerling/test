@@ -746,7 +746,7 @@ if (Sql_Table_Exists("groups")) {
 <tr><td><?php echo $GLOBALS['I18N']->get('Omit Invalid')?>:</td><td><input type="checkbox" name="omit_invalid" value="yes"></td></tr>
 <tr><td colspan=2><?php echo $GLOBALS['I18N']->get('assigninvalid_blurb')?>
 </td></tr>
-<tr><td><?php echo $GLOBALS['I18N']->get('Assign Invalid')?>:</td><td><input type="text" name="assign_invalid" value="<?=$GLOBALS["assign_invalid_default"]?>"></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Assign Invalid')?>:</td><td><input type="text" name="assign_invalid" value="<?php echo $GLOBALS["assign_invalid_default"]?>"></td></tr>
 <tr><td colspan=2><?php echo $GLOBALS['I18N']->get('overwriteexisting_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Overwrite Existing')?>:</td><td><input type="checkbox" name="overwrite" value="yes"></td></tr>
 <tr><td colspan=2><?php echo $GLOBALS['I18N']->get('retainold_blurb')?></td></tr>
