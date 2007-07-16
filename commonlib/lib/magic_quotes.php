@@ -1,4 +1,4 @@
-<?
+<?php
 # experiment, see whether we can correct the magic quotes centrally
 
 function addSlashesArray($array) {

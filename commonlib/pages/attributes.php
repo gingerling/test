@@ -1,4 +1,4 @@
-<?
+<?php
 $types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea","date");
 $formtable_exists = Sql_Table_exists("formfield");
 
@@ -301,7 +301,7 @@ function warn() {
 }
 </script>
 <?=formStart()?>
-<?
+<?php
 print $GLOBALS['I18N']->get('loadfrom')." ".PageLink2("defaults",$GLOBALS['I18N']->get('defaults')).'<br />';
 
 $res = Sql_Query("select * from {$tables['attribute']} order by listorder");

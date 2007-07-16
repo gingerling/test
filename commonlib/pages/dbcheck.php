@@ -1,8 +1,7 @@
 
 <h1>Database Check</h1>
 
-<?
-
+<?php
 $ls = new WebblerListing("Database Structure");
 while (list($table, $tablename) = each($GLOBALS["tables"])) {
   $ls->addElement($table);

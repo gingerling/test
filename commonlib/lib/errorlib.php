@@ -1,4 +1,4 @@
-<?
+<?php
 require_once dirname(__FILE__).'/accesscheck.php';
 
 ini_set("track_errors",true);

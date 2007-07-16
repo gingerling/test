@@ -1,5 +1,4 @@
-<?
-
+<?php
 if (!isset($_SESSION["userselection"]) || !is_array($_SESSION["userselection"]) || $_GET["reset"]) {
 	$_SESSION["userselection"] = array();
 }

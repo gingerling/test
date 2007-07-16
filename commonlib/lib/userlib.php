@@ -1,4 +1,4 @@
-<?
+<?php
 
 require_once dirname(__FILE__).'/accesscheck.php';
 # library with user functions
