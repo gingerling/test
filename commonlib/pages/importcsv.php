@@ -109,8 +109,8 @@ if(isset($_POST["import"])) {
     Fatal_Error($GLOBALS['I18N']->get('File too big, please split it up into smaller ones'));
     return;
   }
-  if( !preg_match("/^[0-9A-Za-z_\.\-\/\s \(\)]+$/", $_FILES["import_file"]["name"]) ) {
-    Fatal_Error($GLOBALS['I18N']->get('Use of wrong characters in filename: ').$_FILES["import_file"]["name"]);
+  if( !preg_match("/^[0-9A-Za-z_\.\-\s \(\)]+$/", $_FILES["import_file"]["name"]) ) {
+    Fatal_Error($GLOBALS['I18N']->get('Use of wrong characters in filename, allowed are: ') . "0-9A-Za-z[SPACE]_.-()" );
     return;
   }
   if (!$_POST["notify"] && !$test_import) {
@@ -210,6 +210,7 @@ if ($_SESSION["import_file"]) {
   $headers = explode($_SESSION["import_field_delimiter"],$header);
   $headers = array_unique($headers);
 
+### Compare header line with system and user attributes
   $req = Sql_Query(sprintf('select * from %s order by listorder,name',$tables["attribute"]));
   while ($row = Sql_Fetch_Array($req)) {
     $attributes[$row["id"]] = $row["name"];
@@ -225,15 +226,17 @@ if ($_SESSION["import_file"]) {
       $_SESSION["systemindex"][strtolower($column)] = $i;
       array_push($used_systemattr,strtolower($column));
     } elseif (strtolower($column) == "list membership" || $_POST['column'.$i] == 'skip') {
-      # skip this one
+      ## skip was chosen or it's list membership, which we don't want to import since it's too complicated.
       $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>'skip',"column" => "$column");
       array_push($used_systemattr,strtolower($column));
     } else {
       if (isset($_SESSION["import_attribute"][$column]["record"]) && $_SESSION["import_attribute"][$column]["record"]) {
-        # mapping has been defined
+        ## mapping has been defined
       } elseif (isset($_POST["column$i"])) {
+        ## attribute mapping was chosen
         $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>$_POST["column$i"],"column" => "$column");
       } else {
+        ## define mapping based on existing attribute
         $existing = Sql_Fetch_Row_Query("select id from ".$tables["attribute"]." where name = \"$column\"");
         $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>$existing[0],"column" => $column);
         array_push($used_attributes,$existing[0]);
@@ -245,6 +248,7 @@ if ($_SESSION["import_file"]) {
     return;
   }
 
+  ### build option list from known attributes
   $unused_systemattr = array_diff(array_keys($system_attributes),$used_systemattr);
   $unused_attributes = array_diff(array_keys($attributes),$used_attributes);
   $options = '<option value="new">-- '.$GLOBALS['I18N']->get('Create new one').'</option>';
@@ -256,6 +260,7 @@ if ($_SESSION["import_file"]) {
     $options .= sprintf('<option value="%s">%s</option>',$attindex,substr(stripslashes($attributes[$attindex]),0,25));
   }
 
+### use above selector for each unknown imported attribute
   $ls = new WebblerListing($GLOBALS['I18N']->get('Import Attributes'));
   $request_mapping = 0;
   foreach ($_SESSION["import_attribute"] as $column => $rec) {
@@ -275,6 +280,7 @@ if ($_SESSION["import_file"]) {
   }
 }
 
+### show summary
 if ($_SESSION["test_import"]) {
   $ls = new WebblerListing($GLOBALS['I18N']->get('Summary'));
   foreach ($_SESSION["import_attribute"] as $column => $rec) {
@@ -297,6 +303,7 @@ if ($_SESSION["test_import"]) {
   print '<p><h1>'.$GLOBALS['I18N']->get('Test Output').'</h1></p>';
 }
 
+### show progress and adjust working space 
 if (sizeof($email_list)) {
   $import_field_delimiter = $_SESSION["import_field_delimiter"];
 
@@ -309,6 +316,7 @@ if (sizeof($email_list)) {
     ini_set("memory_limit","32M");
   }
 
+### store the chosen mappings in the $system_attribute_mapping list
 # print "A: ".sizeof($import_attribute);
   reset($system_attributes);
   foreach ($system_attributes as $key => $val) {
@@ -317,8 +325,7 @@ if (sizeof($email_list)) {
       $system_attribute_mapping[$key] = $_SESSION["systemindex"][$key];
   }
 
-  // Parse the lines into records
-
+### Parse the lines into records
 #  print "<br/>Loading emails .. ";
   flush();
   $count = array();
@@ -406,7 +413,7 @@ if (sizeof($email_list)) {
       if ($html) print '<blockquote>'.$html.'</blockquote>';
     } else {
       # do import
-      # create new attributes
+      ## create new attributes
       foreach ($_SESSION["import_attribute"] as $column => $item) {
         if ($item["record"] == "new") {
           Sql_Query(sprintf('insert into %s (name,type) values("%s","textline")',
@@ -625,6 +632,7 @@ if (sizeof($email_list)) {
     if ($_SESSION["test_import"] && $c > 50) break;
   }
 
+### Summary of finished import
   if (!$_SESSION["test_import"]) {
     print '<script language="Javascript" type="text/javascript"> finish(); </script>';
 
