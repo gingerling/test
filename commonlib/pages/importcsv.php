@@ -68,7 +68,7 @@ function clearImport() {
 register_shutdown_function("my_shutdown");
 require_once $GLOBALS["coderoot"] . "structure.php";
 
-# identify system values from the database structure
+## identify system values from the database structure
 $system_attributes = array();
 reset($DBstruct["user"]);
 while (list ($key,$val) = each ($DBstruct["user"])) {
@@ -80,7 +80,6 @@ while (list ($key,$val) = each ($DBstruct["user"])) {
 }
 
 ob_end_flush();
-
 if (!empty($_GET["reset"]) && $_GET["reset"] == "yes") {
   clearImport();
   print '<h1>'.$GLOBALS['I18N']->get('Import cleared').'</h1>';
@@ -211,6 +210,7 @@ if ($_SESSION["import_file"]) {
   $headers = array_unique($headers);
 
 ### Compare header line with system and user attributes
+  ## build user_attributes array
   $req = Sql_Query(sprintf('select * from %s order by listorder,name',$tables["attribute"]));
   while ($row = Sql_Fetch_Array($req)) {
     $attributes[$row["id"]] = $row["name"];
@@ -221,27 +221,40 @@ if ($_SESSION["import_file"]) {
     $column = clean($headers[$i]);
 #    print $i."<h1>$column</h1>".$_POST['column'.$i].'<br/>';
     $column = preg_replace('#/#','',$column);
+    $dbg = "Field $i: $headers[$i] - $column - form/option:" . $_POST['column'.$i];
+  //  print ("<pre>" . var_dump(($system_attributes)) . "</pre>"); // debug
     if (in_array(strtolower($column),array_keys($system_attributes))) {
 #      print "System $column => $i<br/>";
       $_SESSION["systemindex"][strtolower($column)] = $i;
       array_push($used_systemattr,strtolower($column));
+      $dbg .= " =system";
     } elseif (strtolower($column) == "list membership" || $_POST['column'.$i] == 'skip') {
       ## skip was chosen or it's list membership, which we don't want to import since it's too complicated.
       $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>'skip',"column" => "$column");
       array_push($used_systemattr,strtolower($column));
+      $dbg .= " =skip";
     } else {
       if (isset($_SESSION["import_attribute"][$column]["record"]) && $_SESSION["import_attribute"][$column]["record"]) {
         ## mapping has been defined
+        $dbg .= " =known mapping in session: " . $_SESSION["import_attribute"][$column]["record"];
       } elseif (isset($_POST["column$i"])) {
         ## attribute mapping was chosen
         $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>$_POST["column$i"],"column" => "$column");
+        $dbg .= " =mapping chosen";
       } else {
-        ## define mapping based on existing attribute
+        ## define mapping based on existing attribute or ask for it
+        #@@ Why is $attributes not used
         $existing = Sql_Fetch_Row_Query("select id from ".$tables["attribute"]." where name = \"$column\"");
         $_SESSION["import_attribute"][$column] = array("index"=>$i,"record"=>$existing[0],"column" => $column);
         array_push($used_attributes,$existing[0]);
+        if ($existing[0]) {
+          $dbg .= " =known attribute id=" . $existing[0];
+        } else {
+          $dbg .= " =request mapping";
+        };
       }
     }
+    //dbg('Imported column',$dbg, 'import'); //debug
   }
   if (!isset($_SESSION["systemindex"]["email"])) {
     Fatal_Error($GLOBALS['I18N']->get('Cannot find column with email, please make sure the column is called &quot;email&quot; and not eg e-mail'));
@@ -259,7 +272,6 @@ if ($_SESSION["import_file"]) {
   foreach ($unused_attributes as $attindex) {
     $options .= sprintf('<option value="%s">%s</option>',$attindex,substr(stripslashes($attributes[$attindex]),0,25));
   }
-
 ### use above selector for each unknown imported attribute
   $ls = new WebblerListing($GLOBALS['I18N']->get('Import Attributes'));
   $request_mapping = 0;
@@ -284,6 +296,7 @@ if ($_SESSION["import_file"]) {
 if ($_SESSION["test_import"]) {
   $ls = new WebblerListing($GLOBALS['I18N']->get('Summary'));
   foreach ($_SESSION["import_attribute"] as $column => $rec) {
+  
     if (trim($column) != '') {
       $ls->addElement($column);
       if ($rec["record"] == "new") {
@@ -306,7 +319,6 @@ if ($_SESSION["test_import"]) {
 ### show progress and adjust working space 
 if (sizeof($email_list)) {
   $import_field_delimiter = $_SESSION["import_field_delimiter"];
-
   if (sizeof($email_list) > 300 && !$_SESSION["test_import"]) {
     # this is a possibly a time consuming process, so show a progress bar
     print '<script language="Javascript" type="text/javascript"> document.write(progressmeter); start();</script>';
@@ -319,11 +331,21 @@ if (sizeof($email_list)) {
 ### store the chosen mappings in the $system_attribute_mapping list
 # print "A: ".sizeof($import_attribute);
   reset($system_attributes);
-  foreach ($system_attributes as $key => $val) {
- #   print "<br/>$key => $val ".$_SESSION["systemindex"][$key];
-    if (isset($_SESSION["systemindex"][$key]))
+  foreach ($system_attributes as $key => $val) 
+    if (isset($_SESSION["systemindex"][$key])) 
       $system_attribute_mapping[$key] = $_SESSION["systemindex"][$key];
-  }
+  
+# #Bas bugfix 0008106: import 'foreignkey' fails; bad SQL
+# When the user chose to map an unknown import attribute to a system attribute this attribute ends up in 
+# $_SESSION["import_attribute"]. This code moves the attribute to the system mappings array 
+  foreach( $_SESSION["import_attribute"] as $column => $item) {
+    if( !is_numeric($item["record"]) && $item["record"] != 'new' && $item["record"] != 'skip') {
+      $system_attribute_mapping[$item["record"]] = $item["index"];
+      unset($_SESSION["import_attribute"][$column]);
+    };
+  };
+//  dbg('$system_attribute_mapping', $system_attribute_mapping); //debug
+//  dbg('$_SESSION["import_attribute"]',$_SESSION["import_attribute"]); //debug
 
 ### Parse the lines into records
 #  print "<br/>Loading emails .. ";
@@ -344,7 +366,8 @@ if (sizeof($email_list)) {
   $additional_emails = 0;
   foreach ($email_list as $line) {
   # print $line.'<br/>';
-    $user = array();
+    # will contain attributes to store / change
+    $user = array(); 
     # get rid of text delimiters generally added by spreadsheet apps
     $line = str_replace('"','',$line);
 
@@ -352,10 +375,9 @@ if (sizeof($email_list)) {
 
     reset($system_attribute_mapping);
     $system_values = array();
-    foreach ($system_attribute_mapping as $column => $index) {
-      #print "$column = ".$values[$index]."<br/>";
+    foreach ($system_attribute_mapping as $column => $index) 
       $system_values[$column] = $values[$index];
-    }
+    ## Check completeness
     $index = clean($system_values["email"]);
     $invalid = 0;
     if (!$index) {
@@ -366,6 +388,10 @@ if (sizeof($email_list)) {
       $invalid = 1;
       $count["invalid_email"]++;
     }
+    
+    //print ("<pre>" . var_dump($_SESSION["import_attribute"]) . "</pre>"); // debug
+//    dbg('_SESSION["import_attribute"',$_SESSION["import_attribute"]); //debug
+    
     if (sizeof($values) != (sizeof($_SESSION["import_attribute"]) + sizeof($_SESSION["system_attributes"]))
       && $test_import && $_POST["show_warnings"])
       Warn("Record has more values than header indicated (".
@@ -387,7 +413,6 @@ if (sizeof($email_list)) {
     $user["systemvalues"]["email"] = clean($user["systemvalues"]["email"]);
     $c++;
     if ($_SESSION["test_import"]) {
-     # print "<br/><b>$index</b><br/>";
       $html = '';
       foreach ($user["systemvalues"] as $column => $value) {
         if ($value) {
