@@ -156,6 +156,7 @@ if(isset($_POST["import"])) {
   $_SESSION["notify"] = $_POST["notify"];
   $_SESSION["listname"] = $_POST["listname"];
   $_SESSION["retainold"] = $_POST["retainold"];
+  $_SESSION["throttle_import"] = $_POST["throttle_import"];
 }
 
 if (!empty($_GET["confirm"])) {
@@ -627,6 +628,9 @@ if (sizeof($email_list)) {
           $subscribemessage = ereg_replace('\[LISTS\]', $listoflists, getUserConfig("subscribemessage",$userid));
           if (function_exists('sendmail')) {
             sendMail($user["systemvalues"]["email"], getConfig("subscribesubject"), $subscribemessage,system_messageheaders(),$envelope);
+            if (isset($_SESSION["throttle_import"])) {
+              sleep($_SESSION["throttle_import"]);
+            }
           }
         }
       }
@@ -786,6 +790,8 @@ if (Sql_Table_Exists("groups")) {
 <tr><td><?php echo $GLOBALS['I18N']->get('Retain Old User Email')?>:</td><td><input type="checkbox" name="retainold" value="yes"></td></tr>
 <tr><td colspan=2><?php echo $GLOBALS['I18N']->get('sendnotification_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Send&nbsp;Notification&nbsp;email')?>&nbsp;<input type="radio" name="notify" value="yes"></td><td><?php echo $GLOBALS['I18N']->get('Make confirmed immediately')?>&nbsp;<input type="radio" name="notify" value="no"></td></tr>
+<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('If you are going to send notification to users, you may want to add a little delay between messages')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Notification throttle')?>:</td><td><input type="text" name="throttle_import" size=5> <?php echo $GLOBALS['I18N']->get('(default is nothing, will send as fast as it can)')?></td></tr>
 
 <tr><td><input type="submit" name="import" value="<?php echo $GLOBALS['I18N']->get('Import')?>"></td><td>&nbsp;</td></tr>
 </table>
