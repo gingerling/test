@@ -635,7 +635,6 @@ function obscureCreditCard($cardno) {
 }
 
 function loadUser($loginname = "") {
-  dbg("Loading User");
   if (!Sql_Table_exists("user")) return;
   initialiseUserSession();
   if (!$loginname) {
