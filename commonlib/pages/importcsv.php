@@ -313,8 +313,6 @@ if ($_SESSION["import_file"]) {
 	}
 }
     
-dbg($_SESSION["import_attribute"], '$_SESSION["import_attribute"]');
-
 ### show summary
 if ($_SESSION["test_import"]) {
 	$ls = new WebblerListing($GLOBALS['I18N']->get('Summary'));
