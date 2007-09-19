@@ -658,7 +658,7 @@ function loadUser($loginname = "") {
     "user_attribute",
     "user",
     "user",
-    $loginname,
+    addslashes($loginname),
     "attribute",
     "user_attribute"
   ));
@@ -902,7 +902,7 @@ function saveUserData($username,$fields) {
     if (!ereg("required",$key) && $key != "unrequire" &&
       $fields[$key]["type"] != "separator" &&
       $fields[$key]["type"] != "emailcheck" &&
-      $fields[$key]["type"] != "passwordcheck"
+      $fields[$key]["type"] != "passwordcheck" 
       ) {
   #   dbg($fname ." of type ".$fields[$key]["type"]);
        if (!is_array($_SESSION["userdata"][$key]))
@@ -962,11 +962,12 @@ function saveUserData($username,$fields) {
     }
   }
 
- # dbg("Checking required fields");
+  dbg("Checking required fields");
   reset($required_fields);
   while (list($index,$field) = each ($required_fields)) {
     $type = $fields[$field]["type"];
- #   dbg("$field of type $type");
+  # dbg("$field of type $type");
+    if ($type != 'userfield' && $type != '') ### @@@ need to check why type is not set
     if ($field && !$_SESSION["userdata"][$field]["value"]) {
       $res = "Information missing: ".$description_fields[$index];
       break;
