@@ -126,7 +126,7 @@ if (isset($_POST["action"])) {
         $tables["attribute"],addslashes($_POST["name"][$id]),$_POST["type"][$id],$listorder[$id],$default[$id],$required[$id],$id);
         Sql_Query($query);
         # save keywordlib seperately in case the DB hasn't been upgraded
-        if (IN_WEBBLER) {
+        if (defined('IN_WEBBLER') && IN_WEBBLER) {
           Sql_Query(sprintf('update ignore %s set keywordlib = %d where id = %d',
             $GLOBALS['tables']['attribute'],$_POST['keywordlib'][$id],$id));
         }
@@ -136,8 +136,7 @@ if (isset($_POST["action"])) {
   }
 } elseif (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
 	ksort($_POST["tag"]);
-  $tagaction = htmlentities($_POST["tagaction"],ENT_QUOTES,'UTF-8');
-  if ($tagaction == $GLOBALS['I18N']->get('delete')) {
+  if (isset($tagaction['delete'])) {
     while (list($k,$id) = each ($_POST["tag"])) {
       # check for dependencies
       if ($formtable_exists) {
@@ -146,6 +145,7 @@ if (isset($_POST["action"])) {
       } else {
         $candelete = 1;
       }
+      dbg($candelete);
       if ($candelete) {
         print $GLOBALS['I18N']->get('deleting')." $id<br/>";
         $row = Sql_Fetch_Row_Query("select tablename,type from {$tables['attribute']} where id = $id");
@@ -160,7 +160,7 @@ if (isset($_POST["action"])) {
         }
       }
     }
- 	} elseif ($tagaction == $GLOBALS['I18N']->get('merge')) {
+ 	} elseif (isset($tagaction['merge'])) {
     $first = array_shift($_POST["tag"]);
     $firstdata = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["attribute"],$first));
     if (!sizeof($_POST["tag"])) {
@@ -332,7 +332,7 @@ while ($row = Sql_Fetch_array($res)) {
   print ' 
    </select>';
 
-  if (IN_WEBBLER) {
+  if (defined('IN_WEBBLER') && IN_WEBBLER) {
     if ($row['type'] == 'select' || $row['type'] == 'radio' || $row['type'] == 'checkboxgroup') {
       print ' '.$I18N->get('authoritative list') .'&nbsp;';
       printf('<select name="keywordlib[%d]"><option value="">-- select</option>',$row['id']);
@@ -359,8 +359,8 @@ print '<br/><br/>
 
 if ($c) {
   printf('<i>%s: </i><br/>',$GLOBALS['I18N']->get('withtagged'));
-  printf('<input type=submit name="tagaction" value="%s">&nbsp;
-  <input type=submit name="tagaction" value="%s"> &nbsp;&nbsp;%s<br/>
+  printf('<input type=submit name="tagaction[delete]" value="%s">&nbsp;
+  <input type=submit name="tagaction[merge]" value="%s"> &nbsp;&nbsp;%s<br/>
   <p><hr/></p>',$GLOBALS['I18N']->get('delete'),$GLOBALS['I18N']->get('merge'),Help("mergeattributes"));
 }
 
