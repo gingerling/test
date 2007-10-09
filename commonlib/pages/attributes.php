@@ -145,7 +145,6 @@ if (isset($_POST["action"])) {
       } else {
         $candelete = 1;
       }
-      dbg($candelete);
       if ($candelete) {
         print $GLOBALS['I18N']->get('deleting')." $id<br/>";
         $row = Sql_Fetch_Row_Query("select tablename,type from {$tables['attribute']} where id = $id");
