@@ -7,7 +7,6 @@ ob_end_flush();
 #  print "$key = ".print_r($val)."<br/>";
 #}
 #return;
-
 print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
 if (isset($_POST["action"])) {
   if (isset($_POST["name"])) {
@@ -23,14 +22,13 @@ if (isset($_POST["action"])) {
         $tables["attribute"],addslashes($_POST["name"][0]),$_POST["type"][0],$_POST["listorder"][0],addslashes($_POST["default"][0]),$_POST["required"][0],$lc_name);
         Sql_Query($query);
         $insertid = Sql_Insert_id();
-
         # text boxes and hidden fields do not have their own table
-        if ($_POST["type"][$id] != "textline" && $_POST["type"]["id"] != "hidden") {
+        if ($_POST["type"][$id] != "textline" && $_POST["type"][$id] != "hidden") {
           $query = "create table $table_prefix"."listattr_$lc_name (id integer not null primary key auto_increment, name varchar(255) unique,listorder integer default 0)";
           Sql_Query($query);
         } else {
           # and they cannot currently be required, changed 29/08/01, insert javascript to require them, except for hidden ones :-)
-          if ($_POST["type"]["id"] == "hidden")
+          if (isset($_POST["type"][$id]) && $_POST["type"][$id] == "hidden")
             Sql_Query("update {$tables['attribute']} set required = 0 where id = $insertid");
         }
         if ($_POST["type"][$id] == "checkbox") {
@@ -56,7 +54,6 @@ if (isset($_POST["action"])) {
         $req = Sql_Fetch_Row_Query("select type,tablename from {$tables['attribute']} where id = $id");
         $existingtype = $req[0];
         #print "Existing attribute: ".$_POST["name"][$id]." new type:".$_POST["type"][$id]." existing type: ".$req[0]."<br/>";
-
         if ($_POST["type"][$id] != $existingtype)
         switch ($existingtype) {
           case "textline":case "hidden":case "date":
@@ -66,6 +63,7 @@ if (isset($_POST["action"])) {
               case "checkboxgroup":
               case "select":
                 $lc_name = getNewAttributeTablename($req[1]);
+                Sql_Query("update {$tables['attribute']} set tablename = \"$lc_name\" where id = $id");
                 Sql_Query("create table $table_prefix"."listattr_$lc_name (id integer not null primary key auto_increment, name varchar(255) unique,listorder integer default 0)");
                 $attreq = Sql_Query("select distinct value from {$tables['user_attribute']} where attributeid = $id");
                 while ($row = Sql_Fetch_Row($attreq)) {
