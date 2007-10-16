@@ -112,7 +112,7 @@ class WebblerListing {
       $tophelp = $this->help;
     }
     $html = '<tr valign="top">';
-    $html .= sprintf('<td><a name="%s"></a><div class="listinghdname">%s%s</div></td>',strtolower($this->title),$tophelp,$this->title);
+    $html .= sprintf('<td><a name="%s"></a><div class="listinghdname">%s%s</div></td>',htmlspecialchars(strtolower($this->title)),$tophelp,$this->title);
     $c = 1;
     foreach ($this->columns as $column => $columnname) {
       if ($c == sizeof($this->columns)) {
