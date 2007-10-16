@@ -16,8 +16,8 @@ class WebblerListing {
   var $buttonduplicate = 0;
 
   function WebblerListing($title,$help = "") {
-    $this->title = $title;
-    $this->help = $help;
+    $this->title = strip_tags($title);
+    $this->help = strip_tags($help);
   }
 
   function addElement($name,$url = "",$colsize="") {
