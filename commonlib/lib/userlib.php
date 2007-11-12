@@ -257,10 +257,16 @@ function unBlackList($userid = 0) {
 }
 
 function addUserToBlackList($email,$reason = '') {
-  Sql_Query(sprintf('insert ignore into %s (email,added) values("%s",now())',
-    $GLOBALS['tables']["user_blacklist"],addslashes($email)));
   Sql_Query(sprintf('update %s set blacklisted = 1 where email = "%s"',
     $GLOBALS['tables']["user"],addslashes($email)));
+  #0012262: blacklist only email when email bounces. (not users): Function split so email can be blacklisted without blacklisting user
+  addEmailToBlackList($email,$reason);
+}
+
+function addEmailToBlackList($email,$reason = '') {
+  #0012262: blacklist only email when email bounces. (not users): Function split so email can be blacklisted without blacklisting user
+  Sql_Query(sprintf('insert ignore into %s (email,added) values("%s",now())',
+    $GLOBALS['tables']["user_blacklist"],addslashes($email)));
   # save the reason, and other data
   Sql_Query(sprintf('insert ignore into %s (email,name,data) values("%s","%s","%s")',
     $GLOBALS['tables']["user_blacklist_data"],addslashes($email),
