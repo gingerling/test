@@ -201,7 +201,7 @@ function Debug($msg) {
 #  error_reporting($er);
 }
 
-function dbg($msg) {
+function xdbg($msg) {
   # bit of shorthand
   Debug($msg);
 }
