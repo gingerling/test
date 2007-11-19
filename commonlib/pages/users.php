@@ -368,17 +368,24 @@ if ($result)
 			$nummsgs = Sql_fetch_row($msgs);
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('msgs'), $nummsgs[0]);
 		}
-		if (ENABLE_RSS && in_array("rss", $columns)) {
-			$rss = Sql_query("SELECT count(*) FROM " . $tables["rssitem_user"] . " where userid = " . $user["id"]);
-			$nummsgs = Sql_fetch_row($rss);
-			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('rss'), $nummsgs[0]);
-			if (isset ($user["rssfrequency"]))
-				$ls->addColumn($user["email"], $GLOBALS['I18N']->get('rss freq'), $user["rssfrequency"]);
-			$last = Sql_Fetch_Row_Query("select last from {$tables["user_rss"]} where userid = " . $user["id"]);
-			if ($last[0])
-				$ls->addColumn($user["email"], $GLOBALS['I18N']->get('last sent'), $last[0]);
-		}
+    
+//obsolete, moved to rssmanager plugin 
+//		if (ENABLE_RSS && in_array("rss", $columns)) {
+//			$rss = Sql_query("SELECT count(*) FROM " . $tables["rssitem_user"] . " where userid = " . $user["id"]);
+//			$nummsgs = Sql_fetch_row($rss);
+//			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('rss'), $nummsgs[0]);
+//			if (isset ($user["rssfrequency"]))
+//				$ls->addColumn($user["email"], $GLOBALS['I18N']->get('rss freq'), $user["rssfrequency"]);
+//			$last = Sql_Fetch_Row_Query("select last from {$tables["user_rss"]} where userid = " . $user["id"]);
+//			if ($last[0])
+//				$ls->addColumn($user["email"], $GLOBALS['I18N']->get('last sent'), $last[0]);
+//		}
 
+    ### allow plugins to add columns
+    foreach ($GLOBALS['plugins'] as $plugin) {
+      $plugin->displayUsers($user,  $user['email'], $ls);
+    } 
+    
 		if (in_array("bounces", $columns)) {
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('bncs'), $user["bouncecount"]);
 		}

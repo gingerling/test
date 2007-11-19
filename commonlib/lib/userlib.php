@@ -57,8 +57,10 @@ function deleteUser($id) {
   Sql_Query(sprintf('delete from %s where user = %d',$tables["user_message_bounce"],$id));
   Sql_Query(sprintf('delete from %s where id = %d',$tables["user"],$id));
   Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_history"],$id));
-  Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_rss"],$id));
-
+  ### allow plugins to delete their data
+  foreach ($GLOBALS['plugins'] as $plugin) {
+    $plugin->deleteUser($id);
+  } 
 }
 
 function addNewUser($email,$password = "") {
@@ -72,7 +74,7 @@ function addNewUser($email,$password = "") {
     "unique" => array("(email)","sys:unique"),
     "htmlemail" => array("tinyint default 0","Send this user HTML emails"),
     "subscribepage" => array("integer","sys:Which page was used to subscribe"),
-    "rssfrequency" => array("varchar(100)","RSS Frequency"),
+    "rssfrequency" => array("varchar(100)","rss Frequency"), // Leftover from the preplugin era
     "password" => array("varchar(255)","Password"),
     "passwordchanged" => array("datetime","sys:Last time password was changed"),
     "disabled" => array("tinyint default 0","Is this account disabled?"),
