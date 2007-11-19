@@ -37,7 +37,7 @@ if ($access != "all") {
 }
 $usegroups = Sql_Table_exists("groups") && Sql_Table_exists('user_group');
 
-if ($_POST["change"] && ($access == "owner"|| $access == "all")) {
+if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   if (!$id) {
     $id = addNewUser($_POST['email']);
     $newuser = 1;
@@ -216,6 +216,7 @@ if ($id) {
   }
   if (!$membership)
     $membership = $GLOBALS['I18N']->get('No Lists');
+  if (empty($returnur)) { $returnurl = ''; }
   if ($access != "view")
   printf( "<br /><hr/>%s<li><a href=\"javascript:deleteRec('%s');\">delete</a> %s\n",
     $delete_message,PageURL2("user","","delete=$id&$returnurl"),$user["email"]);
@@ -229,7 +230,10 @@ if ($id) {
   print '<h1>'.$GLOBALS['I18N']->get('Add a new User').'</h1>';
 }
   print "<p><h3>".$GLOBALS['I18N']->get('User Details')."</h3>".formStart()."<table border=1>";
+  if ( empty ($list) ) { $list = ''; }
   print "<input type=hidden name=list value=$list><input type=hidden name=id value=$id>";
+  if ( empty ($returnpage) ) { $returnpage = ''; }
+  if ( empty ($returnoption) ) { $returnoption = ''; }
   print "<input type=hidden name=returnpage value=$returnpage><input type=hidden name=returnoption value=$returnoption>";
 
   reset($struct);
