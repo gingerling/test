@@ -323,7 +323,7 @@ class topBar {
     return '
 <STYLE TYPE="text/css">
 
-#adminnavcontainer {margin: 0 0 0 0; padding: 0; background-color: #DEDEB6; position: absolute; top: 0px; left:0px}
+#adminnavcontainer {margin: 0 0 0 0; padding: 0; background-color: #DEDEB6; position: absolute; top: 0px; left:0px; z-index: 2000;}
 
 div.adminwebblerid { float: right; margin: 3px 5px 0 0;
 padding: 0;
