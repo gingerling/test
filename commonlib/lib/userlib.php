@@ -568,13 +568,15 @@ function loadCCvalidationFile($ccrangefile) {
   foreach ($lines as $line) {
     if (!preg_match("/^\s*#/",$line) && !preg_match("/^\s+$/",$line)) {
       if (preg_match("#(\d+),(\d+),(\d+)#",$line,$regs)) {
+#        print "RANGE".$line."<br/>";
         array_push($range,array(
-          "start" => $regs[1],
-          "end" => $regs[2],
+          "start" => substr($regs[1],0,6),
+          "end" => substr($regs[2],0,6),
           "company" => sprintf('%02d',$regs[3])
         ));
      #   dbg($regs[1]. " ". $regs[2]. " -> ".$regs[3]);
       } elseif (preg_match("#\((\d+)\)\s*=\s*'(.*)'#",$line,$regs)) {
+#        print "COMPANY".$line."<br/>";
         $company[sprintf('%02d',$regs[1])] = $regs[2];
      #   dbg($regs[1]. " = " . $regs[2]);
       }
@@ -591,6 +593,7 @@ function ccCompany($ccno) {
   if (is_array($ranges))
   foreach ($ranges as $range) {
  #  dbg($range["start"]);
+#    print "CHECKING ".$range["start"].' TO '.$range["end"].'<br/>';
     if ($range["start"] <= $first6 && $range["end"] >= $first6) {
       return array($range["company"],$companies[$range["company"]]);
     }
