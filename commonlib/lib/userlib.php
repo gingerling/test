@@ -302,7 +302,7 @@ function UserAttributeValueSelect($user = 0,$attribute = 0) {
   $att = Sql_Fetch_array_Query("select * from $att_table where id = $attribute");
  # $value = UserAttributeValue($att["tablename"],$attribute);
   $value = UserAttributeValue($user,$attribute);
-  $html .= 'Value: '.$value;
+#  $html = 'Value: '.$value;
   $html = sprintf('<select name="attribute[%d]" style="attributeinput" >',$attribute);
   $res = Sql_Query("select id,name from $table_prefix"."listattr_".$att["tablename"]." order by name");
   if (!Sql_Affected_Rows())
