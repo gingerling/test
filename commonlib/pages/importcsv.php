@@ -793,7 +793,7 @@ if (Sql_Table_Exists("groups")) {
 </td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('File containing emails')?>:<br/>
 </td><td><input type="file" name="import_file">
-<br/><?php printf($GLOBALS['I18N']->get('uploadlimits'),ini_get("post_max_size"),ini_get("upload_max_filesize"));?>
+<br/><?php printf($GLOBALS['I18N']->get('uploadlimits'),ini_get("post_max_size"),ini_get("upload_max_filesize"),IMPORT_FILESIZE);?>
 </td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Field Delimiter')?>:</td><td><input type="text" name="import_field_delimiter" size=5> <?php echo $GLOBALS['I18N']->get('(default is TAB)')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Record Delimiter')?>:</td><td><input type="text" name="import_record_delimiter" size=5> <?php echo $GLOBALS['I18N']->get('(default is line break)')?></td></tr>
