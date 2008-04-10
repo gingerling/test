@@ -550,7 +550,7 @@ function validateCC($ccno) {
     # if it is not any of the above, we do not know how to validate it
 
   # reject 4 and 15 1s anyway apart when request is from tincan offices
-  if ($ccno == "4111111111111111" && getenv("REMOTE_ADDR") != '213.253.144.33') {
+  if ($ccno == "4111111111111111") {
     return 0;
   }
 
