@@ -50,6 +50,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$id));
   $old_data = array_merge($old_data,getUserAttributeValues('',$id));
   # and membership of lists
+  $old_listmembership = array();
   $req = Sql_Query("select * from {$tables["listuser"]} where userid = $id");
   while ($row = Sql_Fetch_Array($req)) {
     $old_listmembership[$row["listid"]] = listName($row["listid"]);
