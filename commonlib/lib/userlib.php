@@ -95,6 +95,33 @@ function addNewUser($email,$password = "") {
   return $id;
 }
 
+function getAttributeIDbyName ($sName) {
+  # Looks for an attribute named sName.
+  # Returns table ID or 0 if not found.
+  # Can also be used as 'isAttribute'
+  
+  if(empty($sName)) return 0;
+  global $usertable_prefix;
+  # workaround for integration webbler/phplist
+  if (!isset($usertable_prefix)) {
+    $usertable_prefix = '';
+  }
+  if ($tables["attribute"]) {
+    $att_table = $tables["attribute"];
+    $user_att_table = $tables["user_attribute"];
+  } else {
+    $att_table = "attribute";
+    $user_att_table = "user_attribute";
+  }
+
+  $res = Sql_Query(sprintf('SELECT id FROM %s%s WHERE name = "%s"',
+    $usertable_prefix,$att_table,$sName));
+  $row = Sql_Fetch_row($res);
+    
+  dbg($row,'$$row');
+  return $row[0];
+}
+
 function AttributeValue($table,$value) {
   global $table_prefix;
   # workaround for integration webbler/phplist
@@ -767,6 +794,19 @@ function isGuestAccount() {
 }
 
 function saveUserAttribute($userid,$attid,$data) {
+  global $usertable_prefix, $tables;
+  # workaround for integration webbler/phplist
+  if (!isset($usertable_prefix)) {
+    $usertable_prefix = '';
+  }
+  if (!empty($tables["attribute"])) {
+    $att_table = $usertable_prefix .$tables["attribute"];
+    $user_att_table = $usertable_prefix .$tables["user_attribute"];
+  } else {
+    $att_table = $usertable_prefix ."attribute";
+    $user_att_table = $usertable_prefix . "user_attribute";
+  }
+  
   if ($data["nodbsave"]) {
     dbg("Not saving $attid");
     return;
@@ -793,16 +833,16 @@ function saveUserAttribute($userid,$attid,$data) {
   }
 
   $attid_req = Sql_Fetch_Row_Query(sprintf('
-    select id,type,tablename from attribute where id = %d',$attid));
+    select id,type,tablename from %s where id = %d', $att_table, $attid));
   if (!$attid_req[0]) {
     $attid_req = Sql_Fetch_Row_Query(sprintf('
-      select id,type,tablename from attribute where name = "%s"',$data["name"]));
+      select id,type,tablename from %s where name = "%s"', $att_table, $data["name"]));
     if (!$attid_req[0]) {
       if ($GLOBALS["config"]["autocreate_attributes"]) {
         Dbg("Creating new Attribute: ".$data["name"]);
         sendError("creating new attribute ".$data["name"]);
         $atttable= getNewAttributeTablename($data["name"]);
-        Sql_Query(sprintf('insert into attribute (name,type,tablename) values("%s","%s","%s")',$data["name"],$data["type"],$atttable));
+        Sql_Query(sprintf('insert into %s (name,type,tablename) values("%s","%s","%s")', $att_table, $data["name"],$data["type"],$atttable));
         $attid = Sql_Insert_Id();
       } else {
         dbg("Not creating new Attribute: ".$data["name"]);
@@ -820,8 +860,8 @@ function saveUserAttribute($userid,$attid,$data) {
   if (!$atttable) {
     $atttable = getNewAttributeTablename($data["name"]);
     # fix attribute without tablename
-    Sql_Query(sprintf('update attribute set tablename ="%s" where id = %d',
-      $atttable,$attid));
+    Sql_Query(sprintf('update %s set tablename ="%s" where id = %d',
+      $att_table, $atttable,$attid));
 #   sendError("Attribute without Tablename $attid");
   }
 
@@ -842,13 +882,13 @@ function saveUserAttribute($userid,$attid,$data) {
       } else {
         $valid = $curval[0];
       }
-      Sql_Query(sprintf('replace into user_attribute (userid,attributeid,value)
-        values(%d,%d,"%s")',$userid,$attid,$valid));
+      Sql_Query(sprintf('replace into %s (userid,attributeid,value)
+        values(%d,%d,"%s")', $user_att_table, $userid,$attid,$valid));
 
       break;
     default:
-      Sql_Query(sprintf('replace into user_attribute (userid,attributeid,value)
-        values(%d,%d,"%s")',$userid,$attid,$data["value"]));
+      Sql_Query(sprintf('replace into %s (userid,attributeid,value)
+        values(%d,%d,"%s")', $user_att_table, $userid,$attid,$data["value"]));
       break;
   }
   return 1;
