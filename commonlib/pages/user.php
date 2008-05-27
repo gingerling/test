@@ -10,6 +10,7 @@
 $id = sprintf('%d',isset($_GET["id"]) ? $_GET['id']:0);
 $delete = sprintf('%d',isset($_GET['delete']) ? $_GET["delete"]:0);
 $date = new Date();
+$newuser = 0;
 
 $access = accessLevel("user");
 switch ($access) {
@@ -17,7 +18,7 @@ switch ($access) {
     $subselect = sprintf(' and %s.owner = %d',$tables["list"],$_SESSION["logindetails"]["id"]);
     $subselect_where = sprintf(' where %s.owner = %d',$tables["list"],$_SESSION["logindetails"]["id"]);break;
   case "all":
-    $subselect = "";break;
+    $subselect = "";$subselect_where = '';break;
   case "view":
     $subselect = "";
     if (sizeof($_POST)) {
@@ -56,18 +57,21 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     $old_listmembership[$row["listid"]] = listName($row["listid"]);
   }
   while (list ($key,$val) = each ($struct)) {
-    list($a,$b) = explode(":",$val[1]);
+    if (isset($val[1]) && strpos($val[1],':')) {
+      list($a,$b) = explode(":",$val[1]);
+    } else {
+      $a = $b = '';
+    }
     if (!ereg("sys",$a) && $val[1]) {
       if ($key == "password" && ENCRYPTPASSWORD) {
         if ($_POST[$key])
-          Sql_Query("update {$tables["user"]} set $key = \"".md5($$key)."\" where id = $id");
+          Sql_Query("update {$tables["user"]} set $key = \"".md5($_POST[$key])."\" where id = $id");
       } else {
-        Sql_Query("update {$tables["user"]} set $key = \"".$$key."\" where id = $id");
-       }
+         Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
+      }
+    } elseif ((!$require_login || ($require_login && isSuperUser())) && $key == "confirmed") {
+      Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
     }
-    elseif ((!$require_login || ($require_login && isSuperUser())) && $key == "confirmed")
-      Sql_Query("update {$tables["user"]} set $key = \"".$$key."\" where id = $id");
-
   }
   if (is_array($attribute))
   while (list($key,$val) = each ($attribute)) {
@@ -86,7 +90,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   }
   if (is_array($cbattribute)) {
     while (list($key,$val) = each ($cbattribute)) {
-      if ($attribute[$key] == "on")
+      if (isset($_POST['attribute'][$key]) && $_POST['attribute'][$key] == "on")
         Sql_Query(sprintf('replace into %s (userid,attributeid,value)
           values(%d,%d,"on")',$tables["user_attribute"],$id,$key));
       else
@@ -95,8 +99,8 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     }
   }
 
-  if (is_array($cbgroup)) {
-    while (list($key,$val) = each ($cbgroup)) {
+  if (isset($_POST['cbgroup']) && is_array($_POST['cbgroup'])) {
+    while (list($key,$val) = each ($_POST['cbgroup'])) {
       $field = "cbgroup".$val;
       if (is_array($_POST[$field])) {
         $newval = array();
@@ -104,9 +108,9 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
           array_push($newval,sprintf('%0'.$checkboxgroup_storesize.'d',$fieldval));
          }
         $value = join(",",$newval);
-      }
-      else
+      } else {
         $value = "";
+      }
       Sql_Query(sprintf('replace into %s (userid,attributeid,value)
         values(%d,%d,"%s")',$tables["user_attribute"],$id,$val,$value));
     }
@@ -181,7 +185,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   }
 
   addUserHistory($email,"Update by ".adminName($_SESSION["logindetails"]["id"]),$history_entry);
-  if ($newuser) {
+  if (!empty($newuser)) {
     Redirect("user&id=$id");
     exit;
   }
@@ -239,7 +243,7 @@ if ($id) {
 
   reset($struct);
   while (list ($key,$val) = each ($struct)) {
-    list($a,$b) = explode(":",$val[1]);
+    @list($a,$b) = explode(":",$val[1]);
     if ($key == "confirmed") {
       if (!$require_login || ($require_login && isSuperUser())) {
         printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size=5></td></tr>'."\n",$GLOBALS['I18N']->get($b),$key,$user[$key]);
