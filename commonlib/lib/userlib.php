@@ -8,7 +8,7 @@ function initialiseUserSession() {
   if (!is_array($_SESSION["userdata"])) {
     $_SESSION["userdata"] = array();
   }
-  $_SESSION["session"] = $GLOBALS["PHPSESSID"];
+  $_SESSION["session"] = $_COOKIE["PHPSESSID"];
 }
 
 function getEveryoneGroupID() {
@@ -60,7 +60,7 @@ function deleteUser($id) {
   ### allow plugins to delete their data
   foreach ($GLOBALS['plugins'] as $plugin) {
     $plugin->deleteUser($id);
-  } 
+  }
 }
 
 function addNewUser($email,$password = "") {
@@ -99,7 +99,7 @@ function getAttributeIDbyName ($sName) {
   # Looks for an attribute named sName.
   # Returns table ID or 0 if not found.
   # Can also be used as 'isAttribute'
-  
+
   if(empty($sName)) return 0;
   global $usertable_prefix;
   # workaround for integration webbler/phplist
@@ -117,7 +117,7 @@ function getAttributeIDbyName ($sName) {
   $res = Sql_Query(sprintf('SELECT id FROM %s%s WHERE name = "%s"',
     $usertable_prefix,$att_table,$sName));
   $row = Sql_Fetch_row($res);
-    
+
   dbg($row,'$$row');
   return $row[0];
 }
@@ -387,16 +387,16 @@ function is_email($email) {
     return 1;
 
   $email = trim($email);
-    
+
   switch (EMAIL_ADDRESS_VALIDATION_LEVEL) {
     case 0: # No email address validation.
 	    return 1;
 	    break;
-      
+
     case 2: # RFC821 email validation without escaping and quoting of local part
     case 3: # RFC821 email validation.
     # $email is a valid address as defined by RFC821
-      # Except: 
+      # Except:
       #   Length of domainPart is not checked
       #   Not accepted are CR and LF even if escaped by \
       #   Not accepted is Folding
@@ -404,7 +404,7 @@ function is_email($email) {
       #   Not accepted is comments (eg. (this is a comment)@example.com)
       # Extra:
       #   topLevelDomain can only be one of the defined ones
-      
+
       $escapedChar = "\\\\[\\x01-\\x09\\x0B-\\x0C\\x0E-\\x7F]";   # CR and LF excluded for safety reasons
       $unescapedChar = "[a-zA-Z0-9!#$%&'*\+\-\/=?^_`{|}~]";
       if(EMAIL_ADDRESS_VALIDATION_LEVEL == 2) {
@@ -413,41 +413,40 @@ function is_email($email) {
         $char = "($unescapedChar|$escapedChar)";
       };
       $dotString = "$char((\.)?$char){0,63}";
-      
+
       $qtext = "[\\x01-\\x09\\x0B-\\x0C\\x0E-\\x21\\x23-\\x5B\\x5D-\\x7F]"; # All but <LF> x0A, <CR> x0D, quote (") x22 and backslash (\) x5c
       $qchar = "$qtext|$escapedChar";
       $quotedString = "\"($qchar){1,62}\"";
-      
+
       if(EMAIL_ADDRESS_VALIDATION_LEVEL == 2) {
         $localPart = "$dotString";  # without escaping and quoting of local part
       } else {
         $localPart = "($dotString|$quotedString)";
       };
-      
       $topLevelDomain = "(ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|asia|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|cz|de|dev|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|home|hr|ht|hu|id|ie|il|in|info|int|io|iq|ir|is|it|jm|je|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|loc|ls|lt|lu|lv|ly|ma|mc|md|mg|mh|mil|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nt|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)";
       $domainLiteral = "((([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5])\.){3}([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5]))";
-      
+
       $domainPart = "([a-zA-Z0-9](-?[a-zA-Z0-9])*(\.[a-zA-Z](-?[a-zA-Z0-9])*)*\.$topLevelDomain|$domainLiteral)";
       $validEmailPattern = "/^$localPart@$domainPart$/"; # result: /^(([a-zA-Z0-9!#$%&'*\+\-\/=?^_`{|}~]|\\[\x01-\x09\x0B-\x0C\x0E-\x7F])((\.)?([a-zA-Z0-9!#$%&'*\+\-\/=?^_`{|}~]|\\[\x01-\x09\x0B-\x0C\x0E-\x7F])){0,63}|"([\x01-\x09\x0B-\x0C\x0E-\x21\x23-\x5B\x5D-\x7F]|\\[\x01-\x09\x0B-\x0C\x0E-\x7F]){1,62}")@([a-zA-Z0-9](-?[a-zA-Z0-9])*(\.[a-zA-Z](-?[a-zA-Z0-9])*)*\.(ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|cz|de|dev|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|home|hr|ht|hu|id|ie|il|in|info|int|io|iq|ir|is|it|jm|je|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|loc|ls|lt|lu|lv|ly|ma|mc|md|mg|mh|mil|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nt|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|quipu|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)|((([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5])\.){3}([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5])))$/
-      
+
       if(preg_match($validEmailPattern, $email)) {
         return(1);
       } else {
         return(0);
       }
-      break;    
-    
+      break;
+
     default: # 10.4 style email validation
 		  # quite often emails have two @ signs
 		  $ats = substr_count($email,'@');
 		  if ($ats != 1) return 0;
-		
+
 		  # hmm, it seems people are starting to have emails with & and ' or ` chars in the name
 		  #'
-		
+
 			$pattern =
 			"^[\&\'-_.[:alnum:]]+@((([[:alnum:]]|[[:alnum:]][[:alnum:]-]*[[:alnum:]])\.)+(ac|ad|ae|aero|af|ag|ai|al|am|an|ao|aq|ar|arpa|as|asia|at|au|aw|az|ba|bb|bd|be|bf|bg|bh|bi|biz|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cat|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|com|coop|cr|cs|cu|cv|cx|cy|cz|de|dev|dj|dk|dm|do|dz|ec|edu|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gov|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|home|hr|ht|hu|id|ie|il|in|info|int|io|iq|ir|is|it|jm|je|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|loc|ls|lt|lu|lv|ly|ma|mc|md|mg|mh|mil|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|museum|mv|mw|mx|my|mz|na|name|nc|ne|net|nf|ng|ni|nl|no|np|nr|nt|nu|nz|om|org|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|pro|ps|pt|pw|py|qa|quipu|re|ro|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tel|tf|tg|th|tj|tk|tm|tn|to|tp|tr|travel|tt|tv|tw|tz|ua|ug|uk|um|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)|(([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5])\.){3}([0-9][0-9]?|[0-1][0-9][0-9]|[2][0-4][0-9]|[2][5][0-5]))$";
-			
+
 			  if(eregi($pattern, $email)) {
 			    return 1;
 			  } else {
@@ -806,7 +805,7 @@ function saveUserAttribute($userid,$attid,$data) {
     $att_table = $usertable_prefix ."attribute";
     $user_att_table = $usertable_prefix . "user_attribute";
   }
-  
+
   if ($data["nodbsave"]) {
     dbg("Not saving $attid");
     return;
@@ -901,7 +900,7 @@ function saveUserByID($userid,$data) {
     } else {
       $attid = $key;
     }
-    dbg("Saving attribute $key, $attid, $val for $userid");
+ #   dbg("Saving attribute $key, $attid, $val for $userid");
     if ($userid && $attid && $data[$key]["type"] != "userfield" && !$data[$key]["nodbsave"])
       saveUserAttribute($userid,$attid,$val);
   }
@@ -916,7 +915,7 @@ function saveUser($loginname,$data) {
       if (ereg("^attribute(\d+)",$key,$regs)) {
         $attid = $regs[1];
       }
-      dbg("Saving attribute $key, $attid, $val for $loginname, $userid");
+ #     dbg("Saving attribute $key, $attid, $val for $loginname, $userid");
       if ($userid && $attid)
         saveUserAttribute($userid,$key,$val);
     }
@@ -953,7 +952,7 @@ function saveUserData($username,$fields) {
     if (!ereg("required",$key) && $key != "unrequire" &&
       $fields[$key]["type"] != "separator" &&
       $fields[$key]["type"] != "emailcheck" &&
-      $fields[$key]["type"] != "passwordcheck" 
+      $fields[$key]["type"] != "passwordcheck"
       ) {
   #   dbg($fname ." of type ".$fields[$key]["type"]);
        if (!is_array($_SESSION["userdata"][$key]))
