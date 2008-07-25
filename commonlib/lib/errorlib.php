@@ -201,9 +201,12 @@ function Debug($msg) {
 #  error_reporting($er);
 }
 
-function xdbg($msg) {
-  # bit of shorthand
-  Debug($msg);
+if(!function_exists('dbg')) {
+  $_GLOBALS['head']['dbginfo'] = '<!--Using dbg from uploader/codelib/commonlib/lib/errorlib-->'; 
+	function dbg($msg, $description, $nestingLevel) {
+	  # bit of shorthand
+	  Debug($msg);
+	}
 }
 
 #if (!$config["debug"])
