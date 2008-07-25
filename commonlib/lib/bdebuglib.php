@@ -70,7 +70,7 @@ function bbg($variable, $description = 'Value', $printBuffer = 0) {
 	#Safety bailouts
   if (ini_get("safe_mode")) return;
   if (array_key_exists('tincanautologin', $GLOBALS['config']) && !in_array($_SERVER['REMOTE_ADDR'],array_keys($GLOBALS['config']['tincanautologin']))) return;
-  if (array_key_exists('bdebug', $GLOBALS['config']) && !$GLOBALS['config']["bdebug"]) return;
+  if ( !( array_key_exists('bdebug', $GLOBALS['config']) && $GLOBALS['config']["bdebug"] ) )  return;
   smartDebug($variable, $description, $printBuffer);
 }
 
