@@ -14,14 +14,14 @@
 ################################################################################
 # Init
 
-$GLOBALS['config']['head']['bbginfo'] = '<!--init BdeBuG-->';
+$GLOBALS['config']['head']['bbginfo'] = '<!-- init bdebug -->';
 
 if( !isset($GLOBALS['config']['delay_debug_output']) ) {
   $GLOBALS['config']['delay_debug_output'] = false;
 }
 
 $GLOBALS['config']['head']['bbgstyles'] = '
-<STYLE TYPE="text/css">
+<style type="text/css">
 .bbg {
   background-color: #ffc;
   background-image: none;
