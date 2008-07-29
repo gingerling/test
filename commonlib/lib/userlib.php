@@ -149,6 +149,22 @@ function AttributeValue($table,$value) {
   return $row[0];
 }
 
+function existUserID($id = 0) {
+  global $table_prefix,$tables;
+  # workaround for integration webbler/phplist
+  if (!isset($table_prefix))
+    $table_prefix = "phplist_";
+
+  if (isset($tables["attribute"])) {
+    $usertable = $tables["user"];
+  } else {
+    $usertable = "user";
+  }
+	
+  $userid = Sql_Fetch_Row_Query("select id from {$usertable} where id = \"$id\"");
+  return $userid[0];
+}
+
 function getUserAttributeValues($email = '', $id = 0) {
   global $table_prefix,$tables;
   if (!$email && !$id) return;
