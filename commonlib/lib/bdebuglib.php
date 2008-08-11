@@ -14,39 +14,40 @@
 ################################################################################
 # Init
 
-$GLOBALS['config']['head']['bbginfo'] = '<!-- init bdebug -->';
 
 if( !isset($GLOBALS['config']['delay_debug_output']) ) {
   $GLOBALS['config']['delay_debug_output'] = false;
 }
 
-$GLOBALS['config']['head']['bbgstyles'] = '
-<style type="text/css">
-.bbg {
-  background-color: #ffc;
-  background-image: none;
-  cursor: pointer;
-  display: -moz-inline-box;
-  font-size: 8px;
-  text-align: left;
-	padding : 0px; 
-	font-weight: normal; 
-	color: #000; 
-	font-style: normal; 
-	font-family: verdana, sans-serif; 
-	text-decoration: none;
+if (!empty($GLOBALS['config']['debug'])) {
+  $GLOBALS['config']['head']['bbginfo'] = '<!-- init bdebug -->';
+  $GLOBALS['config']['head']['bbgstyles'] = '
+  <style type="text/css">
+  .bbg {
+    background-color: #ffc;
+    background-image: none;
+    cursor: pointer;
+    display: -moz-inline-box;
+    font-size: 8px;
+    text-align: left;
+          padding : 0px; 
+          font-weight: normal; 
+          color: #000; 
+          font-style: normal; 
+          font-family: verdana, sans-serif; 
+          text-decoration: none;
+  }
+  
+  .bbg ul{
+    border:1px solid #a0a0a0;
+    margin:1px;
+    padding : 0px; 
+    list-style : none;
+    width : 400px;
+  }
+  </style>
+  ';
 }
-
-.bbg ul{
-  border:1px solid #a0a0a0;
-  margin:1px;
-  padding : 0px; 
-  list-style : none;
-  width : 400px;
-}
-</STYLE>
-';
-$_GLOBALS['head']['bbgstyles'] = 'HALLO????';
 
 static $sDebugResult; # This holds the debugmessages when delay is on
 
