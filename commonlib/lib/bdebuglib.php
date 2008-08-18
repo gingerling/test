@@ -1,6 +1,6 @@
 <?
 
-### bdebuglib.php ### BdeBuG system ## 
+### bdebuglib.php ### BdeBuG system ##
 #
 # Bas' Debugging system, needs $debug = TRUE and $verbose = TRUE or $debug_log = {path} in config.php
 # Hint: When using log make sure the file gets write permissions
@@ -14,13 +14,14 @@
 ################################################################################
 # Init
 
-
-if( !isset($GLOBALS['config']['delay_debug_output']) ) {
-  $GLOBALS['config']['delay_debug_output'] = false;
-}
-
-if (!empty($GLOBALS['config']['debug'])) {
+if (defined('DEVSITE') && DEVSITE && $GLOBALS['config']['debug']) {
   $GLOBALS['config']['head']['bbginfo'] = '<!-- init bdebug -->';
+
+  if( !isset($GLOBALS['config']['delay_debug_output']) ) {
+    $GLOBALS['config']['delay_debug_output'] = false;
+  }
+
+  ## @@ instead of inline CSS, which may break validation, use a point to a CSS file
   $GLOBALS['config']['head']['bbgstyles'] = '
   <style type="text/css">
   .bbg {
@@ -30,18 +31,18 @@ if (!empty($GLOBALS['config']['debug'])) {
     display: -moz-inline-box;
     font-size: 8px;
     text-align: left;
-          padding : 0px; 
-          font-weight: normal; 
-          color: #000; 
-          font-style: normal; 
-          font-family: verdana, sans-serif; 
-          text-decoration: none;
+    padding : 0px;
+    font-weight: normal;
+    color: #000;
+    font-style: normal;
+    font-family: verdana, sans-serif;
+    text-decoration: none;
   }
-  
+
   .bbg ul{
     border:1px solid #a0a0a0;
     margin:1px;
-    padding : 0px; 
+    padding : 0px;
     list-style : none;
     width : 400px;
   }
@@ -58,7 +59,7 @@ function bbg_shutdown () {
 register_shutdown_function("bbg_shutdown");
 
 ################################################################################
-# Utilities 
+# Utilities
 
 function addDebug($msg) {
   $GLOBALS['sDebugResult'] .= "\n" . $msg;
@@ -69,6 +70,7 @@ function addDebug($msg) {
 
 function bbg($variable, $description = 'Value', $printBuffer = 0) {
 	#Safety bailouts
+  if (!DEVSITE) return;
   if (ini_get("safe_mode")) return;
   if (array_key_exists('tincanautologin', $GLOBALS['config']) && !in_array($_SERVER['REMOTE_ADDR'],array_keys($GLOBALS['config']['tincanautologin']))) return;
   if ( !array_key_exists('bdebug', $GLOBALS['config']) || ( array_key_exists('bdebug', $GLOBALS['config']) && !$GLOBALS['config']["bdebug"] ) )  return;
@@ -98,7 +100,7 @@ function smartDebug($variable, $description = 'Value', $nestingLevel = 0) {
     }
     addDebug("</ul>\n");
   }
-  
+
   # Recurse into array or object
   if ($nestingLevel >= 0) {
     if (!$nestingLevel)
@@ -127,14 +129,14 @@ function smartDebug($variable, $description = 'Value', $nestingLevel = 0) {
 	  if (!$nestingLevel)
 	    addDebug("</li></ul>\n");
   }
-  
+
   # Wrap it nicely in a div
   if ( $nestingLevel == 0 ) {
     addDebug("</div>\n");
   }
-  
+
   # Print result when requested
-  if ( $GLOBALS['config']['delay_debug_output'] && $nestingLevel == -1 
+  if ( $GLOBALS['config']['delay_debug_output'] && $nestingLevel == -1
    || !$GLOBALS['config']['delay_debug_output'] && $nestingLevel == 0 ) {
    	echo $sDebugResult;
     $sDebugResult = '';
