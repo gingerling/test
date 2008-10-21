@@ -10,7 +10,7 @@ function initialiseUserSession() {
   }
 //  $_SESSION["session"] = $GLOBALS["PHPSESSID"];
   // What should it be??
-    $_SESSION["session"] = $_COOKIE["PHPSESSID"];   
+    $_SESSION["session"] = $_COOKIE["PHPSESSID"];
 }
 
 function getEveryoneGroupID() {
@@ -160,7 +160,7 @@ function existUserID($id = 0) {
   } else {
     $usertable = "user";
   }
-	
+
   $userid = Sql_Fetch_Row_Query("select id from {$usertable} where id = \"$id\"");
   return $userid[0];
 }
@@ -754,7 +754,6 @@ function loadUser($loginname = "") {
       );
 #     }
   }
-  dbg("done loading user");
   $_SESSION["usergroups"] = userGroups($loginname);
   if (is_array($GLOBALS['config']['usergreeting'])) {
     $_SESSION['usergreeting'] = '';
@@ -763,6 +762,7 @@ function loadUser($loginname = "") {
     }
     $_SESSION['usergreeting'] = rtrim($_SESSION['usergreeting']);
   }
+  dbg("done loading user");
   return 1;
 }
 

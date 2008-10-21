@@ -10,6 +10,7 @@ class WebblerListing {
   var $columns = array();
   var $sortby = array();
   var $sort = 0;
+  var $sortcolumn = '';
   var $buttons = array();
   var $initialstate = "block";
   var $duplicatebuttons = array();
@@ -40,8 +41,13 @@ class WebblerListing {
   function deleteElement($name) {
     unset($this->elements[$name]);
   }
+
   function addSort() {
     $this->sort = 1;
+  }
+
+  function sortBy($colname,$direction = 'desc') {
+    $this->sortcolumn = $colname;
   }
 
   function addColumn($name,$column_name,$value,$url="",$align="") {
@@ -175,12 +181,12 @@ class WebblerListing {
       } else {
         $value = "";
       }
-      if ($element["rows"][$row]["align"]) {
+      if (isset($element["rows"][$row]["align"])) {
         $align = $element["rows"][$row]["align"];
       } else {
         $align = 'left';
       }
-      if ($element["rows"][$row]["url"]) {
+      if (isset($element["rows"][$row]["url"])) {
         $html .= sprintf('<tr><td valign="top" class="listingrowname">
           <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
           </td><td valign="top" class="listingelement%s" colspan=%d>
@@ -250,7 +256,11 @@ class WebblerListing {
   }
 
   function cmp($a,$b) {
-    $sortcol = urldecode($_GET["sortby"]);
+    if (isset($_GET["sortby"])) {
+      $sortcol = urldecode($_GET["sortby"]);
+    } elseif (!empty($this->sortcolumn)) {
+      $sortcol = $this->sortcolumn;
+    }
     if (!is_array($a) || !is_array($b)) return 0;
     $val1 = strip_tags($a["columns"][$sortcol]["value"]);
     $val2 = strip_tags($b["columns"][$sortcol]["value"]);
@@ -276,6 +286,10 @@ class WebblerListing {
     if ($this->sort) {
       usort($this->elements,array("WebblerListing","cmp"));
     }
+    if ($this->sortcolumn) {
+      usort($this->elements,array("WebblerListing","cmp"));
+    }
+
     foreach ($this->elements as $element) {
       $html .= $this->listingElement($element);
     }
