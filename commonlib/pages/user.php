@@ -39,6 +39,12 @@ if ($access != "all") {
 $usegroups = Sql_Table_exists("groups") && Sql_Table_exists('user_group');
 
 if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
+  if (isset($_POST['email'])) {
+    ## let's not validate here, an admin can add anything as an email, if they like
+    $email = $_POST['email'];
+  } else {
+    $email = '';
+  }
   if (!$id) {
     $id = addNewUser($_POST['email']);
     $newuser = 1;
@@ -73,12 +79,12 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
       Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
     }
   }
-  if (is_array($attribute))
-  while (list($key,$val) = each ($attribute)) {
+  if (isset($_POST['attribute']) && is_array($_POST['attribute']))
+  while (list($key,$val) = each ($_POST['attribute'])) {
     Sql_Query(sprintf('replace into %s (userid,attributeid,value)
-      values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,$val));
+      values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,sql_escape($val)));
   }
-  if (is_array($_POST["dateattribute"]))
+  if (isset($_POST['dateattribute']) && is_array($_POST["dateattribute"]))
   foreach ($_POST["dateattribute"] as $attid => $attname) {
     if (isset($_POST[normalize($attname).'_novalue'])) {
       $value = "";
@@ -88,25 +94,26 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     Sql_Query(sprintf('replace into %s (userid,attributeid,value)
       values(%d,%d,"%s")',$tables["user_attribute"],$id,$attid,$value));
   }
-  if (is_array($cbattribute)) {
-    while (list($key,$val) = each ($cbattribute)) {
-      if (isset($_POST['attribute'][$key]) && $_POST['attribute'][$key] == "on")
+  if (isset($_POST['cbattribute']) && is_array($_POST['cbattribute'])) {
+    while (list($key,$val) = each ($_POST['cbattribute'])) {
+      if (isset($_POST['attribute'][$key]) && $_POST['attribute'][$key] == "on") {
         Sql_Query(sprintf('replace into %s (userid,attributeid,value)
           values(%d,%d,"on")',$tables["user_attribute"],$id,$key));
-      else
+      } else {
         Sql_Query(sprintf('replace into %s (userid,attributeid,value)
           values(%d,%d,"")',$tables["user_attribute"],$id,$key));
+      }
     }
   }
 
   if (isset($_POST['cbgroup']) && is_array($_POST['cbgroup'])) {
     while (list($key,$val) = each ($_POST['cbgroup'])) {
       $field = "cbgroup".$val;
-      if (is_array($_POST[$field])) {
+      if (isset($_POST[$field]) && is_array($_POST[$field])) {
         $newval = array();
         foreach ($_POST[$field] as $fieldval) {
           array_push($newval,sprintf('%0'.$checkboxgroup_storesize.'d',$fieldval));
-         }
+        }
         $value = join(",",$newval);
       } else {
         $value = "";
@@ -134,7 +141,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
       Sql_Query("delete from {$tables["listuser"]} where userid = $id and listid = $row[0]");
     }
   }
-  if (is_array($_POST["subscribe"])) {
+  if (isset($_POST["subscribe"]) && is_array($_POST["subscribe"])) {
     foreach ($_POST["subscribe"] as $ind => $lst) {
       Sql_Query("insert into {$tables["listuser"]} (userid,listid) values($id,$lst)");
       print '<br/>'.sprintf($GLOBALS['I18N']->get('User added to list %s'),ListName($lst));
@@ -155,6 +162,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     $history_entry = "\nNo userdata changed";
   }
   # check lists
+  $listmembership = array();
   $req = Sql_Query("select * from {$tables["listuser"]} where userid = $id");
   while ($row = Sql_Fetch_Array($req)) {
     $listmembership[$row["listid"]] = listName($row["listid"]);
