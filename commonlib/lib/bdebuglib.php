@@ -14,41 +14,76 @@
 ################################################################################
 # Init
 
-if (defined('DEVSITE') && DEVSITE && $GLOBALS['config']['debug']) {
-  $GLOBALS['config']['head']['bbginfo'] = '<!-- init bdebug -->';
+# DEVSITE is not set! so this code doesn't work. Why is DEVSITE not set?
+//if (defined('DEVSITE') && DEVSITE && array_key_exists('bdebug', $GLOBALS['config']) ) {
+$GLOBALS['config']['head']['bbginfo'] = '<!-- init bdebug -->';
 
-  if( !isset($GLOBALS['config']['delay_debug_output']) ) {
-    $GLOBALS['config']['delay_debug_output'] = false;
-  }
-
-  ## @@ instead of inline CSS, which may break validation, use a point to a CSS file
-  $GLOBALS['config']['head']['bbgstyles'] = '
-  <style type="text/css">
-  .bbg {
-    background-color: #ffc;
-    background-image: none;
-    cursor: pointer;
-    display: -moz-inline-box;
-    font-size: 8px;
-    text-align: left;
-    padding : 0px;
-    font-weight: normal;
-    color: #000;
-    font-style: normal;
-    font-family: verdana, sans-serif;
-    text-decoration: none;
-  }
-
-  .bbg ul{
-    border:1px solid #a0a0a0;
-    margin:1px;
-    padding : 0px;
-    list-style : none;
-    width : 400px;
-  }
-  </style>
-  ';
+if( !isset($GLOBALS['config']['delay_debug_output']) ) {
+  $GLOBALS['config']['delay_debug_output'] = false;
 }
+
+$GLOBALS['config']['head']['jquery'] = sprintf('<script type="text/javascript" src="%s"></script>', 
+  '/codelib/js/' . $GLOBALS['config']['jquery'] );
+$GLOBALS['config']['head']['bbgstyles'] = '
+<style type="text/css">
+.bbg {
+  background-color: #ffc;
+  background-image: none;
+  cursor: pointer;
+  display: -moz-inline-box;
+  font-size: 8px;
+  text-align: left;
+  padding : 0px;
+  font-weight: normal;
+  color: #000;
+  font-style: normal;
+  font-family: verdana, sans-serif;
+  text-decoration: none;
+}
+.bbg_trace {
+  font-size: 5px;
+} 
+.bbg ul{
+  border:1px solid #a0a0a0;
+  margin:1px;
+  padding : 0px;
+  list-style : none;
+  width : 80em;
+}
+
+.bbg li{
+  color: #000;
+    backgroud-color:#0cf;
+  
+}
+
+a.info{
+  position:relative; /*this is the key*/
+  z-index:24; 
+  color:#000;
+  text-decoration:none
+}
+
+a.info:hover{
+  z-index:25; 
+}
+
+a.info span{
+  display: none
+}
+
+a.info:hover span{
+  /*the span will display just on :hover state*/
+  display:block;
+  position:absolute;
+  top:2em; left:2em; width:60em;
+  border:1px solid #0cf;
+  backgroud-color:#0cf;
+}
+    
+</style>
+';
+//}
 
 static $sDebugResult; # This holds the debugmessages when delay is on
 
@@ -83,28 +118,14 @@ function smartDebug($variable, $description = 'Value', $nestingLevel = 0) {
 
   $nestingLevelMax = 5;
 
-//  print "<br/>smartDebug($variable, $description , $nestingLevel) called";
-  # Do a backtrace
   if ($nestingLevel == 0) {
-    $aBackTrace = debug_backtrace();
     addDebug("<div class='bbg'>\n");
-    addDebug("<ul class='bbg_trace'>\n");
-    for($iIndex=1; $iIndex < count($aBackTrace); $iIndex++){
-//    $iIndex = count($aBackTrace) - 4;
-//    $iIndex = 2;
-
-    	addDebug(sprintf("\n<li>%s#%d:%s()</li> ",
-      $aBackTrace[$iIndex]['file'],
-      $aBackTrace[$iIndex]['line'],
-      $aBackTrace[$iIndex]['function']));
-    }
-    addDebug("</ul>\n");
+    addDebug("<ul class='bbg_values'><a class='info'>\n");
   }
-
+  
+//  print "<br/>smartDebug($variable, $description , $nestingLevel) called";
   # Recurse into array or object
   if ($nestingLevel >= 0) {
-    if (!$nestingLevel)
-      addDebug("<ul class='bbg_values'>\n");
   	addDebug("<i>$description</i>: ");
 	  if (is_array($variable) || is_object($variable)) {
 	    if (is_array($variable)) {
@@ -127,16 +148,33 @@ function smartDebug($variable, $description = 'Value', $nestingLevel = 0) {
 	  } else
 	    addDebug("(" . gettype($variable) . ") '{$variable}'\n");
 	  if (!$nestingLevel)
-	    addDebug("</li></ul>\n");
+	    addDebug("</li>\n");
   }
+  # Do a backtrace in a hidden span for tooltip
+  if ($nestingLevel == 0) {
+    $aBackTrace = debug_backtrace();
+    addDebug("<span>\n");
+    for($iIndex=1; $iIndex < count($aBackTrace); $iIndex++){
+//    $iIndex = count($aBackTrace) - 4;
+//    $iIndex = 2;
 
+      addDebug(sprintf("\n<li>%s#%d:%s()</li> ",
+      $aBackTrace[$iIndex]['file'],
+      $aBackTrace[$iIndex]['line'],
+      $aBackTrace[$iIndex]['function']));
+    }
+    addDebug("</span>\n");
+  }
+  
+  
   # Wrap it nicely in a div
   if ( $nestingLevel == 0 ) {
-    addDebug("</div>\n");
+    addDebug("</a></ul>\n");
+  	addDebug("</div>\n");
   }
 
-  # Print result when requested
-  if ( $GLOBALS['config']['delay_debug_output'] && $nestingLevel == -1
+    # Print result when requested
+  if ( $GLOBALS['config']['delay_debug_output'] && $nestingLevel == -1 
    || !$GLOBALS['config']['delay_debug_output'] && $nestingLevel == 0 ) {
    	echo $sDebugResult;
     $sDebugResult = '';
