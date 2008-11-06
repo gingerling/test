@@ -22,8 +22,8 @@ if( !isset($GLOBALS['config']['delay_debug_output']) ) {
   $GLOBALS['config']['delay_debug_output'] = false;
 }
 
-$GLOBALS['config']['head']['jquery'] = sprintf('<script type="text/javascript" src="%s"></script>', 
-  '/codelib/js/' . $GLOBALS['config']['jquery'] );
+//$GLOBALS['config']['head']['jquery'] = sprintf('<script type="text/javascript" src="%s"></script>', 
+//  '/codelib/js/' . $GLOBALS['config']['jquery'] );
 $GLOBALS['config']['head']['bbgstyles'] = '
 <style type="text/css">
 .bbg {
@@ -59,26 +59,26 @@ $GLOBALS['config']['head']['bbgstyles'] = '
 
 a.info{
   position:relative; /*this is the key*/
-  z-index:24; 
+/*  z-index:24; */ 
   color:#000;
   text-decoration:none
 }
 
 a.info:hover{
-  z-index:25; 
+/*  z-index:25; */ 
 }
 
 a.info span{
-  display: none
+  display: none;
 }
 
 a.info:hover span{
   /*the span will display just on :hover state*/
   display:block;
   position:absolute;
-  top:2em; left:2em; width:60em;
-  border:1px solid #0cf;
-  backgroud-color:#0cf;
+  top:2em; left:1em; width:60em;
+  border:1px solid #ccf;
+  background-color:#cff;
 }
     
 </style>
@@ -121,6 +121,20 @@ function smartDebug($variable, $description = 'Value', $nestingLevel = 0) {
   if ($nestingLevel == 0) {
     addDebug("<div class='bbg'>\n");
     addDebug("<ul class='bbg_values'><a class='info'>\n");
+  
+    # Do a backtrace in a hidden span for tooltip
+    $aBackTrace = debug_backtrace();
+    addDebug("<span>\n");
+    for($iIndex=1; $iIndex < count($aBackTrace); $iIndex++){
+//    $iIndex = count($aBackTrace) - 4;
+//    $iIndex = 2;
+
+      addDebug(sprintf("\n<li>%s#%d:%s()</li> ",
+      $aBackTrace[$iIndex]['file'],
+      $aBackTrace[$iIndex]['line'],
+      $aBackTrace[$iIndex]['function']));
+    }
+    addDebug("</span>\n");
   }
   
 //  print "<br/>smartDebug($variable, $description , $nestingLevel) called";
@@ -150,22 +164,6 @@ function smartDebug($variable, $description = 'Value', $nestingLevel = 0) {
 	  if (!$nestingLevel)
 	    addDebug("</li>\n");
   }
-  # Do a backtrace in a hidden span for tooltip
-  if ($nestingLevel == 0) {
-    $aBackTrace = debug_backtrace();
-    addDebug("<span>\n");
-    for($iIndex=1; $iIndex < count($aBackTrace); $iIndex++){
-//    $iIndex = count($aBackTrace) - 4;
-//    $iIndex = 2;
-
-      addDebug(sprintf("\n<li>%s#%d:%s()</li> ",
-      $aBackTrace[$iIndex]['file'],
-      $aBackTrace[$iIndex]['line'],
-      $aBackTrace[$iIndex]['function']));
-    }
-    addDebug("</span>\n");
-  }
-  
   
   # Wrap it nicely in a div
   if ( $nestingLevel == 0 ) {
