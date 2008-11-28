@@ -2,7 +2,7 @@
 <script language="Javascript" src="js/jslib.js" type="text/javascript"></script>
 
 <?php
-
+if (!defined('MAX_AVATAR_SIZE')) define('MAX_AVATAR_SIZE',2000);
 #if (!$_GET["id"] && !$_GET["delete"]) {
 #  Fatal_Error("No such user");
 #  return;
@@ -79,11 +79,28 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
       Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
     }
   }
-  if (isset($_POST['attribute']) && is_array($_POST['attribute']))
-  while (list($key,$val) = each ($_POST['attribute'])) {
-    Sql_Query(sprintf('replace into %s (userid,attributeid,value)
-      values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,sql_escape($val)));
+
+  if (is_array($_FILES)) { ## only avatars are files
+    foreach ($_FILES['attribute']['name'] as $key => $val) {
+      if (!empty($_FILES['attribute']['name'][$key])) {
+        $tmpnam = $_FILES['attribute']['tmp_name'][$key];
+        $size = $_FILES['attribute']['size'][$key];
+       if ($size < MAX_AVATAR_SIZE) {
+          $avatar = file_get_contents($tmpnam);
+          Sql_Query(sprintf('replace into %s (userid,attributeid,value)
+            values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,base64_encode($avatar)));
+        }
+      } 
+    }
   }
+
+  if (isset($_POST['attribute']) && is_array($_POST['attribute'])) {
+    foreach ($_POST['attribute'] as $key => $val) {
+      Sql_Query(sprintf('replace into %s (userid,attributeid,value)
+        values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,sql_escape($val)));
+    }
+  }
+
   if (isset($_POST['dateattribute']) && is_array($_POST["dateattribute"]))
   foreach ($_POST["dateattribute"] as $attid => $attname) {
     if (isset($_POST[normalize($attname).'_novalue'])) {
@@ -242,7 +259,7 @@ if ($id) {
   $id = 0;
   print '<h1>'.$GLOBALS['I18N']->get('Add a new User').'</h1>';
 }
-  print "<p><h3>".$GLOBALS['I18N']->get('User Details')."</h3>".formStart()."<table border=1>";
+  print "<p><h3>".$GLOBALS['I18N']->get('User Details')."</h3>".formStart('enctype="multipart/form-data"')."<table border=1>";
   if ( empty ($list) ) { $list = ''; }
   print "<input type=hidden name=list value=$list><input type=hidden name=id value=$id>";
   if ( empty ($returnpage) ) { $returnpage = ''; }
@@ -287,6 +304,12 @@ if ($id) {
       printf ("<tr><td valign=top>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
     } elseif ($row["type"] == "textarea") {
       printf ('<tr><td valign=top>%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" wrap=virtual>%s</textarea></td></tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars($row["value"]));
+    } elseif ($row["type"] == "avatar") {
+      printf ('<tr><td valign=top>%s</td><td>',stripslashes($row["name"]));
+      if ($row['value']) {
+        printf('<img src="./?page=avatar&user=%d&avatar=%s"><br/>',$id,$row['id']);
+      }
+      printf ('<input type="file" name="attribute[%d]" /></td></tr>',$row["id"]);
     } else {
     if ($row["type"] != "textline" && $row["type"] != "hidden")
       printf ("<tr><td>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueSelect($id,$row["id"]));

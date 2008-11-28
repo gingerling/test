@@ -1,5 +1,5 @@
 <?php
-$types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea","date");
+$types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea","date",'avatar');
 $formtable_exists = Sql_Table_exists("formfield");
 
 ob_end_flush();

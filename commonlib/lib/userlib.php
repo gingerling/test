@@ -903,6 +903,19 @@ function saveUserAttribute($userid,$attid,$data) {
         values(%d,%d,"%s")', $user_att_table, $userid,$attid,$valid));
 
       break;
+    case 'avatar':
+      if (is_array($_FILES)) { ## only avatars are files
+        if (!empty($_FILES['attribute'.$attid]['name'])) {
+          $tmpnam = $_FILES['attribute'.$attid]['tmp_name'];
+          $size = $_FILES['attribute'.$attid]['size'];
+          if ($size < MAX_AVATAR_SIZE) {
+            $avatar = file_get_contents($tmpnam);
+            Sql_Query(sprintf('replace into %s (userid,attributeid,value)
+              values(%d,%d,"%s")',$user_att_table,$userid,$attid,base64_encode($avatar)));
+          }
+        } 
+      }
+      break;
     default:
       Sql_Query(sprintf('replace into %s (userid,attributeid,value)
         values(%d,%d,"%s")', $user_att_table, $userid,$attid,$data["value"]));
