@@ -57,7 +57,7 @@ if (!$findby) {
 
 # hmm interesting, if they select a findby but not a find, use the Sql wildcard:
 if ($findby && !$find)
-	# this is very slow, so instead erase the findby
+	# this is very slow, so instead erase the findby.
 	#  $find = '%';
 	$findby = '';
 
@@ -106,12 +106,12 @@ if ($require_login && !isSuperUser()) {
 			$subselect = "{$tables["user"]}.id = {$tables["listuser"]}.userid and {$tables["listuser"]}.listid = {$tables["list"]}.id and {$tables["list"]}.owner = " . $_SESSION["logindetails"]["id"];
 			if ($find) {
 				$listquery = "select DISTINCT {$tables["user"]}.email,{$tables["user"]}.id,$findfield,confirmed from " . $table_list . " where $subselect and $findbyselect";
-				$count = Sql_query("SELECT count(DISTINCT {$tables["user"]}.id) FROM " . $table_list . " where $subselect and $findbyselect");
-				$unconfirmedcount = Sql_query("SELECT count(DISTINCT {$tables["user"]}.id) FROM " . $table_list . " where $subselect and !confirmed and $findbyselect");
+				$count = Sql_query("SELECT count({$tables["user"]}.id) FROM " . $table_list . " where $subselect and $findbyselect");
+				$unconfirmedcount = Sql_query("SELECT count({$tables["user"]}.id) FROM " . $table_list . " where $subselect and !confirmed and $findbyselect");
 			} else {
 				$listquery = "SELECT DISTINCT {$tables["user"]}.email,{$tables["user"]}.id,$findfield,confirmed FROM " . $table_list . " WHERE $subselect";
-				$count = Sql_query("SELECT count(DISTINCT {$tables["user"]}.id) FROM " . $table_list . " WHERE $subselect");
-				$unconfirmedcount = Sql_query("SELECT count(DISTINCT {$tables["user"]}.id) FROM " . $table_list . " WHERE !confirmed and $subselect");
+				$count = Sql_query("SELECT count({$tables["user"]}.id) FROM " . $table_list . " WHERE $subselect");
+				$unconfirmedcount = Sql_query("SELECT count({$tables["user"]}.id) FROM " . $table_list . " WHERE !confirmed and $subselect");
 			}
 			if ($unconfirmed)
 				$listquery .= ' and !confirmed ';
@@ -123,16 +123,16 @@ if ($require_login && !isSuperUser()) {
 			$table_list = $tables["user"] . $findtables;
 			if ($find) {
 				$listquery = "select DISTINCT {$tables["user"]}.email,{$tables["user"]}.id,$findfield,{$tables["user"]}.confirmed from " . $table_list . " where $findbyselect";
-				$count = Sql_query("SELECT count(DISTINCT *) FROM " . $table_list . " where $findbyselect");
-				$unconfirmedcount = Sql_query("SELECT count(DISTINCT *) FROM " . $table_list . " where !confirmed && $findbyselect");
+				$count = Sql_query("SELECT count(*) FROM " . $table_list . " where $findbyselect");
+				$unconfirmedcount = Sql_query("SELECT count(*) FROM " . $table_list . " where !confirmed && $findbyselect");
 				if ($unconfirmed)
 					$listquery .= ' and !confirmed ';
 				if ($blacklisted)
 					$listquery .= ' and blacklisted ';
 			} else {
 				$listquery = "select DISTINCT {$tables["user"]}.email,{$tables["user"]}.id,$findfield,{$tables["user"]}.confirmed from " . $table_list;
-				$count = Sql_query("SELECT count(DISTINCT *) FROM " . $table_list);
-				$unconfirmedcount = Sql_query("SELECT count(DISTINCT *) FROM " . $table_list . " where !confirmed");
+				$count = Sql_query("SELECT count(*) FROM " . $table_list);
+				$unconfirmedcount = Sql_query("SELECT count(*) FROM " . $table_list . " where !confirmed");
 				$searchdone = 0;
 			}
 			$delete_message = '<br />' . $GLOBALS['I18N']->get('Delete will delete user and all listmemberships') . '<br />';
