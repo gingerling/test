@@ -16,6 +16,11 @@
 
 # DEVSITE is not set! so this code doesn't work. Why is DEVSITE not set?
 //if (defined('DEVSITE') && DEVSITE && array_key_exists('bdebug', $GLOBALS['config']) ) {
+
+// the above doens't work, because this lib is loaded before DEVSITE is set.
+// it's also loaded before euserverconfig, so you'll have to set it in the site config instead
+// instead using a function or object and initialising it from inside bbg, would be better
+
 $GLOBALS['config']['head']['bbginfo'] = '<!-- init bdebug -->';
 
 if( !isset($GLOBALS['config']['delay_debug_output']) ) {
