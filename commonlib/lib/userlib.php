@@ -907,11 +907,18 @@ function saveUserAttribute($userid,$attid,$data) {
       if (is_array($_FILES)) { ## only avatars are files
         if (!empty($_FILES['attribute'.$attid]['name'])) {
           $tmpnam = $_FILES['attribute'.$attid]['tmp_name'];
-          $size = $_FILES['attribute'.$attid]['size'];
+          move_uploaded_file($tmpnam,'/tmp/avatar'.$userid.'.jpg');
+
+          if (function_exists('resizeImageFile')) {
+            resizeImageFile('/tmp/avatar'.$userid.'.jpg',150,1);
+          }
+          $size = filesize('/tmp/avatar'.$userid.'.jpg');
+#          dbg('New size: '.$size);
           if ($size < MAX_AVATAR_SIZE) {
-            $avatar = file_get_contents($tmpnam);
+            $avatar = file_get_contents('/tmp/avatar'.$userid.'.jpg');
             Sql_Query(sprintf('replace into %s (userid,attributeid,value)
               values(%d,%d,"%s")',$user_att_table,$userid,$attid,base64_encode($avatar)));
+            unlink('/tmp/avatar'.$userid.'.jpg');
           }
         } 
       }
