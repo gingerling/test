@@ -165,7 +165,7 @@ function existUserID($id = 0) {
   return $userid[0];
 }
 
-function getUserAttributeValues($email = '', $id = 0) {
+function getUserAttributeValues($email = '', $id = 0, $bIndexWithShortnames = false) {
   global $table_prefix,$tables;
   if (!$email && !$id) return;
   # workaround for integration webbler/phplist
@@ -201,7 +201,11 @@ function getUserAttributeValues($email = '', $id = 0) {
   ));
 
   while ($att = Sql_fetch_array($att_req)) {
-    $result[$att["name"]] = UserAttributeValue($id,$att["id"]);
+    if ( $bIndexWithShortnames ) {
+      $result['attribute' . $att['id']] = UserAttributeValue($id,$att["id"]);
+    } else {
+      $result[$att['name']] = UserAttributeValue($id,$att["id"]);
+    }
   }
   return $result;
 }
