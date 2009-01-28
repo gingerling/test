@@ -674,7 +674,7 @@ if (sizeof($email_list)) {
       if (isset ($everyone_groupid) && !in_array($everyone_groupid, $groups)) {
         array_push($groups, $everyone_groupid);
       }
-      if (is_array($groups)) {
+      if (defined('IN_WEBBLER') && is_array($groups)) {
         #add this user to the groups identified
         reset($groups);
         $groupaddition = 0;
@@ -775,7 +775,7 @@ if (Sql_Table_Exists($tables["list"])) {
   }
 }
 
-if (Sql_Table_Exists("groups")) {
+if (defined('IN_WEBBLER') && Sql_Table_Exists("groups")) {
   $result = Sql_query("SELECT id,name FROM groups ORDER BY listorder");
   $c = 0;
   if (Sql_Affected_Rows() == 1) {
