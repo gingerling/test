@@ -489,13 +489,13 @@ function addUserHistory($email,$msg,$detail) {
   }
   $sysinfo = "";
   $sysarrays = array_merge($_ENV,$_SERVER);
-  if (is_array($GLOBALS["userhistory_systeminfo"])) {
+  if ( isset($GLOBALS["userhistory_systeminfo"]) && is_array($GLOBALS["userhistory_systeminfo"]) ) {
     foreach ($GLOBALS["userhistory_systeminfo"] as $key) {
       if (isset($sysarrays[$key])) {
         $sysinfo .= "\n$key = $sysarrays[$key]";
       }
     }
-  } elseif (is_array($GLOBALS["config"]["userhistory_systeminfo"])) {
+  } elseif ( isset($GLOBALS["config"]["userhistory_systeminfo"]) && is_array($GLOBALS["config"]["userhistory_systeminfo"])) {
     foreach ($GLOBALS["config"]["userhistory_systeminfo"] as $key) {
       if ($sysarrays[$key]) {
         $sysinfo .= "\n$key = $sysarrays[$key]";
