@@ -110,10 +110,20 @@ function addDebug($msg) {
 
 function bbg($variable, $description = 'Value', $printBuffer = 0) {
 	#Safety bailouts
-  if (!DEVSITE) return;
+//  print "<br/>devsite = " . DEVSITE;
+  if ( defined('DEVSITE') && !DEVSITE) return;
+  
+//  print "<br/>Safe mode = " . ini_get("safe_mode");
   if (ini_get("safe_mode")) return;
+  
+//  print "<br/>autologin = " . array_key_exists('tincanautologin', $GLOBALS['config']); 
+//  print "<br/>REMOTE_ADDR = " . $_SERVER['REMOTE_ADDR'];
   if (array_key_exists('tincanautologin', $GLOBALS['config']) && !in_array($_SERVER['REMOTE_ADDR'],array_keys($GLOBALS['config']['tincanautologin']))) return;
+  
+//  print "<br/>bdebug = " . array_key_exists('bdebug', $GLOBALS['config']);
   if ( !array_key_exists('bdebug', $GLOBALS['config']) || ( array_key_exists('bdebug', $GLOBALS['config']) && !$GLOBALS['config']["bdebug"] ) )  return;
+  
+//  print "<br>smartDebug($variable, $description, $printBuffer)"; 
   smartDebug($variable, $description, $printBuffer);
 }
 
