@@ -18,6 +18,19 @@ if (!ini_get("magic_quotes_gpc") || ini_get("magic_quotes_gpc") == "off") {
   $_COOKIE = addSlashesArray($_COOKIE);
 }
 
+function removeXss($string) {
+  if (is_array($string)) {
+    $return = array();
+    foreach ($string as $key => $val) {
+      $return[removeXss($key)] = removeXss($val);
+    }
+    return $return;
+  }
+  #$string = preg_replace('/<script/im','&lt;script',$string);
+  $string = htmlspecialchars($string);
+  return $string;
+}
+
 /*
 foreach ($_POST as $key => $val) {
   print "POST: $key = $val<br/>";
