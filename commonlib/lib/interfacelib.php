@@ -181,12 +181,12 @@ class WebblerListing {
       } else {
         $value = "";
       }
-      if (isset($element["rows"][$row]["align"])) {
-        $align = $element["rows"][$row]["align"];
+      if (isset($row["align"])) {
+        $align = $row["align"];
       } else {
         $align = 'left';
       }
-      if (isset($element["rows"][$row]["url"])) {
+      if (isset($row["url"])) {
         $html .= sprintf('<tr><td valign="top" class="listingrowname">
           <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
           </td><td valign="top" class="listingelement%s" colspan=%d>
