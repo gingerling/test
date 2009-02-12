@@ -80,7 +80,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     }
   }
 
-  if (is_array($_FILES)) { ## only avatars are files
+  if ( !empty($_FILES) && is_array($_FILES) ) { ## only avatars are files
     foreach ($_FILES['attribute']['name'] as $key => $val) {
       if (!empty($_FILES['attribute']['name'][$key])) {
         $tmpnam = $_FILES['attribute']['tmp_name'][$key];
