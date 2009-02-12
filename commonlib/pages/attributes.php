@@ -18,8 +18,14 @@ if (isset($_POST["action"])) {
         if ($lc_name == "email") { print Warn($GLOBALS['I18N']->get('warnemailattribute')); }
 
         #print "New attribute: ".$_POST["name"][0]."<br/>";
+        if ( empty($_POST["required"][0]) ) {
+          $nRequired = 0;        
+        } else {
+          $nRequired = $_POST["required"][0];        
+        }
+        
         $query = sprintf('insert into %s (name,type,listorder,default_value,required,tablename) values("%s","%s",%d,"%s",%d,"%s")',
-        $tables["attribute"],addslashes($_POST["name"][0]),$_POST["type"][0],$_POST["listorder"][0],addslashes($_POST["default"][0]),$_POST["required"][0],$lc_name);
+        $tables["attribute"],addslashes($_POST["name"][0]),$_POST["type"][0],$_POST["listorder"][0],addslashes($_POST["default"][0]), $nRequired,$lc_name);
         Sql_Query($query);
         $insertid = Sql_Insert_id();
         # text boxes and hidden fields do not have their own table
@@ -120,8 +126,13 @@ if (isset($_POST["action"])) {
             }
             break;
         }
+        if ( empty($_POST["required"][$id]) ) {
+          $nRequired = 0;        
+        } else {
+          $nRequired = $_POST["required"][$id];        
+        }
         $query = sprintf('update %s set name = "%s" ,type = "%s" ,listorder = %d,default_value = "%s" ,required = %d where id = %d',
-        $tables["attribute"],addslashes($_POST["name"][$id]),$_POST["type"][$id],$listorder[$id],$default[$id],$required[$id],$id);
+          $tables["attribute"],addslashes($_POST["name"][$id]),$_POST["type"][$id],$_POST["listorder"][$id],$_POST["default"][$id],$nRequired,$id);
         Sql_Query($query);
         # save keywordlib seperately in case the DB hasn't been upgraded
         if (defined('IN_WEBBLER') && IN_WEBBLER) {
