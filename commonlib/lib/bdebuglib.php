@@ -29,65 +29,7 @@ if( !isset($GLOBALS['config']['delay_debug_output']) ) {
 
 //$GLOBALS['config']['head']['jquery'] = sprintf('<script type="text/javascript" src="%s"></script>', 
 //  '/codelib/js/' . $GLOBALS['config']['jquery'] );
-$GLOBALS['config']['head']['bbgstyles'] = '
-<style type="text/css">
-.bbg {
-  background-color: #ffc;
-  background-image: none;
-  cursor: pointer;
-  display: -moz-inline-box;
-  font-size: 8px;
-  text-align: left;
-  padding : 0px;
-  font-weight: normal;
-  color: #000;
-  font-style: normal;
-  font-family: verdana, sans-serif;
-  text-decoration: none;
-}
-.bbg_trace {
-  font-size: 5px;
-} 
-.bbg ul{
-  border:1px solid #a0a0a0;
-  margin:1px;
-  padding : 0px;
-  list-style : none;
-  width : 80em;
-}
-
-.bbg li{
-  color: #000;
-    backgroud-color:#0cf;
-  
-}
-
-a.info{
-  position:relative; /*this is the key*/
-/*  z-index:24; */ 
-  color:#000;
-  text-decoration:none
-}
-
-a.info:hover{
-/*  z-index:25; */ 
-}
-
-a.info span{
-  display: none;
-}
-
-a.info:hover span{
-  /*the span will display just on :hover state*/
-  display:block;
-  position:absolute;
-  top:2em; left:1em; width:60em;
-  border:1px solid #ccf;
-  background-color:#cff;
-}
-    
-</style>
-';
+$GLOBALS['config']['head']['bbgstyles'] = '<link rel="StyleSheet" href="/codelib/css/bbg.css" type="text/css" />';
 //}
 
 static $sDebugResult; # This holds the debugmessages when delay is on
