@@ -522,7 +522,7 @@ function addUserHistory($email,$msg,$detail) {
 }
 
 function validateEmail($email) {
-  if ($GLOBALS["config"]["dont_require_validemail"])
+  if ( !empty($GLOBALS["config"]["dont_require_validemail"]) )
     return 1;
   if (!isset($GLOBALS["check_for_host"])) {
     $GLOBALS["check_for_host"] = 0;
