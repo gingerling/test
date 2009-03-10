@@ -181,7 +181,18 @@ $totalunconfirmed = $totalres[0];
 $totalres = Sql_fetch_Row($count);
 $total = $totalres[0];
 
-if (isset ($delete)) {
+
+if (isset($_GET["delete"])){
+   $delete = sprintf("%d", $_GET["delete"]);
+}
+else $delete = 0;
+
+if (isset($_GET["start"])){
+   $start = sprintf("%d", $_GET["start"]);
+}
+else $start = 0;
+
+if (!empty($delete) && isSuperUser()) {
 	# delete the index in delete
 	print $GLOBALS['I18N']->get('deleting') . " $delete ..\n";
 	deleteUser($delete);
