@@ -56,12 +56,14 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   # read the current values to compare changes
   $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$id));
   $old_data = array_merge($old_data,getUserAttributeValues('',$id));
+
   # and membership of lists
   $old_listmembership = array();
   $req = Sql_Query("select * from {$tables["listuser"]} where userid = $id");
   while ($row = Sql_Fetch_Array($req)) {
     $old_listmembership[$row["listid"]] = listName($row["listid"]);
   }
+
   while (list ($key,$val) = each ($struct)) {
     if (isset($val[1]) && strpos($val[1],':')) {
       list($a,$b) = explode(":",$val[1]);
@@ -81,17 +83,18 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   }
 
   if ( !empty($_FILES) && is_array($_FILES) ) { ## only avatars are files
-    foreach ($_FILES['attribute']['name'] as $key => $val) {
-      if (!empty($_FILES['attribute']['name'][$key])) {
-        $tmpnam = $_FILES['attribute']['tmp_name'][$key];
-        $size = $_FILES['attribute']['size'][$key];
-       if ($size < MAX_AVATAR_SIZE) {
-          $avatar = file_get_contents($tmpnam);
-          Sql_Query(sprintf('replace into %s (userid,attributeid,value)
-            values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,base64_encode($avatar)));
-        }
-      } 
-    }
+     foreach ($_FILES['attribute']['name'] as $key => $val) {
+        if (!empty($_FILES['attribute']['name'][$key])) {
+           $tmpnam = $_FILES['attribute']['tmp_name'][$key];
+           $size = $_FILES['attribute']['size'][$key];
+
+           if ($size < MAX_AVATAR_SIZE) {
+              $avatar = file_get_contents($tmpnam);
+              Sql_Query(sprintf('replace into %s (userid,attributeid,value)
+              values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,base64_encode($avatar)));
+           }
+        } 
+     }
   }
 
   if (isset($_POST['attribute']) && is_array($_POST['attribute'])) {
@@ -168,6 +171,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   $history_entry = '';
   $current_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["user"],$id));
   $current_data = array_merge($current_data,getUserAttributeValues('',$id));
+
   foreach ($current_data as $key => $val) {
     if (!is_numeric($key))
     if ($old_data[$key] != $val && $key != "modified") {
@@ -267,8 +271,13 @@ if ($id) {
   print "<input type=hidden name=returnpage value=$returnpage><input type=hidden name=returnoption value=$returnoption>";
 
   reset($struct);
+
   while (list ($key,$val) = each ($struct)) {
     @list($a,$b) = explode(":",$val[1]);
+
+    if (!isset($user[$key]))
+    $user[$key] = "";
+
     if ($key == "confirmed") {
       if (!$require_login || ($require_login && isSuperUser())) {
         printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size=5></td></tr>'."\n",$GLOBALS['I18N']->get($b),$key,$user[$key]);
