@@ -60,8 +60,13 @@ function deleteUser($id) {
   Sql_Query(sprintf('delete from %s where id = %d',$tables["user"],$id));
   Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_history"],$id));
   ### allow plugins to delete their data
+
   foreach ($GLOBALS['plugins'] as $plugin) {
-    $plugin->deleteUser($id);
+    //$plugin->deleteUser($id);
+
+    if (method_exists($plugin, "deleteUser")) {
+       $plugin->deleteUser($id);
+    }
   }
 }
 
