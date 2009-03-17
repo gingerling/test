@@ -1,8 +1,13 @@
 <?php
-
+/**
+ * library with user functions
+ * 
+ * this file is shared between the webbler and PHPlist via commonlib
+ * 
+ * @package Common
+ * @subpackage userlib 
+ */
 require_once dirname(__FILE__).'/accesscheck.php';
-# library with user functions
-# this file is shared between the webbler and PHPlist via commonlib
 
 function initialiseUserSession() {
   if (!is_array($_SESSION["userdata"])) {
