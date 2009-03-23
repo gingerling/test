@@ -293,7 +293,7 @@ function isBlackListed($email = "") {
   }
   # allow 5 minutes to send the last message acknowledging unsubscription
   $req = Sql_Query(sprintf('select * from %s where email = "%s" and date_add(added,interval %d minute) < now()',
-    $GLOBALS["tables"]["user_blacklist"],$email,$gracetime));
+    $GLOBALS["tables"]["user_blacklist"],sql_escape($email),$gracetime));
   return Sql_Affected_Rows();
 }
 
