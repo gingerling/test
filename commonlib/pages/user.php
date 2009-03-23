@@ -280,7 +280,7 @@ if ($id) {
 
     if ($key == "confirmed") {
       if (!$require_login || ($require_login && isSuperUser())) {
-        printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size=5></td></tr>'."\n",$GLOBALS['I18N']->get($b),$key,$user[$key]);
+        printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size=5></td></tr>'."\n",$GLOBALS['I18N']->get($b),$key,htmlspecialchars($user[$key]));
       } else {
         printf('<tr><td>%s</td><td>%s</td></tr>',$b,$user[$key]);
       }
@@ -293,7 +293,7 @@ if ($id) {
         if (ereg("sys",$a))
           printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),$user[$key]);
         elseif ($val[1])
-          printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,$user[$key]);
+          printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size=30></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,htmlspecialchars($user[$key]));
       }
     }
   }
