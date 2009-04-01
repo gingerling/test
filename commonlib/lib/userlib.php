@@ -239,6 +239,9 @@ function UserAttributeValue($user = 0,$attribute = 0) {
     case "checkboxgroup":
       $val_ids  = Sql_Fetch_Row_Query("select value from $user_att_table where userid = $user and attributeid = $attribute");
       if ($val_ids[0]) {
+        if (function_exists('cleancommalist')) {
+          $val_ids[0] = cleanCommaList($val_ids[0]);
+        }
         $value = '';
         $res = Sql_Query("select $table_prefix"."listattr_".$att["tablename"].".name
           from $user_att_table,$table_prefix"."listattr_".$att["tablename"]."
