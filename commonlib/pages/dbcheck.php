@@ -21,7 +21,7 @@ while (list($table, $tablename) = each($GLOBALS["tables"])) {
   $struct = $DBstruct[$table];
   $haserror = 0;
   foreach ($struct as $column => $colstruct) {
-    if (!ereg("index_",$column) && !ereg("^unique_",$column) && $column != "primary key") {
+    if (!ereg("index_",$column) && !ereg("^unique_",$column) && $column != "primary key" && $column != "storage_engine") {
       $tls->addElement($column);
       $exist = isset($columns[strtolower($column)]);
       if ($exist) {
