@@ -130,7 +130,7 @@ function getAttributeIDbyName ($sName) {
     $usertable_prefix,$att_table,$sName));
   $row = Sql_Fetch_row($res);
 
-  dbg($row,'$$row');
+//  dbg($row,'$$row');
   return $row[0];
 }
 
