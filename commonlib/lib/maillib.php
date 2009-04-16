@@ -9,8 +9,6 @@
  */
 require_once dirname(__FILE__).'/accesscheck.php';
 
-assert ("!function_exists('stripHTML')");
-
 function stripHTML($text) {
   # strip HTML, and turn links into the full URL
   $text = preg_replace("/\r/","",$text);
