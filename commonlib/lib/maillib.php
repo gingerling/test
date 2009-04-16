@@ -9,7 +9,7 @@
  */
 require_once dirname(__FILE__).'/accesscheck.php';
 
-function stripHTML($text) {
+function HTML2Text($text) {
   # strip HTML, and turn links into the full URL
   $text = preg_replace("/\r/","",$text);
 
@@ -156,7 +156,7 @@ function addAbsoluteResources($text,$url) {
 function mailURL( $sTo, $sFrom, $sSubject, $sUrl ) {
   if ( $sHtmlBody = file_get_contents($sUrl) ) {
   	$sHtmlBody = addAbsoluteResources( $sHtmlBody, sprintf( 'http://%s/', $_SERVER['HTTP_HOST']) );
-    $sTextBody = stripHTML( $sHtmlBody );
+    $sTextBody = HTML2Text( $sHtmlBody );
     return htmlEmail( $sTo, $sFrom, $sSubject, $sTextBody, '', $sFrom, $sHtmlBody);     
   } else {
     Error( "URL $sUrl could not be opened" );
