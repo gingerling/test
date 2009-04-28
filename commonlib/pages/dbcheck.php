@@ -20,16 +20,37 @@ while (list($table, $tablename) = each($GLOBALS["tables"])) {
   $tls = new WebblerListing($table);
   $struct = $DBstruct[$table];
   $haserror = 0;
-  foreach ($struct as $column => $colstruct) {
-    if (!ereg("index_",$column) && !ereg("^unique_",$column) && $column != "primary key" && $column != "storage_engine") {
-      $tls->addElement($column);
-      $exist = isset($columns[strtolower($column)]);
-      if ($exist) {
-        $tls->addColumn($column,"exist",$GLOBALS["img_tick"]);
-      } else {
-        $haserror = 1;
-        $tls->addColumn($column,"exist",$GLOBALS["img_cross"]);
-      }
+  $indexes = $uniques = $engine = $category = '';
+  if (is_array($struct)) {
+     foreach ($struct as $column => $colstruct) {
+      if (!ereg("index_",$column) &&
+        !ereg("^unique_",$column) &&
+        $column != "primary key" &&
+        $column != "storage_engine" &&
+        $column != 'table_category') {
+          $tls->addElement($column);
+          $exist = isset($columns[strtolower($column)]);
+          if ($exist) {
+            $tls->addColumn($column,"exist",$GLOBALS["img_tick"]);
+          } else {
+            $haserror = 1;
+            $tls->addColumn($column,"exist",$GLOBALS["img_cross"]);
+          }
+        } else {
+          if (ereg("index_",$column)) {
+            $indexes .= $colstruct[0].'<br/>';
+          }
+          if (ereg("unique_",$column)) {
+            $uniques .= $colstruct[0].'<br/>';
+          }
+#          if ($column == "primary key")
+          if ($column == "storage_engine") {
+            $engine = $colstruct[0];
+          }
+          if ($column == 'table_category') {
+            $category = $colstruct;
+          }
+        }
     }
   }
   if (!$haserror) {
@@ -38,6 +59,16 @@ while (list($table, $tablename) = each($GLOBALS["tables"])) {
   } else {
     $ls->addColumn($table,"ok",$GLOBALS["img_cross"]);
   }
+  if (!empty($indexes)) {
+    $ls->addColumn($table,"index",$indexes);
+  }
+  if (!empty($uniques)) {
+    $ls->addColumn($table,"unique",$uniques);
+  }
+  if (!empty($category)) {
+    $ls->addColumn($table,"category",$category);
+  }
+ 
   $ls->addColumn($table,"check",$tls->display());
 }
 print $ls->display();
