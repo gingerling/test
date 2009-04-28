@@ -2,7 +2,7 @@
 $types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea","date",'avatar');
 $formtable_exists = Sql_Table_exists("formfield");
 
-ob_end_flush();
+#ob_end_flush();
 #foreach ($_POST as $key => $val) {
 #  print "$key = ".print_r($val)."<br/>";
 #}
