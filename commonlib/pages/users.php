@@ -393,9 +393,13 @@ if ($result)
 //		}
 
     ### allow plugins to add columns
-    foreach ($GLOBALS['plugins'] as $plugin) {
-      $plugin->displayUsers($user,  $user['email'], $ls);
-    } 
+    if (isset($GLOBALS['plugins']) && is_array($GLOBALS['plugins'])) {
+      foreach ($GLOBALS['plugins'] as $plugin) {
+        if (method_exists($plugin,'displayUsers')) {
+          $plugin->displayUsers($user,  $user['email'], $ls);
+        }
+      }
+    }
     
 		if (in_array("bounces", $columns)) {
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('bncs'), $user["bouncecount"]);

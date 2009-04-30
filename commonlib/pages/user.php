@@ -3,10 +3,7 @@
 
 <?php
 if (!defined('MAX_AVATAR_SIZE')) define('MAX_AVATAR_SIZE',2000);
-#if (!$_GET["id"] && !$_GET["delete"]) {
-#  Fatal_Error("No such user");
-#  return;
-#}
+
 $id = sprintf('%d',isset($_GET["id"]) ? $_GET['id']:0);
 $delete = sprintf('%d',isset($_GET['delete']) ? $_GET["delete"]:0);
 $date = new Date();

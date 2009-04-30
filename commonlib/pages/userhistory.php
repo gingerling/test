@@ -65,7 +65,7 @@ if ($num) {
   $totalresp = 0;
   while ($msg = Sql_Fetch_Array($msgs)) {
     $ls->addElement($msg["messageid"],PageURL2("message",$GLOBALS['I18N']->get('view'),"id=".$msg["messageid"]));
-    if (CLICKTRACK) {
+    if (defined('CLICKTRACK') && CLICKTRACK) {
       $clicks = Sql_Fetch_Row_Query(sprintf('select sum(clicked) as numclicks from %s where userid = %s and messageid = %s',
         $GLOBALS['tables']['linktrack'],$user['id'],$msg['messageid']));
       $ls->addColumn($msg["messageid"],$GLOBALS['I18N']->get('clicks'),
