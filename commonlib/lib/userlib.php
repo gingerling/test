@@ -76,6 +76,9 @@ function deleteUser($id) {
 }
 
 function addNewUser($email,$password = "") {
+  if (empty($GLOBALS['tables']['user'])) {
+    $GLOBALS['tables']['user'] = 'user';
+  }
 /*
     "id" => array("integer not null primary key auto_increment","sys:ID"),
     "email" => array("varchar(255) not null","Email"),
@@ -93,17 +96,16 @@ function addNewUser($email,$password = "") {
     "extradata" => array("text","Additional data"),
 */
   // insert into user db
+  $exists = Sql_Fetch_Row_Query(sprintf('select id from %s where email = "%s"',
+    $GLOBALS['tables']['user'],$email));
+  if ($exists[0]) return $exists[0];
+  
   Sql_Query(sprintf('insert into %s set email = "%s",
     entered = now(),modified = now(),password = "%s",
     passwordchanged = now(),disabled = 0,
     uniqid = "%s",htmlemail = 1
     ',$GLOBALS['tables']['user'],$email,$password,getUniqid()));
-  $ar = Sql_Affected_Rows();
-  if ($ar > 0) {
-    $id = Sql_Insert_Id();
-  } else {
-    $id = 0;
-  }
+  $id = Sql_Insert_Id();
   return $id;
 }
 
@@ -491,13 +493,17 @@ function is_email($email) {
 
 function addUserHistory($email,$msg,$detail) {
   global $table_prefix,$tables;
-  if ($tables["user"]) {
+  if (isset($tables["user"])) {
     $user_table = $tables["user"];
-    $user_his_table = $tables["user_history"];
   } else {
     $user_table = "user";
+  }
+  if (isset($tables["user_history"])) {
+    $user_his_table = $tables["user_history"];
+  } else {
     $user_his_table = "user_history";
   }
+
   $sysinfo = "";
   $sysarrays = array_merge($_ENV,$_SERVER);
   if ( isset($GLOBALS["userhistory_systeminfo"]) && is_array($GLOBALS["userhistory_systeminfo"]) ) {
