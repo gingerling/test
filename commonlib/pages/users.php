@@ -186,6 +186,7 @@ if (isset($_GET["delete"])){
    $delete = sprintf("%d", $_GET["delete"]);
 }
 else $delete = 0;
+#print $_GET["delete"].' '.$delete .isSuperUser();exit;
 
 if (isset($_GET["start"])){
    $start = sprintf("%d", $_GET["start"]);
@@ -200,7 +201,7 @@ if (!empty($delete) && isSuperUser()) {
 	print '..' . $GLOBALS['I18N']->get('Done') . '<br><hr><br>';
 	Redirect("users&start=$start");
 }
-ob_end_flush();
+#ob_end_flush();
 
 if (isset ($add)) {
 	if (isset ($new)) {
@@ -361,8 +362,8 @@ if ($result)
 			$onblacklist = isBlackListed($user["email"]);
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('bl l'), $onblacklist ? $GLOBALS["img_tick"] : $GLOBALS["img_cross"]);
 		}
-		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf("<a href=\"javascript:deleteRec('%s');\">del</a>", PageURL2("users", "delete", "start=$start&delete=" .
-		$user["id"])));
+#		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="%s" onclick="return deleteRec(\'%s\');">del</a>',PageUrl2('users'.$find_url), PageURL2("users&start=$start&delete=" .$user["id"])));
+		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>', PageURL2("users&start=$start&delete=" .$user["id"])));
 		if (isset ($user['foreignkey'])) {
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('key'), $user["foreignkey"]);
 		}
