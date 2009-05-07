@@ -136,6 +136,36 @@ function getAttributeIDbyName ($sName) {
   return $row[0];
 }
 
+/**
+ * Returns attribute name for ID
+ * 
+ * @param $iAttribute
+ * @return unknown_type
+ */
+function getAttributeNamebyID ($iAttribute) {
+
+  if ( empty($iAttribute) ) return null;
+  global $usertable_prefix;
+  # workaround for integration webbler/phplist
+  if (!isset($usertable_prefix)) {
+    $usertable_prefix = '';
+  }
+  if ($tables["attribute"]) {
+    $att_table = $tables["attribute"];
+    $user_att_table = $tables["user_attribute"];
+  } else {
+    $att_table = "attribute";
+    $user_att_table = "user_attribute";
+  }
+
+  $res = Sql_Query(sprintf('SELECT name FROM %s%s WHERE id = %d',
+    $usertable_prefix,$att_table,$iAttribute));
+  $row = Sql_Fetch_row($res);
+
+//  dbg($row,'$$row');
+  return $row[0];
+}
+
 function AttributeValue($table,$value) {
   global $table_prefix;
   # workaround for integration webbler/phplist
