@@ -876,14 +876,14 @@ function saveUserAttribute($userid,$attid,$data) {
   }
 
   if ($data["nodbsave"]) {
-    dbg("Not saving $attid");
+    dbg($attid, "Not saving, nodbsave");
     return;
   }
   if (strtolower($data) == 'invalid attribute index') {
     return;
   }
   if ($attid == "emailcheck" || $attid == "passwordcheck") {
-    dbg("Not saving $attid");
+    dbg($attid, "Not saving, emailcheck/passwordcheck");
     return;
   }
 
