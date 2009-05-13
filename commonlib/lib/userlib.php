@@ -875,6 +875,11 @@ function saveUserAttribute($userid,$attid,$data) {
     $user_att_table = $usertable_prefix . "user_attribute";
   }
 
+  if (!is_array($data)) {
+    $tmp = $data;
+    $data = array('value' => $tmp);
+  }
+
   if ($data["nodbsave"]) {
     dbg($attid, "Not saving, nodbsave");
     return;
