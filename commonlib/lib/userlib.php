@@ -877,7 +877,7 @@ function saveUserAttribute($userid,$attid,$data) {
 
   if (!is_array($data)) {
     $tmp = $data;
-    $data = array('value' => $tmp);
+    $data = array('value' => $tmp,'displayvalue' => $tmp);
   }
 
   if ($data["nodbsave"]) {
@@ -905,6 +905,7 @@ function saveUserAttribute($userid,$attid,$data) {
     return 1;
   }
 
+  $attributetype = $data['type'];
   $attid_req = Sql_Fetch_Row_Query(sprintf('
     select id,type,tablename from %s where id = %d', $att_table, $attid));
   if (!$attid_req[0]) {
@@ -923,14 +924,20 @@ function saveUserAttribute($userid,$attid,$data) {
       }
     } else {
       $attid = $attid_req[0];
+      if (empty($attributetype)) {
+        $attributetype = $attid_req[1];
+      }
       $atttable = $attid_req[2];
     }
   } else {
     $attid = $attid_req[0];
+    if (empty($attributetype)) {
+      $attributetype = $attid_req[1];
+    }
     $atttable = $attid_req[2];
   }
 
-  if (!$atttable) {
+  if (!$atttable && !empty($data['name'])) {
     $atttable = getNewAttributeTablename($data["name"]);
     # fix attribute without tablename
     Sql_Query(sprintf('update %s set tablename ="%s" where id = %d',
@@ -938,7 +945,7 @@ function saveUserAttribute($userid,$attid,$data) {
 #   sendError("Attribute without Tablename $attid");
   }
 
-  switch ($data["type"]) {
+  switch ($attributetype) {
     case "static":
     case "password":
       Sql_Query(sprintf('update user set %s = "%s" where id = %d',
