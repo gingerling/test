@@ -62,20 +62,22 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   }
 
   while (list ($key,$val) = each ($struct)) {
-    if (isset($val[1]) && strpos($val[1],':')) {
-      list($a,$b) = explode(":",$val[1]);
-    } else {
-      $a = $b = '';
-    }
-    if (!ereg("sys",$a) && $val[1]) {
-      if ($key == "password" && ENCRYPTPASSWORD) {
-        if ($_POST[$key])
-          Sql_Query("update {$tables["user"]} set $key = \"".md5($_POST[$key])."\" where id = $id");
+    if (is_array($val)) {
+      if (isset($val[1]) && strpos($val[1],':')) {
+        list($a,$b) = explode(":",$val[1]);
       } else {
-         Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
+        $a = $b = '';
       }
-    } elseif ((!$require_login || ($require_login && isSuperUser())) && $key == "confirmed") {
-      Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
+      if (!ereg("sys",$a) && $val[1]) {
+        if ($key == "password" && ENCRYPTPASSWORD) {
+          if ($_POST[$key])
+            Sql_Query("update {$tables["user"]} set $key = \"".md5($_POST[$key])."\" where id = $id");
+        } else {
+           Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
+        }
+      } elseif ((!$require_login || ($require_login && isSuperUser())) && $key == "confirmed") {
+        Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
+      }
     }
   }
 
