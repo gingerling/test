@@ -12,6 +12,7 @@ class WebblerListing {
   var $sort = 0;
   var $sortcolumn = '';
   var $buttons = array();
+  var $submitbuttons = array();
   var $initialstate = "block";
   var $duplicatebuttons = array();
   var $buttonduplicate = 0;
@@ -98,6 +99,10 @@ class WebblerListing {
   function addButton($name,$url) {
     $this->buttons[$name] = $url;
   }
+  
+  function addSubmitButton($name,$label) {
+    $this->submitbuttons[$name] = $label;
+  }
 
   function duplicateButton($name,$rows) {
     $this->duplicatebuttons[$name] = array(
@@ -166,7 +171,7 @@ class WebblerListing {
       } else {
         $align = '';
       }
-      if (isset($element["columns"][$column]) && $element["columns"][$column]["url"]) {
+      if (!empty($element["columns"][$column]["url"])) {
         $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s"><a href="%s" class="listingelement">%s</a></span></td>',$align,$align,$element["columns"][$column]["url"],$value);
       } elseif (isset($element["columns"][$column])) {
         $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,$element["columns"][$column]["value"]);
@@ -186,7 +191,7 @@ class WebblerListing {
       } else {
         $align = 'left';
       }
-      if (isset($row["url"])) {
+      if (!empty($row["url"])) {
         $html .= sprintf('<tr><td valign="top" class="listingrowname">
           <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
           </td><td valign="top" class="listingelement%s" colspan=%d>
@@ -240,6 +245,17 @@ class WebblerListing {
     if (sizeof($this->buttons)) {
       foreach ($this->buttons as $button => $url) {
         $buttons .= sprintf('<a class="button" href="%s">%s</a>',$url,strtoupper($button));
+      }
+      $html .= sprintf('
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr><td colspan="%d" align="right">%s</td></tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    ',sizeof($this->columns)+2,$buttons);
+    }
+    $buttons = '';
+    if (sizeof($this->submitbuttons)) {
+      foreach ($this->submitbuttons as $name => $label) {
+        $buttons .= sprintf('<button type="submit" name="%s">%s</button>',$name,strtoupper($label));
       }
       $html .= sprintf('
     <tr><td colspan="2">&nbsp;</td></tr>
@@ -306,6 +322,52 @@ class WebblerListing {
     return $html;
   }
 }
+
+
+class DomTab {
+
+  var $tabs = array();
+  var $domtabcluster = '';
+
+  function DomTab($name = '') {
+    $this->domtabcluster = $name;
+  }
+
+  function addTab($title,$content) {
+    $this->tabs[strip_tags($title)] = $content;
+  }
+
+  function header() {
+    return '
+	<script type="text/javascript">
+		document.write(\'<style type="text/css">\');    
+		document.write(\'div.domtab div{display:visible;}<\');
+		document.write(\'/s\'+\'tyle>\');    
+    </script>
+  ';
+  }  
+
+  function display() {
+    $html = '
+      <div class="domtab">
+        <ul class="domtabs">
+        ';
+    foreach ($this->tabs as $title => $content) {
+      $html .= sprintf('<li><a href="#%s">%s</a></li>',$this->domtabcluster.strtolower($title),$title);
+    }
+    $html .= '</ul>';
+
+    foreach ($this->tabs as $title => $content) {
+      $html .= '<div style="display: none;">';
+      $html .= sprintf('<h2><a name="%s" id="%s"><span class="hide">%s</span></a></h2>',$this->domtabcluster.strtolower($title),$this->domtabcluster.strtolower($title),$title);
+      $html .= $content;
+      $html .= '</div>';
+    }
+    $html .= '</div>';
+    return $this->header().$html;
+  }
+}
+
 
 class topBar {
   var $type = '';
