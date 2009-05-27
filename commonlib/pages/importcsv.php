@@ -1,5 +1,5 @@
 <?php
-ob_end_flush();
+
 print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
 
 ignore_user_abort();
@@ -75,7 +75,8 @@ function clearImport() {
 }
 
 register_shutdown_function("my_shutdown");
-require_once $GLOBALS["coderoot"] . "structure.php";
+
+require $GLOBALS["coderoot"] . "structure.php";
 
 ## identify system values from the database structure
 $system_attributes = array ();
@@ -88,7 +89,9 @@ while (list ($key, $val) = each($DBstruct["user"])) {
   #}
 }
 
-ob_end_flush();
+if (!defined('WEBBLER')) {
+  ob_end_flush();
+}
 if (!empty ($_GET["reset"]) && $_GET["reset"] == "yes") {
   clearImport();
   print '<h1>' . $GLOBALS['I18N']->get('Import cleared') . '</h1>';
