@@ -145,7 +145,7 @@ if (isset($_POST["action"])) {
   }
 } elseif (isset($_POST["tagaction"]) && is_array($_POST["tag"])) {
 	ksort($_POST["tag"]);
-  if (isset($tagaction['delete'])) {
+  if (isset($_POST["tagaction"]['delete'])) {
     while (list($k,$id) = each ($_POST["tag"])) {
       # check for dependencies
       if ($formtable_exists) {
@@ -168,7 +168,7 @@ if (isset($_POST["action"])) {
         }
       }
     }
- 	} elseif (isset($tagaction['merge'])) {
+ 	} elseif (isset($_POST["tagaction"]['merge'])) {
     $first = array_shift($_POST["tag"]);
     $firstdata = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d',$tables["attribute"],$first));
     if (!sizeof($_POST["tag"])) {
