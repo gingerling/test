@@ -325,7 +325,7 @@ while ($row = Sql_Fetch_array($res)) {
   $GLOBALS['I18N']->get('attribute').':'. $row["id"];
   if ($formtable_exists) {
     sql_query("select * from formfield where attribute = ".$row["id"]);
-    print "  (".$GLOBALS['I18N']->get('usedin').' '.Sql_affected_rows().' '.$GLOBALS['I18N']->get('forms');
+    print "  (".$GLOBALS['I18N']->get('usedin').' '.Sql_affected_rows().' '.$GLOBALS['I18N']->get('forms').')';
   }
     
   print '</td><td colspan=2>'.$GLOBALS['I18N']->get('tag').' <input type="checkbox" name="tag['.$c.']" value="'.$row["id"].'"></td></tr>';
