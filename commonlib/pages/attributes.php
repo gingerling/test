@@ -135,7 +135,7 @@ if (isset($_POST["action"])) {
           $tables["attribute"],addslashes($_POST["name"][$id]),$_POST["type"][$id],$_POST["listorder"][$id],$_POST["default"][$id],$nRequired,$id);
         Sql_Query($query);
         # save keywordlib seperately in case the DB hasn't been upgraded
-        if (defined('IN_WEBBLER') && IN_WEBBLER) {
+        if ((defined('IN_WEBBLER') && IN_WEBBLER)  || (defined('WEBBLER') && WEBBLER)){
           Sql_Query(sprintf('update ignore %s set keywordlib = %d where id = %d',
             $GLOBALS['tables']['attribute'],$_POST['keywordlib'][$id],$id));
         }
