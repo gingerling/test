@@ -340,7 +340,7 @@ while ($row = Sql_Fetch_array($res)) {
   print ' 
    </select>';
 
-  if (defined('IN_WEBBLER') && IN_WEBBLER) {
+  if ((defined('IN_WEBBLER') && IN_WEBBLER) || (defined('WEBBLER') && WEBBLER) ) {
     if ($row['type'] == 'select' || $row['type'] == 'radio' || $row['type'] == 'checkboxgroup') {
       print ' '.$I18N->get('authoritative list') .'&nbsp;';
       printf('<select name="keywordlib[%d]"><option value="">-- select</option>',$row['id']);
