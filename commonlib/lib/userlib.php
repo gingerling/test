@@ -795,7 +795,7 @@ function loadUser($loginname = "") {
   }
   $d_req = Sql_Fetch_Array_Query("select * from user where email = \"$loginname\"");
   $_SESSION["userid"] = $d_req["id"];
-  foreach (array("email","disabled","confirmed","htmlemail","uniqid") as $field) {
+  foreach (array("email","disabled","confirmed","htmlemail","uniqid",'password') as $field) {
 #   if (!defined($_SESSION["userdata"][$field])) {
       $_SESSION["userdata"][$field] = array(
         "name" => $field,
@@ -912,7 +912,7 @@ function saveUserAttribute($userid,$attid,$data) {
     $attid_req = Sql_Fetch_Row_Query(sprintf('
       select id,type,tablename from %s where name = "%s"', $att_table, $data["name"]));
     if (!$attid_req[0]) {
-      if ($GLOBALS["config"]["autocreate_attributes"]) {
+      if (!empty($data["name"]) && $GLOBALS["config"]["autocreate_attributes"]) {
         Dbg("Creating new Attribute: ".$data["name"]);
         sendError("creating new attribute ".$data["name"]);
         $atttable= getNewAttributeTablename($data["name"]);
@@ -996,6 +996,7 @@ function saveUserAttribute($userid,$attid,$data) {
 }
 
 function saveUserByID($userid,$data) {
+  dbg("Saving user by id $userid");
   while (list($key,$val) = each($data)) {
     if (preg_match("/^attribute(\d+)/",$key,$regs)) {
       $attid = $regs[1];
@@ -1009,6 +1010,7 @@ function saveUserByID($userid,$data) {
 }
 
 function saveUser($loginname,$data) {
+  dbg("Saving user $loginname");
   # saves user to database
   $id_req = Sql_Fetch_Row_Query("select id from user where email = \"$loginname\"");
   if ($id_req[0]) {
@@ -1027,13 +1029,13 @@ function saveUser($loginname,$data) {
 
 function saveUserData($username,$fields) {
   # saves data in session, not in database
-  dbg("Saving user $username");
   if (!is_array($_SESSION["userdata"])) {
     initialiseUserSession();
   }
   if (!$username) {
     $username = 'Unknown User';
   }
+  dbg("Saving user in session $username");
   $res = "";
   $required_fields = explode(",",$_POST["required"]);
   if ($_POST["unrequire"]) {
@@ -1048,7 +1050,7 @@ function saveUserData($username,$fields) {
   reset($fields);
 #  dbg("Checking fields");
   foreach ($fields as $fname => $fielddetails) {
-#    dbg($fname);
+    dbg('Saving user Saving '.$fname.' to session '.$_POST[$fname]);
     $key = $fname;
     $val = $_POST[$fname];
     if (!ereg("required",$key) && $key != "unrequire" &&
