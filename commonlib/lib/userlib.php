@@ -968,6 +968,10 @@ function saveUserAttribute($userid,$attid,$data) {
       break;
     case 'avatar':
       if (is_array($_FILES)) { ## only avatars are files
+        if (!defined('MAX_AVATAR_SIZE')) {
+          define('MAX_AVATAR_SIZE',100000);
+        }
+      
         $formfield = 'attribute'.$attid.'_file'; ## the name of the fileupload element
         if (!empty($_FILES[$formfield]['name'])) {
           $tmpnam = $_FILES[$formfield]['tmp_name'];
