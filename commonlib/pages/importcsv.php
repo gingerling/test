@@ -115,6 +115,9 @@ if (isset ($_POST["import"])) {
     return;
   }
 
+  if (!defined('IMPORT_FILESIZE')) {
+    define('IMPORT_FILESIZE',1);
+  }
   if (!$GLOBALS['commandline'] && filesize($_FILES["import_file"]['tmp_name']) > (IMPORT_FILESIZE*1000000)) {
     # if we allow more, we will certainly run out of memory
     Fatal_Error($GLOBALS['I18N']->get('File too big, please split it up into smaller ones'));
@@ -616,7 +619,8 @@ if (sizeof($email_list)) {
                   $user_att_value = "off";
                 break;
               case "date" :
-                $user_att_value = parseDate($uservalue);
+#                $user_att_value = parseDate($uservalue);
+                $user_att_value = $uservalue;
                 break;
               default :
                 $user_att_value = $uservalue;
