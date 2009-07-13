@@ -580,7 +580,9 @@ if (sizeof($email_list)) {
         $old_data = array_merge($old_data, getUserAttributeValues('', $userid));
         $history_entry = $GLOBALS['scheme'] . '://' . getConfig("website") . $GLOBALS["adminpages"] . '/?page=user&id=' . $userid . "\n\n";
         foreach ($user["systemvalues"] as $column => $value) {
-          $query .= sprintf('%s = "%s",', $column, $value);
+          if (!empty($column) && !empty($value)) {
+            $query .= sprintf('%s = "%s",', $column, $value);
+          }
         }
         if ($query) {
           $query = substr($query, 0, -1);
