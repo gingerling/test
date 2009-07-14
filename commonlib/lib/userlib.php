@@ -877,18 +877,21 @@ function saveUserAttribute($userid,$attid,$data) {
 
   if (!is_array($data)) {
     $tmp = $data;
-    $data = array('value' => $tmp,'displayvalue' => $tmp);
+    $data = Sql_Fetch_Assoc_Query(sprintf('select * from %s where id = %d',$att_table,$attid));
+    $data['value'] = $tmp;
+    $data['displayvalue'] = $tmp;
   }
+ # dbg($data,'$data to store for '.$userid.' '.$attid);
 
   if ($data["nodbsave"]) {
-    dbg($attid, "Not saving, nodbsave");
+ #   dbg($attid, "Not saving, nodbsave");
     return;
   }
   if (strtolower($data) == 'invalid attribute index') {
     return;
   }
   if ($attid == "emailcheck" || $attid == "passwordcheck") {
-    dbg($attid, "Not saving, emailcheck/passwordcheck");
+ #   dbg($attid, "Not saving, emailcheck/passwordcheck");
     return;
   }
 
@@ -913,13 +916,13 @@ function saveUserAttribute($userid,$attid,$data) {
       select id,type,tablename from %s where name = "%s"', $att_table, $data["name"]));
     if (!$attid_req[0]) {
       if (!empty($data["name"]) && $GLOBALS["config"]["autocreate_attributes"]) {
-        Dbg("Creating new Attribute: ".$data["name"]);
+  #      Dbg("Creating new Attribute: ".$data["name"]);
         sendError("creating new attribute ".$data["name"]);
         $atttable= getNewAttributeTablename($data["name"]);
         Sql_Query(sprintf('insert into %s (name,type,tablename) values("%s","%s","%s")', $att_table, $data["name"],$data["type"],$atttable));
         $attid = Sql_Insert_Id();
       } else {
-        dbg("Not creating new Attribute: ".$data["name"]);
+   #     dbg("Not creating new Attribute: ".$data["name"]);
        # sendError("Not creating new attribute ".$data["name"]);
       }
     } else {
@@ -967,7 +970,7 @@ function saveUserAttribute($userid,$attid,$data) {
 
       break;
     case 'avatar':
-      if (is_array($_FILES)) { ## only avatars are files
+      if (is_array($_FILES)) { ## only avatars are files, for now
         if (!defined('MAX_AVATAR_SIZE')) {
           define('MAX_AVATAR_SIZE',100000);
         }
