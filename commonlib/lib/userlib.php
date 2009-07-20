@@ -66,11 +66,13 @@ function deleteUser($id) {
   Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_history"],$id));
   ### allow plugins to delete their data
 
-  foreach ($GLOBALS['plugins'] as $plugin) {
-    //$plugin->deleteUser($id);
+  if (is_array($GLOBALS['plugins'])) {
+    foreach ($GLOBALS['plugins'] as $plugin) {
+      //$plugin->deleteUser($id);
 
-    if (method_exists($plugin, "deleteUser")) {
-       $plugin->deleteUser($id);
+      if (method_exists($plugin, "deleteUser")) {
+         $plugin->deleteUser($id);
+      }
     }
   }
 }
@@ -1161,7 +1163,7 @@ function saveUserData($username,$fields) {
       break;
     }
   }
-  if (isset($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"]) && $_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom" && isset($_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"])) {
+  if (0 && isset($_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"]) && $_SESSION["userdata"][$GLOBALS["config"]["country_attribute"]]["displayvalue"] == "United Kingdom" && isset($_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["value"])) {
     $postcode = $_SESSION["userdata"][$GLOBALS["config"]["postcode_attribute"]]["displayvalue"];
     if (!preg_match("/(.*)(\d\w\w)$/",$postcode,$regs)) {
       $res = "That does not seem to be a valid UK postcode";
