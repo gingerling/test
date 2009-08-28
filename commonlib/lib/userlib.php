@@ -271,11 +271,14 @@ function UserAttributeValue($user = 0,$attribute = 0) {
   $att = Sql_Fetch_array_Query("select * from $att_table where id = $attribute");
   switch ($att["type"]) {
     case "checkboxgroup":
+ #     print "select value from $user_att_table where userid = $user and attributeid = $attribute";
       $val_ids  = Sql_Fetch_Row_Query("select value from $user_att_table where userid = $user and attributeid = $attribute");
       if ($val_ids[0]) {
+ #       print '<br/>1 <b>'.$val_ids[0].'</b>';
         if (function_exists('cleancommalist')) {
           $val_ids[0] = cleanCommaList($val_ids[0]);
         }
+ #       print '<br/>2 <b>'.$val_ids[0].'</b>';
         $value = '';
         $res = Sql_Query("select $table_prefix"."listattr_".$att["tablename"].".name
           from $user_att_table,$table_prefix"."listattr_".$att["tablename"]."
@@ -300,9 +303,8 @@ function UserAttributeValue($user = 0,$attribute = 0) {
       $value = $row[0];
       break;
     default:
-      $res = Sql_Query("select value from $user_att_table where
-        $user_att_table".".userid = ".$user." and attributeid =
-        ".$attribute);
+      $res = Sql_Query(sprintf('select value from %s where
+        userid = %d and attributeid = %d',$user_att_table,$user,$attribute));
       $row = Sql_Fetch_row($res);
       $value = $row[0];
   }
