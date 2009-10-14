@@ -422,8 +422,9 @@ if ($id) {
         $req = Sql_Query("select groupid,type from user_group where userid = $id");
         print '<ol>';
         while ($row = Sql_Fetch_Assoc($req)) {
+          ## the config needs to start real types with 1, type index 0 will be considered no-value
           $membership_type = $GLOBALS['config']['usergroup_types'][$row['type']];
-          if (empty($membership_type)) {
+          if (empty($membership_type) || empty($row['type'])) {
             $membership_type = 'undefined';
           }
           $groupname = groupName($row['groupid']);
