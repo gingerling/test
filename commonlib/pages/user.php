@@ -90,6 +90,8 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
               $avatar = file_get_contents($tmpnam);
               Sql_Query(sprintf('replace into %s (userid,attributeid,value)
               values(%d,%d,"%s")',$tables["user_attribute"],$id,$key,base64_encode($avatar)));
+           } elseif ($size) {
+             print Error($GLOBALS['I18N']->get('Uploaded avatar file too big'));
            }
         } 
      }
@@ -339,7 +341,7 @@ if ($id) {
       if ($row['value']) {
         printf('<img src="./?page=avatar&user=%d&avatar=%s"><br/>',$id,$row['id']);
       }
-      printf ('<input type="file" name="attribute[%d]" /></td></tr>',$row["id"]);
+      printf ('<input type="file" name="attribute[%d]" /><br/>MAX: %d Kbytes</td></tr>',$row["id"],MAX_AVATAR_SIZE/1024);
     } else {
     if ($row["type"] != "textline" && $row["type"] != "hidden")
       printf ("<tr><td>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueSelect($id,$row["id"]));
