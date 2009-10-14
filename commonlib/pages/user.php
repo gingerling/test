@@ -3,7 +3,6 @@
 
 <?php
 if (!defined('MAX_AVATAR_SIZE')) define('MAX_AVATAR_SIZE',2000);
-
 $id = sprintf('%d',isset($_GET["id"]) ? $_GET['id']:0);
 $delete = sprintf('%d',isset($_GET['delete']) ? $_GET["delete"]:0);
 $date = new Date();
@@ -141,7 +140,8 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
         values(%d,%d,"%s")',$tables["user_attribute"],$id,$val,$value));
     }
   }
-  if ($usegroups) {
+  if ($usegroups && empty($GLOBALS['config']['usergroup_types'])) {
+    ## old method, using checkboxes
     Sql_Query("delete from user_group where userid = $id");
     if (is_array($_POST["groups"])) {
       foreach ($_POST["groups"] as $group) {
@@ -149,7 +149,17 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
         print "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($group);
       }
     }
+  } elseif ($usegroups) {
+    ## new method, allowing a group membership type
+    $newgrouptype = sprintf('%d',$_POST['newgrouptype']);
+    $newgroup = sprintf('%d',$_POST['newgroup']);
+    
+    if (!empty($newgrouptype) && !empty($newgroup)) {
+      Sql_Query(sprintf('insert into user_group (userid,groupid,type) values(%d,%d,%d)',$id,$newgroup,$newgrouptype));
+      print "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($newgroup);
+    } 
   }
+    
   # submitting page now saves everything, so check is not necessary
   if ($subselect == "") {
     Sql_Query("delete from {$tables["listuser"]} where userid = $id");
@@ -231,6 +241,18 @@ if (isset($delete) && $delete && $access != "view") {
     deleteUser($delete);
   }
   print '..'.$GLOBALS['I18N']->get('Done')."<br /><hr><br />\n";
+}
+
+if ($usegroups && !empty($GLOBALS['config']['usergroup_types']) && $access != "view") {
+  ## check for deletion of group membership
+  $delgroup = sprintf('%d',$_GET['delgroup']);
+  $delgrouptype = sprintf('%d',$_GET['deltype']);
+  if (!empty($delgroup) && !empty($delgrouptype)) {
+    Sql_Query(sprintf('delete from user_group where userid = %d and groupid = %d and type = %d',$id,$delgroup,$delgrouptype));
+    print "<br/>".$GLOBALS['I18N']->get('User removed from group').' '.groupName($delgroup).' ';
+    print PageLink2('user&id='.$id,$GLOBALS['I18N']->get('Continue'));
+    return;
+  }
 }
 
 $membership = "";
@@ -364,29 +386,74 @@ if ($id) {
     print '<tr><td colspan=2><hr width=50%></td></tr>
   <tr><td colspan=2>'.$GLOBALS['I18N']->get('Please select the groups this user is a member of').'</td></tr>
   <tr><td colspan=2>';
-    $selected_groups = array();
-    if ($id) {
-      $req = Sql_Query("select groupid from user_group where userid = $id");
-      while ($row = Sql_Fetch_Row($req))
-        array_push($selected_groups,$row[0]);
-    }
-
-    $req = Sql_Query("select * from groups");
-    $c = 1;
-    while ($row = Sql_Fetch_array($req)) {
-      if ($row["name"] != "Everyone") {
-        printf ('<i>%s</i><input type=checkbox name="groups[]" value="%d" %s>&nbsp;&nbsp;',
-        $row["name"],$row["id"],in_array($row["id"],$selected_groups)?"checked":""
-            );
-      } else {
-        printf ('<b>%s</b>&nbsp;&nbsp;<input type=hidden name="groups[]" value="%d">',
-        $row["name"],$row["id"]
-            );
+    
+    if (empty($GLOBALS['config']['usergroup_types'])) {
+      
+      ## old method, list of checkboxes
+    
+      $selected_groups = array();
+      if ($id) {
+        $req = Sql_Query("select groupid from user_group where userid = $id");
+        while ($row = Sql_Fetch_Row($req))
+          array_push($selected_groups,$row[0]);
       }
-      if ($c % 5 == 0)
-        print "<br>";
-      $c++;
-    }
+
+      $req = Sql_Query("select * from groups");
+      $c = 1;
+      while ($row = Sql_Fetch_array($req)) {
+        if ($row["name"] != "Everyone") {
+          printf ('<i>%s</i><input type=checkbox name="groups[]" value="%d" %s>&nbsp;&nbsp;',
+          $row["name"],$row["id"],in_array($row["id"],$selected_groups)?"checked":""
+              );
+        } else {
+          printf ('<b>%s</b>&nbsp;&nbsp;<input type=hidden name="groups[]" value="%d">',
+          $row["name"],$row["id"]
+              );
+        }
+        if ($c % 5 == 0)
+          print "<br/>";
+        $c++;
+      }
+    } else {
+      $current_groups = array();
+      if ($id) {
+        $req = Sql_Query("select groupid,type from user_group where userid = $id");
+        print '<ol>';
+        while ($row = Sql_Fetch_Assoc($req)) {
+          $membership_type = $GLOBALS['config']['usergroup_types'][$row['type']];
+          if (empty($membership_type)) {
+            $membership_type = 'undefined';
+          }
+          $groupname = groupName($row['groupid']);
+          $deleteLink = '';
+          if (strtolower($groupname) != 'everyone') {
+            $deleteLink =  PageLink2('user&id='.$id.'&delgroup='.$row['groupid'].'&deltype='.$row['type'],'del');
+          }
+          printf('<li><strong>%s</strong> of <i>%s</i> %s</li>',$membership_type,$groupname,$deleteLink);
+        }
+        print '</ol>';
+      }
+
+      $req = Sql_Query('select * from groups where name != "everyone"');
+      $c = 1;
+      
+      while ($row = Sql_Fetch_array($req)) {
+        $groups[$row['id']] = $row['name'];
+      }
+      
+      print '<hr/>Add new group membership:<br/><br/>';
+      print '<select name="newgrouptype">';
+      foreach ($GLOBALS['config']['usergroup_types'] as $key => $val) {
+        printf ('<option value="%d">%s</option>',$key,$val);
+      }
+      print '</select>';
+      print ' of ';
+      print '<select name="newgroup">';
+      foreach ($groups as $key => $val) {
+        printf ('<option value="%d">%s</option>',$key,$val);
+      }
+      print '</select>';
+    }  
 
     print '</td></tr>';
     if ($access != "view")
