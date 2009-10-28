@@ -10,6 +10,18 @@ if (isset ($_GET['sortby'])) {
 } else {
 	$sortby = '';
 }
+
+if (isset($_GET["delete"])){
+   $delete = sprintf("%d", $_GET["delete"]);
+}
+else $delete = 0;
+#print $_GET["delete"].' '.$delete .isSuperUser();exit;
+
+if (isset($_GET["start"])){
+   $start = sprintf("%d", $_GET["start"]);
+}
+else $start = 0;
+
 $searchdone = 1;
 if (!empty ($_GET['start'])) {
 	$start = sprintf('%d', $_GET['start']);
@@ -180,18 +192,6 @@ $totalres = Sql_fetch_Row($unconfirmedcount);
 $totalunconfirmed = $totalres[0];
 $totalres = Sql_fetch_Row($count);
 $total = $totalres[0];
-
-
-if (isset($_GET["delete"])){
-   $delete = sprintf("%d", $_GET["delete"]);
-}
-else $delete = 0;
-#print $_GET["delete"].' '.$delete .isSuperUser();exit;
-
-if (isset($_GET["start"])){
-   $start = sprintf("%d", $_GET["start"]);
-}
-else $start = 0;
 
 if (!empty($delete) && isSuperUser()) {
 	# delete the index in delete
