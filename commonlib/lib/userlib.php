@@ -308,7 +308,7 @@ function UserAttributeValue($user = 0,$attribute = 0) {
       $row = Sql_Fetch_row($res);
       $value = $row[0];
   }
-  return $value;
+  return stripslashes($value);
 }
 
 function userName() {
