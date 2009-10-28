@@ -335,7 +335,7 @@ if ($id) {
     } elseif ($row["type"] == "checkboxgroup") {
       printf ("<tr><td valign=top>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
     } elseif ($row["type"] == "textarea") {
-      printf ('<tr><td valign=top>%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" wrap=virtual>%s</textarea></td></tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars($row["value"]));
+      printf ('<tr><td valign=top>%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" wrap=virtual>%s</textarea></td></tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars(stripslashes($row["value"])));
     } elseif ($row["type"] == "avatar") {
       printf ('<tr><td valign=top>%s</td><td>',stripslashes($row["name"]));
       if ($row['value']) {
@@ -346,7 +346,7 @@ if ($id) {
     if ($row["type"] != "textline" && $row["type"] != "hidden")
       printf ("<tr><td>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueSelect($id,$row["id"]));
     else
-      printf('<tr><td>%s</td><td><input style="attributeinput" type=text name="attribute[%d]" value="%s" size=30></td></tr>'."\n",$row["name"],$row["id"],htmlspecialchars($row["value"]));
+      printf('<tr><td>%s</td><td><input style="attributeinput" type=text name="attribute[%d]" value="%s" size=30></td></tr>'."\n",$row["name"],$row["id"],htmlspecialchars(stripslashes($row["value"])));
     }
   }
   if ($access != "view")
