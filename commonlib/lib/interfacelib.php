@@ -353,13 +353,13 @@ class DomTab {
         <ul class="domtabs">
         ';
     foreach ($this->tabs as $title => $content) {
-      $html .= sprintf('<li><a href="#%s">%s</a></li>',$this->domtabcluster.strtolower($title),$title);
+      $html .= sprintf('<li><a href="#%s">%s</a></li>',$this->domtabcluster.urlencode(strtolower($title)),$title);
     }
     $html .= '</ul>';
 
     foreach ($this->tabs as $title => $content) {
       $html .= '<div style="display: none;">';
-      $html .= sprintf('<h2><a name="%s" id="%s"><span class="hide">%s</span></a></h2>',$this->domtabcluster.strtolower($title),$this->domtabcluster.strtolower($title),$title);
+      $html .= sprintf('<h2><a name="%s" id="%s"><span class="hide">%s</span></a></h2>',$this->domtabcluster.strtolower($title),$this->domtabcluster.urlencode(strtolower($title)),$title);
       $html .= $content;
       $html .= '</div>';
     }
