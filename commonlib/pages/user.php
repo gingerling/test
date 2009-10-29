@@ -249,7 +249,7 @@ if ($usegroups && !empty($GLOBALS['config']['usergroup_types']) && $access != "v
   ## check for deletion of group membership
   $delgroup = sprintf('%d',$_GET['delgroup']);
   $delgrouptype = sprintf('%d',$_GET['deltype']);
-  if (!empty($delgroup) && !empty($delgrouptype)) {
+  if (!empty($delgroup)) {# && !empty($delgrouptype)) {
     Sql_Query(sprintf('delete from user_group where userid = %d and groupid = %d and type = %d',$id,$delgroup,$delgrouptype));
     print "<br/>".$GLOBALS['I18N']->get('User removed from group').' '.groupName($delgroup).' ';
     print PageLink2('user&id='.$id,$GLOBALS['I18N']->get('Continue'));
