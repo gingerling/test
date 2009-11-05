@@ -55,6 +55,8 @@ function output($msg) {
 function parsePlaceHolders($templ, $data) {
   $retval = $templ;
   foreach ($data as $key => $val) {
+    $key = strtoupper($key);
+  #  dbg('Parsing '.$key.' in '.$templ);
     if (!is_array($val)) {
       $retval = preg_replace('/\[' . preg_quote($key) . '\]/i', $val, $retval);
     }
@@ -72,6 +74,7 @@ function clearImport() {
   $_SESSION["test_import"] = "";
   $_SESSION["assign_invalid"] = "";
   $_SESSION["overwrite"] = "";
+  $_SESSION['grouptype'] = '';
 }
 
 register_shutdown_function("my_shutdown");
@@ -82,11 +85,20 @@ require $GLOBALS["coderoot"] . "structure.php";
 $system_attributes = array ();
 reset($DBstruct["user"]);
 while (list ($key, $val) = each($DBstruct["user"])) {
-  if (!ereg("^sys", $val[1])) {
+  if (!ereg("^sys", $val[1]) && is_array($val)) {
     $system_attributes[strtolower($key)] = $val[1];
   } #elseif (ereg("sysexp:(.*)",$val[1],$regs)) {
   #$system_attributes[strtolower($regs[1])] = $key;
   #}
+}
+## allow mapping a column to a comma separated list of group names
+$system_attributes['groupmapping'] = 'Group Membership';
+if (isset($GLOBALS['config']['usergroup_types'])) {
+  foreach ($GLOBALS['config']['usergroup_types'] as $grouptype => $typedesc) {
+    if (!empty($grouptype)) {
+      $system_attributes['grouptype_'.$grouptype] = $typedesc.' of group';
+    }
+  }
 }
 
 if (!defined('WEBBLER')) {
@@ -164,7 +176,7 @@ if (isset ($_POST["import"])) {
     $_SESSION["import_field_delimiter"] = $_POST["import_field_delimiter"];
   }
   $_SESSION["show_warnings"] = !empty($_POST["show_warnings"]);
-  $_SESSION["assign_invalid"] = !empty($_POST["assign_invalid"]);
+  $_SESSION["assign_invalid"] = $_POST["assign_invalid"];
   $_SESSION["omit_invalid"] = !empty($_POST["omit_invalid"]);
   if (isset($_POST['lists']) && is_array($_POST['lists'])) {
     $_SESSION["lists"] = $_POST["lists"];
@@ -176,6 +188,7 @@ if (isset ($_POST["import"])) {
   } else {
     $_SESSION["groups"] = array();
   }
+  $_SESSION['grouptype'] = sprintf('%d',$_POST['grouptype']);
   $_SESSION["overwrite"] = !empty($_POST["overwrite"]);
   $_SESSION["notify"] = $_POST["notify"]; # yes or no
   $_SESSION["listname"] = $_POST["listname"];
@@ -244,12 +257,21 @@ if ($_SESSION["import_file"]) {
   $used_attributes = array ();
   for ($i = 0; $i < sizeof($headers); $i++) {
     $column = clean($headers[$i]);
-    #    print $i."<h1>$column</h1>".$_POST['column'.$i].'<br/>';
+ #       print $i."<h1>$column</h1>".$_POST['column'.$i].'<br/>';
     $column = preg_replace('#/#', '', $column);
 #    $dbg = "Field $i: $headers[$i] - $column - form/option:" . $_POST['column' . $i];
-    if (in_array(strtolower($column), array_keys($system_attributes))) {
-      #      print "System $column => $i<br/>";
+    if (in_array(strtolower($column), array_keys($system_attributes))
+ #     || in_array(strtolower($_POST['column'.$i]),array_keys($system_attributes))
+      ) {
+ #     print "System $column => $i<br/>";
       $_SESSION["systemindex"][strtolower($column)] = $i;
+/*
+      $_SESSION["import_attribute"][$column] = array (
+        "index" => $i,
+        "record" => 'system',
+        "column" => "$column"
+      );
+*/
       array_push($used_systemattr, strtolower($column));
 #      $dbg .= " =system";
     }  elseif (strtolower($column) == "list membership" || (isset($_POST['column' . $i]) && $_POST['column' . $i] == 'skip')) {
@@ -264,15 +286,33 @@ if ($_SESSION["import_file"]) {
     } else {
       if (isset ($_SESSION["import_attribute"][$column]["record"]) && $_SESSION["import_attribute"][$column]["record"]) {
         ## mapping has been defined
+#        print $column.' is set<br/>';
 #        $dbg .= " =known mapping in session: " . $_SESSION["import_attribute"][$column]["record"];
       }
       elseif (isset ($_POST["column$i"])) {
-        ## attribute mapping was chosen
-        $_SESSION["import_attribute"][$column] = array (
-          "index" => $i,
-          "record" => $_POST["column$i"],
-          "column" => "$column"
-        );
+        
+        if (in_array(strtolower($_POST['column'.$i]),array_keys($system_attributes))) {
+          print $i. ' '.$_POST['column'.$i].'<br/>';
+          if (strpos($_POST['column'.$i],'grouptype_') === 0) {
+            list($t,$type) = explode('_',$_POST['column'.$i]);
+            $type = sprintf('%d',$type);
+            $_SESSION["systemindex"]['grouptype_'.$type] = $i;
+            $_SESSION["import_attribute"][$column] = array (
+              "index" => $i,
+              "record" => 'grouptype_'.$type,
+              "column" => $column,
+              'type' => $type,
+            );
+     #       array_push($used_systemattr, strtolower('grouptype_'.$type));
+          }
+        } else {
+          ## attribute mapping was chosen
+          $_SESSION["import_attribute"][$column] = array (
+            "index" => $i,
+            "record" => $_POST["column$i"],
+            "column" => "$column"
+          );
+        }
 #        $dbg .= " =mapping chosen";
       } else {
         ## define mapping based on existing attribute or ask for it
@@ -299,6 +339,8 @@ if ($_SESSION["import_file"]) {
   }
 #  dbg($_SESSION["import_attribute"]);
 
+# var_dump($_SESSION);
+#var_dump($used_systemattr);exit;
   ### build option list from known attributes
   $unused_systemattr = array_diff(array_keys($system_attributes), $used_systemattr);
   $unused_attributes = array_diff(array_keys($attributes), $used_attributes);
@@ -314,6 +356,8 @@ if ($_SESSION["import_file"]) {
   $ls = new WebblerListing($GLOBALS['I18N']->get('Import Attributes'));
   $request_mapping = 0;
   foreach ($_SESSION["import_attribute"] as $column => $rec) {
+ #  print '<br/>'.$column;
+ #   var_dump($rec);
     if (trim($column) != '' && !$rec["record"]) {
       $request_mapping = 1;
       $ls->addElement($column);
@@ -351,6 +395,8 @@ if ($_SESSION["test_import"]) {
     }
   }
   print $ls->display();
+ #var_dump($_SESSION);
+  
   print '<h3>';
   printf($GLOBALS['I18N']->get('%d lines will be imported'), $total);
   print '</h3>';
@@ -454,8 +500,13 @@ if (sizeof($email_list)) {
     $user["systemvalues"]["email"] = clean($user["systemvalues"]["email"]);
     $c++;
     if ($_SESSION["test_import"]) {
+      
+#      var_dump($user["systemvalues"]);exit;
       $html = '';
       foreach ($user["systemvalues"] as $column => $value) {
+        if (strpos($column,'grouptype_') === 0) {
+          $column = $system_attributes[$column];
+        }
         if ($value) {
           $html .= "$column -> $value<br/>\n";
         } else {
@@ -499,8 +550,9 @@ if (sizeof($email_list)) {
         output("<br/>$cnt/$total");
         flush();
       }
-      if (!empty($user["systemvalues"]["foreign key"])) {
-        $result = Sql_query(sprintf('select id,uniqid from %s where foreignkey = "%s"', $tables["user"], $user["systemvalues"]["foreign key"]));
+      if (!empty($user["systemvalues"]["foreignkey"])) {
+        dbg('Importing on FK '.$user["systemvalues"]["foreignkey"].' email :'.$user["systemvalues"]["email"]);
+        $result = Sql_query(sprintf('select id,uniqid from %s where foreignkey = "%s"', $tables["user"], $user["systemvalues"]["foreignkey"]));
         # print "<br/>Using foreign key for matching: ".$user["systemvalues"]["foreign key"];
         $count["fkeymatch"]++;
         $exists = Sql_Affected_Rows();
@@ -529,6 +581,7 @@ if (sizeof($email_list)) {
           }
         }
       } else {
+        dbg('Importing on email '.$user["systemvalues"]["email"]);
         $result = Sql_query(sprintf('select id,uniqid from %s where email = "%s"', $tables["user"], $user["systemvalues"]["email"]));
         # print "<br/>Using email for matching: ".$user["systemvalues"]["email"];
         $count["emailmatch"]++;
@@ -576,6 +629,7 @@ if (sizeof($email_list)) {
       }
 
       reset($_SESSION["import_attribute"]);
+   #   var_dump($_SESSION);exit;
       if ($new || (!$new && $_SESSION["overwrite"] == "yes")) {
         $query = "";
         $count["dataupdate"]++;
@@ -584,7 +638,38 @@ if (sizeof($email_list)) {
         $history_entry = $GLOBALS['scheme'] . '://' . getConfig("website") . $GLOBALS["adminpages"] . '/?page=user&id=' . $userid . "\n\n";
         foreach ($user["systemvalues"] as $column => $value) {
           if (!empty($column) && !empty($value)) {
-            $query .= sprintf('%s = "%s",', $column, $value);
+            if ($column == 'groupmapping' || strpos($column,'grouptype_') === 0) {
+              ## specifically request this group, so that it doesn't interfere with the "groups" which are the ones 
+              ## submitted in the form
+              
+              if (strpos($column,'grouptype_') === 0) {
+                list($tmp,$type) = explode('_',$column);
+              } else {
+                $type = $_SESSION['grouptype'];
+              }
+              $type = sprintf('%d',$type);
+              ## verify the type is set
+              if (!in_array($type,array_keys($GLOBALS['config']['usergroup_types']))) {
+                Warn('Invalid group membership type'.$type);
+                dbg($type,'Type not found');
+              }
+              
+              $columnGroups = explode(',',$value);
+              foreach ($columnGroups as $sGroup) {
+                $sGroup = trim($sGroup);
+                $groupIdReq = Sql_Fetch_Row_Query(sprintf('select id from groups where name = "%s"',$sGroup));
+                if (empty($groupIdReq[0])) {
+                  Sql_Query(sprintf('insert into groups (name) values("%s")',$sGroup));
+                  Warn("Group $sGroup added");
+                  $groupIdReq[0] = Sql_Insert_id();
+                }
+                dbg('Adding to group '.$sGroup.' with type '.$GLOBALS['config']['usergroup_types'][$type]);
+                ## @@ this may cause problems on not-upgraded DBs
+                Sql_Query(sprintf('replace into user_group (userid,groupid,type) values(%d,%d,%d)',$userid,$groupIdReq[0],$type));
+              } 
+            } else {
+              $query .= sprintf('%s = "%s",', $column, $value);
+            }
           }
         }
         if ($query) {
@@ -593,7 +678,7 @@ if (sizeof($email_list)) {
           Sql_Query("update ignore {$tables["user"]} set $query where id = $userid");
         }
         foreach ($_SESSION["import_attribute"] as $item) {
-          if (isset ($user[$item["index"]]) && $item['record'] != 'skip') {
+          if (isset ($user[$item["index"]]) && $item['record'] != 'skip' && strpos($item['record'],'grouptype_') !== 0) {
             $attribute_index = $item["record"];
             $uservalue = $user[$item["index"]];
             # check whether this is a textline or a selectable item
@@ -689,14 +774,15 @@ if (sizeof($email_list)) {
         $groupaddition = 0;
         while (list ($key, $groupid) = each($groups)) {
           if ($groupid) {
-            $query = "replace INTO user_group (userid,groupid) values($userid,$groupid)";
+            $query = sprintf('replace INTO user_group (userid,groupid,type) values(%d,%d,%d)',$userid,$groupid,$_SESSION['grouptype']);
             $result = Sql_query($query);
             # if the affected rows is 2, the user was already subscribed
             $groupaddition = $groupaddition || Sql_Affected_Rows() == 1;
           }
         }
-        if ($groupaddition)
+        if ($groupaddition) {
           $count["group_add"]++;
+        }
       }
     } // end else
     if ($_SESSION["test_import"] && $c > 50)
@@ -804,6 +890,15 @@ if (defined('IN_WEBBLER') && Sql_Table_Exists("groups")) {
       $c++;
     }
   }
+  
+  if (!empty($GLOBALS['config']['usergroup_types'])) {
+    print '<p>Select the default group membership type</p><select name="grouptype">';
+    foreach ($GLOBALS['config']['usergroup_types'] as $ind => $val) {
+      printf('<option value="%d">%s of group</option>',$ind,$val);
+    }
+    print '</select>';
+  }
+  
 }
 ?>
 
