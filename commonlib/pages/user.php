@@ -160,6 +160,8 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
       Sql_Query(sprintf('insert into user_group (userid,groupid,type) values(%d,%d,%d)',$id,$newgroup,$newgrouptype));
       print "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($newgroup);
     } 
+    ## make sure they're in the everyone group
+    Sql_Query(sprintf('insert ignore into user_group (userid,groupid,type) values(%d,%d,0)',$id,getEveryoneGroupID()));
   }
     
   # submitting page now saves everything, so check is not necessary
