@@ -533,7 +533,9 @@ class WebblerTabs {
   }
 
   function display() {
-    $html = '<style type=text/css media=screen>@import url( styles/tabs.css );</style>';
+    if (empty($GLOBALS['design'])) {
+      $html = '<style type=text/css media=screen>@import url( styles/tabs.css );</style>';
+    }
     $html .= '<div id="webblertabs">';
     $html .= '<ul>';
     reset($this->tabs);
