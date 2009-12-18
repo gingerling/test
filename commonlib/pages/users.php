@@ -198,7 +198,7 @@ if (!empty($delete) && isSuperUser()) {
 	print $GLOBALS['I18N']->get('deleting') . " $delete ..\n";
 	deleteUser($delete);
 
-	print '..' . $GLOBALS['I18N']->get('Done') . '<br><hr><br>';
+	print '..' . $GLOBALS['I18N']->get('Done') . '<br/><hr/><br/>';
 	Redirect("users&start=$start");
 }
 #ob_end_flush();
@@ -211,12 +211,12 @@ if (isset ($add)) {
 		$query = "insert into " . $tables["listuser"] . " (userid,listid,entered) values($userid,$id,now())";
 		$result = Sql_query($query);
 	}
-	echo "<br><font color=red size=+2>" . $GLOBALS['I18N']->get('User added') . "</font><br>";
+	echo '<br/><p class="information">' . $GLOBALS['I18N']->get('User added') . "</p><br/>";
 }
 
 printf($GLOBALS['I18N']->get('%s users in total'), $total);
 if ($find && !$findby && !$total) { # a search for an email has been done and not found
-	print "<hr><h2>" . $GLOBALS['I18N']->get('Add this user') . "</h2>";
+	print "<hr/><h4>" . $GLOBALS['I18N']->get('Add this user') . "</h4>";
 	$req = Sql_Query(sprintf('select * from %s where active', $tables["subscribepage"]));
 	if (Sql_Affected_Rows()) {
 		print $GLOBALS['I18N']->get('Click on a link to use the corresponding public subscribe page to add this user:');
@@ -227,10 +227,10 @@ if ($find && !$findby && !$total) { # a search for an email has been done and no
 		print $GLOBALS['I18N']->get('Click this link to use the public subscribe page to add this user:');
 		printf('<p><a href="%s&email=%s">%s</a></p>', getConfig("subscribeurl"), $find, $GLOBALS["strSubscribeTitle"]);
 	}
-	print '<hr>';
+	print '<hr/>';
 }
 
-print "<br/>" . $GLOBALS['I18N']->get('Users marked <font color=red>red</font> are unconfirmed') . " ($totalunconfirmed)<br/>";
+print "<br/>" . $GLOBALS['I18N']->get('Users marked <span class="highlight">red</span> are unconfirmed') . " ($totalunconfirmed)<br/>";
 
 $url = getenv("REQUEST_URI");
 if ($unconfirmed) {
@@ -247,15 +247,15 @@ if (!isset ($start)) {
 	$start = 0;
 }
 
-print '<table><tr><td valign=top>';
+print '<table class="usersForm"><tr><td valign="top">';
 printf('<form method="get" name="listcontrol">
-  <input type=hidden name="page" value="users">
-  <input type=hidden name="start" value="%d">
-  <input type=hidden name="find" value="%s">
-  <input type=hidden name="findby" value="%s"><br/>%s:
+  <input type="hidden" name="page" value="users">
+  <input type="hidden" name="start" value="%d">
+  <input type="hidden" name="find" value="%s">
+  <input type="hidden" name="findby" value="%s"><br/>%s:
   <input type="checkbox" name="unconfirmed" value="1" %s><br/>%s:
   <input type="checkbox" name="blacklisted" value="1" %s>', $start, htmlspecialchars(stripslashes($find)), htmlspecialchars(stripslashes($findby)), $GLOBALS['I18N']->get('Show only unconfirmed users'), $unc, $GLOBALS['I18N']->get('Show only blacklisted users'), $bll);
-print '</td><td valign=top>';
+print '</td><td valign="top">';
 $select = '';
 foreach (array (
 		"email",
@@ -273,9 +273,9 @@ printf('
   <option value="0">-- default</option>
   %s
   </select>
-  %s: <input type=radio name="sortorder" value="desc" %s onChange="document.listcontrol.submit();">
-  %s: <input type=radio name="sortorder" value="asc" %s onChange="document.listcontrol.submit();">
-  <input type=submit name="change" value="%s">
+  %s: <input type="radio" name="sortorder" value="desc" %s onChange="document.listcontrol.submit();">
+  %s: <input type="radio" name="sortorder" value="asc" %s onChange="document.listcontrol.submit();">
+  <input type="submit" name="change" value="%s">
   ', $GLOBALS['I18N']->get('Sort by'), $select, $GLOBALS['I18N']->get('desc'), $sortorder == "desc" ? "checked" : "", $GLOBALS['I18N']->get('asc'), $sortorder == "asc" ? "checked" : "", $GLOBALS['I18N']->get('Go'));
 print '</td></tr></table>';
 
@@ -309,9 +309,9 @@ if ($total > MAX_USER_PP) {
 	#  if ($_GET["unconfirmed"])
 	#     $find_url .= "&unconfirmed=".$_GET["unconfirmed"];
 	if ($dolist) {
-		printf('<table border=1><tr><td colspan=4 align=center>%s</td></tr><tr><td>%s</td>
+		printf('<table class="usersListing" border="1"><tr><td colspan="4" align="center">%s</td></tr><tr><td>%s</td>
 		    <td>%s</td><td>
-		            %s</td><td>%s</td></tr></table><p><hr>', $listing, PageLink2("users", "&lt;&lt;", "start=0" .
+		            %s</td><td>%s</td></tr></table><p class=""><hr/>', $listing, PageLink2("users", "&lt;&lt;", 'start="0"' .
 		$find_url), PageLink2("users", "&lt;", sprintf('start=%d', max(0, $start -MAX_USER_PP)) .
 		$find_url), PageLink2("users", "&gt;", sprintf('start=%d', min($total, $start +MAX_USER_PP)) .
 		$find_url), PageLink2("users", "&gt;&gt;", sprintf('start=%d', $total -MAX_USER_PP) .
@@ -326,10 +326,10 @@ if ($total > MAX_USER_PP) {
 }
 
 ?>
-<table border=0>
-<tr><td colspan=4><input type=hidden name=id value="<?php echo $listid?>">
+<table class="usersFind" border="0">
+<tr><td colspan="4"><input type="hidden" name="id" value="<?php echo $listid?>">
 <?php echo $GLOBALS['I18N']->get('Find a user')?>:
-<input type=text name=find value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size=30>
+<input type="text" name="find" value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size="30">
 <select name="findby"><option value="email" <?php echo $findby == "email"? "selected":""?>><?php echo $GLOBALS['I18N']->get('Email')?></option>
 <option value="foreignkey" <?php echo $findby == "foreignkey"? "selected":""?>><?php echo $GLOBALS['I18N']->get('Foreign Key')?></option>
 <?php
@@ -338,14 +338,14 @@ $att_req = Sql_Query("select id,name from " . $tables["attribute"] . " where typ
 while ($row = Sql_Fetch_Array($att_req)) {
 	printf('<option value="%d" %s>%s</option>', $row["id"], $row["id"] == $findby ? "selected" : "", substr($row["name"], 0, 20));
 }
-?></select><input type=submit value="Go">&nbsp;&nbsp;<a href="./?page=users&find=NULL"><?php echo $GLOBALS['I18N']->get('reset')?></a>
+?></select><input type="submit" value="Go">&nbsp;&nbsp;<a href="./?page="users"&find="NULL""><?php echo $GLOBALS['I18N']->get('reset')?></a>
 </form></td></tr>
-<tr><td colspan=4>
+<tr><td colspan="4">
 <?php
 
 #if (($require_login && isSuperUser()) || !$require_login)
-print '<p>' . PageLink2("dlusers", $GLOBALS['I18N']->get('Download all users as CSV file'), "nocache=" . uniqid("")) . '&nbsp;<br/>';
-print PageLink2("user", $GLOBALS['I18N']->get('Add a User')) . '</p>';
+print '<p class="button">' . PageLink2("dlusers", $GLOBALS['I18N']->get('Download all users as CSV file'), "nocache=" . uniqid("")) . '</p>&nbsp;<br/>';
+print '<p class="button">' . PageLink2("user", $GLOBALS['I18N']->get('Add a User')) . '</p>';
 ?></td></tr>
 </table>
 
@@ -408,7 +408,7 @@ if ($result)
 	}
 print $ls->display();
 if (!$some && !$total) {
-	print '<p>' . $GLOBALS['I18N']->get('No users apply') . '</p>';
+	print '<p class="information">' . $GLOBALS['I18N']->get('No users apply') . '</p>';
 }
 ?>
 

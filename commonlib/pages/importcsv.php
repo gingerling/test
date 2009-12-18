@@ -106,12 +106,12 @@ if (!defined('WEBBLER')) {
 }
 if (!empty ($_GET["reset"]) && $_GET["reset"] == "yes") {
   clearImport();
-  print '<h1>' . $GLOBALS['I18N']->get('Import cleared') . '</h1>';
+  print '<h3>' . $GLOBALS['I18N']->get('Import cleared') . '</h3>';
   print PageLink2($_GET["page"], $GLOBALS['I18N']->get('Continue'));
   return;
 } else {
   #  if ($_SESSION["test_import"])
-  print '<p>' . PageLink2($_GET["page"] . "&amp;reset=yes", $GLOBALS['I18N']->get('Reset Import session')) . '</p>';
+  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;reset="yes"', $GLOBALS['I18N']->get('Reset Import session')) . '</p>';
 }
 
 if (isset ($_POST["import"])) {
@@ -205,7 +205,7 @@ if ($_SESSION["import_file"]) {
   for ($i = 0; $i < 10000; $i++) {
     print '  ' . "\n";
   }
-  output("<p>" . $GLOBALS['I18N']->get('Reading emails from file ... '));
+  output('<p class="information">' . $GLOBALS['I18N']->get('Reading emails from file ... '));
   flush();
   if (filesize($_SESSION['import_file']) > 50000) {
     @ ini_set("memory_limit", memory_get_usage() + 50 * filesize($_SESSION['import_file']));
@@ -228,10 +228,10 @@ if ($_SESSION["import_file"]) {
       if( ($illegal_cha[$i] != $import_field_delimiter) && ($illegal_cha[$i] != $import_record_delimiter) && (strpos($header, $illegal_cha[$i]) != false) ) {
         $errpos = strpos($email_list, $illegal_cha[$i]);
         $startpos = ( $errpos > 20 ) ? $errpos - 20 : 0;
-        print '<h1>';
+        print '<h3>';
         printf($GLOBALS['I18N']->get('Error was around here &quot;%s&quot;'),substr( $email_list, $startpos, 40 ));
-        print '</h1>';
-        printf('<h1>',$GLOBALS['I18N']->get('Illegal character was %s').'</h1>',$illegal_cha[$i]);
+        print '</h3>';
+        printf('<h3>',$GLOBALS['I18N']->get('Illegal character was %s').'</h3>',$illegal_cha[$i]);
         Fatal_Error($GLOBALS['I18N']->get('A character has been found in the import which is not the delimiter indicated, but is likely to be confused for one. Please clean up your import file and try again')." $import_field_delimiter, $import_record_delimiter");
         return;
       }
@@ -257,7 +257,7 @@ if ($_SESSION["import_file"]) {
   $used_attributes = array ();
   for ($i = 0; $i < sizeof($headers); $i++) {
     $column = clean($headers[$i]);
- #       print $i."<h1>$column</h1>".$_POST['column'.$i].'<br/>';
+ #       print $i."<h3>$column</h3>".$_POST['column'.$i].'<br/>';
     $column = preg_replace('#/#', '', $column);
 #    $dbg = "Field $i: $headers[$i] - $column - form/option:" . $_POST['column' . $i];
     if (in_array(strtolower($column), array_keys($system_attributes))
@@ -366,7 +366,7 @@ if ($_SESSION["import_file"]) {
   }
   if ($request_mapping) {
     $ls->addButton($GLOBALS['I18N']->get('Continue'), 'javascript:document.importform.submit()');
-    print '<p>' . $GLOBALS['I18N']->get('Please identify the target of the following unknown columns') . '</p>';
+    print '<p class="information">' . $GLOBALS['I18N']->get('Please identify the target of the following unknown columns') . '</p>';
     print '<form name="importform" method="post">';
     print $ls->display();
     print '</form>';
@@ -400,8 +400,8 @@ if ($_SESSION["test_import"]) {
   print '<h3>';
   printf($GLOBALS['I18N']->get('%d lines will be imported'), $total);
   print '</h3>';
-  print '<p>' . PageLink2($_GET["page"] . "&amp;confirm=yes", $GLOBALS['I18N']->get('Confirm Import')) . '</p>';
-  print '<p><h1>' . $GLOBALS['I18N']->get('Test Output') . '</h1></p>';
+  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;confirm="yes"', $GLOBALS['I18N']->get('Confirm Import')) . '</p>';
+  print '<p class="button"><h3>' . $GLOBALS['I18N']->get('Test Output') . '</h3></p>';
 #  dbg($_SESSION["import_attribute"]);
 }
 
@@ -525,7 +525,7 @@ if (sizeof($email_list)) {
           } else {
             $html .= $attributes[$item["record"]];
           }
-          $html .= " -> " . $user[$item["index"]] . "<br>";
+          $html .= " -> " . $user[$item["index"]] . "<br/>";
         }
       }
       if ($html)
@@ -635,7 +635,7 @@ if (sizeof($email_list)) {
         $count["dataupdate"]++;
         $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d', $tables["user"], $userid));
         $old_data = array_merge($old_data, getUserAttributeValues('', $userid));
-        $history_entry = $GLOBALS['scheme'] . '://' . getConfig("website") . $GLOBALS["adminpages"] . '/?page=user&id=' . $userid . "\n\n";
+        $history_entry = $GLOBALS['scheme'] . '://' . getConfig("website") . $GLOBALS["adminpages"] . '/?page="user"&id=' . $userid . "\n\n";
         foreach ($user["systemvalues"] as $column => $value) {
           if (!empty($column) && !empty($value)) {
             if ($column == 'groupmapping' || strpos($column,'grouptype_') === 0) {
@@ -828,10 +828,10 @@ if (sizeof($email_list)) {
     }
     clearImport();
   } else {
-    printf($GLOBALS['I18N']->get('Test output<br/>If the output looks ok, click %s to submit for real') . '<br/><br/>', PageLink2($_GET["page"] . "&amp;confirm=yes", $GLOBALS['I18N']->get('Confirm Import')));
+    printf($GLOBALS['I18N']->get('Test output<br/>If the output looks ok, click %s to submit for real') . '<br/><br/>', PageLink2($_GET["page"] . '&amp;confirm="yes"', $GLOBALS['I18N']->get('Confirm Import')));
   }
 
-  print '<p>' . PageLink2($_GET["page"], $GLOBALS['I18N']->get('Import some more emails'));
+  print '<p class="button">' . PageLink2($_GET["page"], $GLOBALS['I18N']->get('Import some more emails')).'</p>';
 
   return;
 }
@@ -855,11 +855,11 @@ if (Sql_Table_Exists($tables["list"])) {
   $c = 0;
   if (Sql_Affected_Rows() == 1) {
     $row = Sql_fetch_array($result);
-    printf('<input type=hidden name="listname[%d]" value="%s"><input type=hidden name="lists[%d]" value="%d">%s <b>%s</b>', $c, stripslashes($row["name"]), $c, $row["id"], $GLOBALS['I18N']->get('Adding users to list'), stripslashes($row["name"]));
+    printf('<input type="hidden" name="listname[%d]" value="%s"><input type="hidden" name="lists[%d]" value="%d">%s <b>%s</b>', $c, stripslashes($row["name"]), $c, $row["id"], $GLOBALS['I18N']->get('Adding users to list'), stripslashes($row["name"]));
   } else {
-    print '<p>' . $GLOBALS['I18N']->get('Select the lists to add the emails to') . '</p>';
+    print '<p class="information">' . $GLOBALS['I18N']->get('Select the lists to add the emails to') . '</p>';
     while ($row = Sql_fetch_array($result)) {
-      printf('<li><input type=hidden name="listname[%d]" value="%s"><input type=checkbox name="lists[%d]" value="%d">%s', $c, stripslashes($row["name"]), $c, $row["id"], stripslashes($row["name"]));
+      printf('<li><input type="hidden" name="listname[%d]" value="%s"><input type="checkbox" name="lists[%d]" value="%d">%s', $c, stripslashes($row["name"]), $c, $row["id"], stripslashes($row["name"]));
       $some = 1;
       $c++;
     }
@@ -875,15 +875,15 @@ if (defined('IN_WEBBLER') && Sql_Table_Exists("groups")) {
   $c = 0;
   if (Sql_Affected_Rows() == 1) {
     $row = Sql_fetch_array($result);
-    printf('<p><input type=hidden name="groupname[%d]" value="%s"><input type=hidden name="groups[%d]" value="%d">Adding users to group <b>%s</b></p>', $c, $row["name"], $c, $row["id"], $row["name"]);
+    printf('<p class="information"><input type="hidden" name="groupname[%d]" value="%s"><input type="hidden" name="groups[%d]" value="%d">Adding users to group <b>%s</b></p>', $c, $row["name"], $c, $row["id"], $row["name"]);
     ;
   } else {
-    print '<p>' . $GLOBALS['I18N']->get('Select the groups to add the users to') . '</p>';
+    print '<p class="information">' . $GLOBALS['I18N']->get('Select the groups to add the users to') . '</p>';
     while ($row = Sql_fetch_array($result)) {
       if ($row["id"] == $everyone_groupid) {
-        printf('<li><input type=hidden name="groupname[%d]" value="%s"><input type=hidden name="groups[%d]" value="%d"><b>%s</b> - ' . $GLOBALS['I18N']->get('automatically added'), $c, $row["name"], $c, $row["id"], $row["name"]);
+        printf('<li><input type="hidden" name="groupname[%d]" value="%s"><input type="hidden" name="groups[%d]" value="%d"><b>%s</b> - ' . $GLOBALS['I18N']->get('automatically added'), $c, $row["name"], $c, $row["id"], $row["name"]);
       } else {
-        printf('<li><input type=hidden name="groupname[%d]" value="%s"><input type=checkbox name="groups[%d]" value="%d">%s', $c, $row["name"], $c, $row["id"], $row["name"]);
+        printf('<li><input type="hidden" name="groupname[%d]" value="%s"><input type="checkbox" name="groups[%d]" value="%d">%s', $c, $row["name"], $c, $row["id"], $row["name"]);
         ;
       }
       $some = 1;
@@ -892,7 +892,7 @@ if (defined('IN_WEBBLER') && Sql_Table_Exists("groups")) {
   }
   
   if (!empty($GLOBALS['config']['usergroup_types'])) {
-    print '<p>Select the default group membership type</p><select name="grouptype">';
+    print '<p class="information">Select the default group membership type</p><select name="grouptype">';
     foreach ($GLOBALS['config']['usergroup_types'] as $ind => $val) {
       printf('<option value="%d">%s of group</option>',$ind,$val);
     }
@@ -904,8 +904,8 @@ if (defined('IN_WEBBLER') && Sql_Table_Exists("groups")) {
 
 </ul>
 
-<table border="1">
-<tr><td colspan=2>
+<table class="importcsvMain" border="1">
+<tr><td colspan="2">
 <?php echo $GLOBALS['I18N']->get('importintro')?>
 </td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('File containing emails')?>:<br/>
@@ -913,27 +913,27 @@ if (defined('IN_WEBBLER') && Sql_Table_Exists("groups")) {
 <br/><?php printf($GLOBALS['I18N']->get('uploadlimits'),ini_get("post_max_size"),ini_get("upload_max_filesize"));
 printf($GLOBALS['I18N']->get('phplistuploadlimit'),IMPORT_FILESIZE);?>
 </td></tr>
-<tr><td><?php echo $GLOBALS['I18N']->get('Field Delimiter')?>:</td><td><input type="text" name="import_field_delimiter" size=5> <?php echo $GLOBALS['I18N']->get('(default is TAB)')?></td></tr>
-<tr><td><?php echo $GLOBALS['I18N']->get('Record Delimiter')?>:</td><td><input type="text" name="import_record_delimiter" size=5> <?php echo $GLOBALS['I18N']->get('(default is line break)')?></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('testoutput_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Field Delimiter')?>:</td><td><input type="text" name="import_field_delimiter" size="5"> <?php echo $GLOBALS['I18N']->get('(default is TAB)')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Record Delimiter')?>:</td><td><input type="text" name="import_record_delimiter" size="5"> <?php echo $GLOBALS['I18N']->get('(default is line break)')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('testoutput_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Test output')?>:</td><td><input type="checkbox" name="import_test" value="yes"></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('warnings_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('warnings_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Show Warnings')?>:</td><td><input type="checkbox" name="show_warnings" value="yes"></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('omitinvalid_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('omitinvalid_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Omit Invalid')?>:</td><td><input type="checkbox" name="omit_invalid" value="yes"></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('assigninvalid_blurb')?>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('assigninvalid_blurb')?>
 </td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Assign Invalid')?>:</td><td><input type="text" name="assign_invalid" value="<?php echo $GLOBALS["assign_invalid_default"]?>"></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('overwriteexisting_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('overwriteexisting_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Overwrite Existing')?>:</td><td><input type="checkbox" name="overwrite" value="yes"></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('retainold_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('retainold_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Retain Old User Email')?>:</td><td><input type="checkbox" name="retainold" value="yes"></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('sendnotification_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('sendnotification_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Send&nbsp;Notification&nbsp;email')?>&nbsp;<input type="radio" name="notify" value="yes"></td><td><?php echo $GLOBALS['I18N']->get('Make confirmed immediately')?>&nbsp;<input type="radio" name="notify" value="no"></td></tr>
-<tr><td colspan=2><?php echo $GLOBALS['I18N']->get('If you are going to send notification to users, you may want to add a little delay between messages')?></td></tr>
-<tr><td><?php echo $GLOBALS['I18N']->get('Notification throttle')?>:</td><td><input type="text" name="throttle_import" size=5> <?php echo $GLOBALS['I18N']->get('(default is nothing, will send as fast as it can)')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you are going to send notification to users, you may want to add a little delay between messages')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Notification throttle')?>:</td><td><input type="text" name="throttle_import" size="5"> <?php echo $GLOBALS['I18N']->get('(default is nothing, will send as fast as it can)')?></td></tr>
 
-<tr><td><input type="submit" name="import" value="<?php echo $GLOBALS['I18N']->get('Import')?>"></td><td>&nbsp;</td></tr>
+<tr><td><div class="submit"><input type="submit" name="import" value="<?php echo $GLOBALS['I18N']->get('Import')?>"></div></td><td>&nbsp;</td></tr>
 </table>
 </p>
 </form>

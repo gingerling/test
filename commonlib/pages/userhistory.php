@@ -39,7 +39,7 @@ if (!Sql_Affected_Rows()) {
   return;
 }
 $user = sql_fetch_array($result);
-print '<h2>'.$GLOBALS['I18N']->get('user').' '.PageLink2("user&id=".$user["id"],$user["email"]).'</h2>';
+print '<h4>'.$GLOBALS['I18N']->get('user').' '.PageLink2("user&id=".$user["id"],$user["email"]).'</h4>';
 
 $bouncels = new WebblerListing($GLOBALS['I18N']->get('Bounces'));
 $bouncelist = "";
@@ -98,7 +98,7 @@ if (isBlackListed($user["email"])) {
   print $blacklist_info["added"]."</h3><br/>";
   print '';
   print "<a href=\"javascript:deleteRec2('" . $GLOBALS['I18N']->get('are you sure you want to delete this user from the blacklist') . "?\\n"
-  . $GLOBALS['I18N']->get('it should only be done with explicit permission from this user') . "','./?page=userhistory&unblacklist={$user["id"]}&id={$user["id"]}')\">
+  . $GLOBALS['I18N']->get('it should only be done with explicit permission from this user') . "','./?page=\"userhistory\"&unblacklist=\"{$user["id"]}\"&id=\"{$user["id"]}\"')\">
   " . $GLOBALS['I18N']->get('remove User from Blacklist') . "</a>".'<br/><br/>';
 
   $ls = new WebblerListing($GLOBALS['I18N']->get('Blacklist Info'));

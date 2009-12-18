@@ -199,7 +199,7 @@ function Debug($msg) {
   #  fwrite($fp,"$line");
   #  fclose($fp);
   } else {
-    Fatal_Error("Debugging not configured properly");
+    Fatal_Error("Debugging not configured properly ".$msg);
   }
 #  error_reporting($er);
 }

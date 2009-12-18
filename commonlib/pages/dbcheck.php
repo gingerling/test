@@ -1,5 +1,5 @@
 
-<h1>Database Check</h1>
+<h3>Database Check</h3>
 
 <?php
 

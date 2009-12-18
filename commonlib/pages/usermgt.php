@@ -64,7 +64,7 @@ if ($_POST["criteria_attribute"]) {
   # store this one
 #    print $att_names[$_POST["criteria_attribute"]];
 #    print $_POST["attribute_names[".$_POST["criteria_attribute"]."]"];
-  print "<p>Adding ".$newcriterion["attribute_name"]." ".$newcriterion["operator"]." ".$newcriterion["values"]."</p>";
+  print '<p class="information">Adding '.$newcriterion["attribute_name"]." ".$newcriterion["operator"]." ".$newcriterion["values"]."</p>";
   $_SESSION["userselection"]["criterion$num"] = delimited($newcriterion);
   # increase number
 	$_SESSION["userselection"]["num"]++;
@@ -190,16 +190,16 @@ if ($num) {
 #    $count_query = addslashes($count_query);
   if ($_GET["calculate"]) {
     ob_end_flush();
-    print "<h1>$userselection_query</h1>";
-    print "<p>Calculating ...";
+    print "<h3>$userselection_query</h3>";
+    print '<p class="information">Calculating ...';
     flush();
     
     $req = Sql_Query($userselection_query);
     print '.. '.Sql_Num_Rows($req). " users apply</p>";
   }
 
-  $ls->addButton("Calculate",$baseurl.'&amp;tab='.$_GET["tab"].'&amp;calculate=1');
-  $ls->addButton("Reset",$baseurl.'&amp;tab='.$_GET["tab"].'&amp;reset=1');
+  $ls->addButton("Calculate",$baseurl.'&amp;tab='.$_GET["tab"].'&amp;calculate="1"');
+  $ls->addButton("Reset",$baseurl.'&amp;tab='.$_GET["tab"].'&amp;reset="1"');
   $existing_criteria = $ls->display();
 }
 
@@ -361,10 +361,10 @@ select.criteria_element {
 
 </style>';
 $values_drop .= '<span id="values_span" class="values_span">';
-$values_drop .= '<input class="criteria_element" name="criteria_values" id="criteria_values_text" size=15 type=text>';
+$values_drop .= '<input class="criteria_element" name="criteria_values" id="criteria_values_text" size="15" type="text">';
 #  $values_drop .= '</span>';
 #  $values_drop .= '<span id="values_select">';
-$values_drop .= '<select class="criteria_element" name="criteria_values[]" id="criteria_values_select" multiple size=10></select>';
+$values_drop .= '<select class="criteria_element" name="criteria_values[]" id="criteria_values_select" multiple size="10"></select>';
 $values_drop .= '</span>';
 
 $existing_overall_operator = $_SESSION["criteria_overall_operator"] == "any" ? "any":"all";
@@ -395,7 +395,7 @@ $criteria_content = $criteria_overall_operator.$existing_criteria.$criteria_styl
 '<span class="criteria_element">'.$att_drop.'</span>'.
 '<span class="criteria_element">'.$operator_drop.'</span>'.
 '<span class="criteria_element">'.$values_drop.'</span>'.
-'<span class="criteria_element"><input type=submit name="save" value="Add Criterion"></span>';
+'<span class="criteria_element"><input type="submit" name="save" value="Add Criterion"></span>';
 '</div>';
 
 print '<form name="userselection" method="post">';
