@@ -36,13 +36,16 @@ function getUniqid($table = "") {
     else
       $table = "user";
   }
-  # make sure it is really unique
   $id = md5(uniqid(mt_rand()));
+  
+  /* this doesn't scale very well, do this offline
+  # make sure it is really unique
   $req = Sql_Query("select id from $table where uniqid = \"$id\"");
   while (Sql_Affected_rows()) {
     $id = md5(uniqid(mt_rand()));
     $req = Sql_Query("select id from $table where uniqid = \"$id\"");
   }
+  */
   return $id;
 }
 
@@ -443,11 +446,12 @@ function userGroups($loginname) {
   $result = array();
   if (Sql_Table_exists("user_group")) {
     $req = Sql_Query(sprintf('select groupid from user_group,user where user_group.userid = user.id and user.email = "%s"',addslashes($loginname)));
-    while ($row = Sql_Fetch_Row($req))
+    while ($row = Sql_Fetch_Row($req)) {
       array_push($result,$row[0]);
+    }
+    $ev = getEveryoneGroupID();
+    array_push($result,$ev);
   }
-  $ev = getEveryoneGroupID();
-  array_push($result,$ev);
   return $result;
 }
 
@@ -889,9 +893,6 @@ function saveUserAttribute($userid,$attid,$data) {
 
   if ($data["nodbsave"]) {
  #   dbg($attid, "Not saving, nodbsave");
-    return;
-  }
-  if (strtolower($data) == 'invalid attribute index') {
     return;
   }
   if ($attid == "emailcheck" || $attid == "passwordcheck") {
