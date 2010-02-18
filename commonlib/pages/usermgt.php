@@ -314,14 +314,14 @@ function changeDropDowns() {
 
 ';
 
-$att_drop = '<select name="criteria_attribute" onChange="changeDropDowns()" class="criteria_element" >';
+$att_drop = '<select name="criteria_attribute" onchange="changeDropDowns()" class="criteria_element" >';
 $att_drop .= '<option value="">[select attribute]</option>';
 $att_names = '';# to remember them later
 $attreq = Sql_Query(sprintf('select * from %s where type in ("select","radio","date","checkboxgroup","checkbox") %s',$tables["attribute"],$already_used));
 while ($att = Sql_Fetch_array($attreq)) {
   $att_drop .= sprintf('<option value="%d" %s>%s</option>',
     $att["id"],"",substr(stripslashes($att["name"]),0,30).' ('.$att["type"].')');
-  $att_names .= sprintf('<input type=hidden name="attribute_names[%d]" value="%s">',$att["id"],stripslashes($att["name"]));
+  $att_names .= sprintf('<input type=hidden name="attribute_names[%d]" value="%s" />',$att["id"],stripslashes($att["name"]));
 }
 $att_drop .= '</select>'.$att_names;
 
@@ -361,7 +361,7 @@ select.criteria_element {
 
 </style>';
 $values_drop .= '<span id="values_span" class="values_span">';
-$values_drop .= '<input class="criteria_element" name="criteria_values" id="criteria_values_text" size="15" type="text">';
+$values_drop .= '<input class="criteria_element" name="criteria_values" id="criteria_values_text" size="15" type="text"/>';
 #  $values_drop .= '</span>';
 #  $values_drop .= '<span id="values_select">';
 $values_drop .= '<select class="criteria_element" name="criteria_values[]" id="criteria_values_select" multiple size="10"></select>';
@@ -369,9 +369,9 @@ $values_drop .= '</span>';
 
 $existing_overall_operator = $_SESSION["criteria_overall_operator"] == "any" ? "any":"all";
 $criteria_overall_operator =
-  sprintf('Match all of these rules <input type="radio" name="criteria_match" value="all" %s>
-    Match any of these rules <input type="radio" name="criteria_match" value="any" %s>',
-    $existing_overall_operator == "all"? "checked":"",$existing_overall_operator == "any"? "checked":"");
+  sprintf('Match all of these rules <input type="radio" name="criteria_match" value="all" %s />
+    Match any of these rules <input type="radio" name="criteria_match" value="any" %s />',
+    $existing_overall_operator == "all"? 'checked="checked"':'',$existing_overall_operator == "any"? 'checked="checked"':'');
 
 $criteria_styles = '
 <style type="text/css">
@@ -395,7 +395,7 @@ $criteria_content = $criteria_overall_operator.$existing_criteria.$criteria_styl
 '<span class="criteria_element">'.$att_drop.'</span>'.
 '<span class="criteria_element">'.$operator_drop.'</span>'.
 '<span class="criteria_element">'.$values_drop.'</span>'.
-'<span class="criteria_element"><input type="submit" name="save" value="Add Criterion"></span>';
+'<span class="criteria_element"><input type="submit" name="save" value="Add Criterion" /></span>';
 '</div>';
 
 print '<form name="userselection" method="post">';

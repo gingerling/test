@@ -328,14 +328,14 @@ while ($row = Sql_Fetch_array($res)) {
     print "  (".$GLOBALS['I18N']->get('usedin').' '.Sql_affected_rows().' '.$GLOBALS['I18N']->get('forms').')';
   }
     
-  print '</td><td colspan="2">'.$GLOBALS['I18N']->get('tag').' <input type="checkbox" name="tag['.$c.']" value="'.$row["id"].'"></td></tr>';
+  print '</td><td colspan="2">'.$GLOBALS['I18N']->get('tag').' <input type="checkbox" name="tag['.$c.']" value="'.$row["id"].'" /></td></tr>';
     
-  print '<tr><td colspan="2">'.$GLOBALS['I18N']->get('name').': </td><td colspan="2"><input type="text" name="name['.$row["id"].']" value="'.htmlspecialchars(stripslashes($row["name"])).'" size="40"></td></tr>';
+  print '<tr><td colspan="2">'.$GLOBALS['I18N']->get('name').': </td><td colspan="2"><input type="text" name="name['.$row["id"].']" value="'.htmlspecialchars(stripslashes($row["name"])).'" size="40" /></td></tr>';
   print '<tr><td colspan="2">'.$GLOBALS['I18N']->get('type').': </td><td colspan="2"><!--input type="hidden" name="type['.$row["id"].']" value="'.$row["type"].'">'.$row["type"].'-->';
 
-  print '<select name="type['.$row["id"].']" onChange="warn();">';
+  print '<select name="type['.$row["id"].']" onchange="warn();">';
   foreach($types as $key => $val) {
-    printf('<option value="%s" %s>%s</option>',$val,$val == $row["type"] ? "selected": "",$GLOBALS['I18N']->get($val));
+    printf('<option value="%s" %s>%s</option>',$val,$val == $row["type"] ? 'selected="selected"': '',$GLOBALS['I18N']->get($val));
   }
   print ' 
    </select>';
@@ -353,42 +353,42 @@ while ($row = Sql_Fetch_array($res)) {
   }
 
   print '</td></tr>';
-  print '<tr><td colspan="2">'.$GLOBALS['I18N']->get('defaultvalue').': </td><td colspan="2"><input type="text" name="default['.$row["id"].']" value="'.htmlspecialchars(stripslashes($row["default_value"])).'" size="40"></td></tr>';
-  print '<tr><td>'.$GLOBALS['I18N']->get('orderoflisting').': </td><td><input type="text" name="listorder['.$row["id"].']" value="'.$row["listorder"].'" size="5"></td>';
+  print '<tr><td colspan="2">'.$GLOBALS['I18N']->get('defaultvalue').': </td><td colspan="2"><input type="text" name="default['.$row["id"].']" value="'.htmlspecialchars(stripslashes($row["default_value"])).'" size="40" /></td></tr>';
+  print '<tr><td>'.$GLOBALS['I18N']->get('orderoflisting').': </td><td><input type="text" name="listorder['.$row["id"].']" value="'.$row["listorder"].'" size="5" /></td>';
   print '<td>'.$GLOBALS['I18N']->get('isrequired').': </td><td><input type="checkbox" name="required['.$row["id"].']" value="1" ';
-  print $row["required"] ? "checked": "";
-  print  '></td></tr>';
+  print $row["required"] ? 'checked="checked"': '';
+  print  '/></td></tr>';
   print '</table><hr/>';
  } 
- printf('<div class="submit"><input type="submit" name="action" value="%s"></div>',$GLOBALS['I18N']->get('savechanges'));
+ printf('<input class ="submit" type="submit" name="action" value="%s" />',$GLOBALS['I18N']->get('savechanges'));
 
 print '<br/><br/>
 <script language="Javascript" src="js/jslib.js" type="text/javascript"></script>';
 
 if ($c) {
   printf('<i>%s: </i><br/>',$GLOBALS['I18N']->get('withtagged'));
-  printf('<span class="buttonGroup"><span class="submit"><input type="submit" name="tagaction[delete]" value="%s"></span>&nbsp;
-  <span class="submit"><input type="submit" name="tagaction[merge]" value="%s"></span> &nbsp;&nbsp;%s<br/>
-  <hr/></span>',$GLOBALS['I18N']->get('delete'),$GLOBALS['I18N']->get('merge'),Help("mergeattributes"));
+  printf('<span class="buttonGroup"><input class="submit" type="submit" name="tagaction[delete]" value="%s" />&nbsp;
+  <input class="submit" type="submit" name="tagaction[merge]" value="%s" /> &nbsp;&nbsp;%s<br/>
+  </span><hr/>',$GLOBALS['I18N']->get('delete'),$GLOBALS['I18N']->get('merge'),Help("mergeattributes"));
 }
 
 print '
 <a name="new"></a>
 <h3>'.$GLOBALS['I18N']->get('addnew').':</h3>
 <table class="attributesNew" border="1">
-<tr><td colspan="2">'.$GLOBALS['I18N']->get('name').': </td><td colspan="2"><input type="text" name="name[0]" value="" size="40"></td></tr>
+<tr><td colspan="2">'.$GLOBALS['I18N']->get('name').': </td><td colspan="2"><input type="text" name="name[0]" value="" size="40" /></td></tr>
 <tr><td colspan="2">'.$GLOBALS['I18N']->get('type').': </td><td colspan="2"><select name="type[0]">';
 foreach($types as $key => $val) {
-  printf('<option value="%s" %s>%s</option>',$val,"",$GLOBALS['I18N']->get($val));
+  printf('     <option value="%s" %s>%s</option>',$val,"",$GLOBALS['I18N']->get($val));
 }
 print'
 </select></td></tr>
-<tr><td colspan="2">'.$GLOBALS['I18N']->get('defaultvalue').': </td><td colspan="2"><input type="text" name="default[0]" value="" size="40"></td></tr>
-<tr><td>'.$GLOBALS['I18N']->get('orderoflisting').': </td><td><input type="text" name="listorder[0]" value="" size="5"></td>
-<td>'.$GLOBALS['I18N']->get('isrequired').': </td><td><input type="checkbox" name="required[0]" value="1" checked></td></tr>
+<tr><td colspan="2">'.$GLOBALS['I18N']->get('defaultvalue').': </td><td colspan="2"><input type="text" name="default[0]" value="" size="40" /></td></tr>
+<tr><td>'.$GLOBALS['I18N']->get('orderoflisting').': </td><td><input type="text" name="listorder[0]" value="" size="5" /></td>
+<td>'.$GLOBALS['I18N']->get('isrequired').': </td><td><input type="checkbox" name="required[0]" value="1" checked="checked" /></td></tr>
 </table><hr/>
 
-<input type="submit" name="action" value="'.$GLOBALS['I18N']->get('savechanges').'">
+<input class="submit" type="submit" name="action" value="'.$GLOBALS['I18N']->get('savechanges').'" />
 </form>
 
 ';

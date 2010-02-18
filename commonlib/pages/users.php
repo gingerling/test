@@ -221,11 +221,11 @@ if ($find && !$findby && !$total) { # a search for an email has been done and no
 	if (Sql_Affected_Rows()) {
 		print $GLOBALS['I18N']->get('Click on a link to use the corresponding public subscribe page to add this user:');
 		while ($row = Sql_Fetch_Array($req)) {
-			printf('<p><a href="%s&id=%d&email=%s">%s</a></p>', getConfig("subscribeurl"), $row["id"], $find, $row["title"]);
+			printf('<p><a href="%s&amp;id=%d&amp;email=%s">%s</a></p>', getConfig("subscribeurl"), $row["id"], $find, $row["title"]);
 		}
 	} else {
 		print $GLOBALS['I18N']->get('Click this link to use the public subscribe page to add this user:');
-		printf('<p><a href="%s&email=%s">%s</a></p>', getConfig("subscribeurl"), $find, $GLOBALS["strSubscribeTitle"]);
+		printf('<p><a href="%s&amp;email=%s">%s</a></p>', getConfig("subscribeurl"), $find, $GLOBALS["strSubscribeTitle"]);
 	}
 	print '<hr/>';
 }
@@ -249,12 +249,12 @@ if (!isset ($start)) {
 
 print '<table class="usersForm"><tr><td valign="top">';
 printf('<form method="get" name="listcontrol">
-  <input type="hidden" name="page" value="users">
-  <input type="hidden" name="start" value="%d">
-  <input type="hidden" name="find" value="%s">
-  <input type="hidden" name="findby" value="%s"><br/>%s:
-  <input type="checkbox" name="unconfirmed" value="1" %s><br/>%s:
-  <input type="checkbox" name="blacklisted" value="1" %s>', $start, htmlspecialchars(stripslashes($find)), htmlspecialchars(stripslashes($findby)), $GLOBALS['I18N']->get('Show only unconfirmed users'), $unc, $GLOBALS['I18N']->get('Show only blacklisted users'), $bll);
+  <input type="hidden" name="page" value="users" />
+  <input type="hidden" name="start" value="%d" />
+  <input type="hidden" name="find" value="%s" />
+  <input type="hidden" name="findby" value="%s" /><br/>%s:
+  <input type="checkbox" name="unconfirmed" value="1" %s /><br/>%s:
+  <input type="checkbox" name="blacklisted" value="1" %s />', $start, htmlspecialchars(stripslashes($find)), htmlspecialchars(stripslashes($findby)), $GLOBALS['I18N']->get('Show only unconfirmed users'), $unc, $GLOBALS['I18N']->get('Show only blacklisted users'), $bll);
 print '</td><td valign="top">';
 $select = '';
 foreach (array (
@@ -264,7 +264,7 @@ foreach (array (
 		"modified",
 		"foreignkey"
 	) as $item) {
-	$select .= sprintf('<option value="%s" %s>%s</option>', $item, $item == $sortby ? "selected" : "", $GLOBALS['I18N']->get($item));
+	$select .= sprintf('<option value="%s" %s>%s</option>', $item, $item == $sortby ? 'selected="selected"' : '', $GLOBALS['I18N']->get($item));
 }
 
 printf('
@@ -273,10 +273,10 @@ printf('
   <option value="0">-- default</option>
   %s
   </select>
-  %s: <input type="radio" name="sortorder" value="desc" %s onChange="document.listcontrol.submit();">
-  %s: <input type="radio" name="sortorder" value="asc" %s onChange="document.listcontrol.submit();">
-  <input type="submit" name="change" value="%s">
-  ', $GLOBALS['I18N']->get('Sort by'), $select, $GLOBALS['I18N']->get('desc'), $sortorder == "desc" ? "checked" : "", $GLOBALS['I18N']->get('asc'), $sortorder == "asc" ? "checked" : "", $GLOBALS['I18N']->get('Go'));
+  %s: <input type="radio" name="sortorder" value="desc" %s onchange="document.listcontrol.submit();" />
+  %s: <input type="radio" name="sortorder" value="asc" %s onchange="document.listcontrol.submit();" />
+  <input type="submit" name="change" value="%s" />
+  ', $GLOBALS['I18N']->get('Sort by'), $select, $GLOBALS['I18N']->get('desc'), $sortorder == "desc" ? 'checked="checked"' : '', $GLOBALS['I18N']->get('asc'), $sortorder == "asc" ? 'checked="checked"' : '', $GLOBALS['I18N']->get('Go'));
 print '</td></tr></table>';
 
 $order = '';
@@ -309,13 +309,14 @@ if ($total > MAX_USER_PP) {
 	#  if ($_GET["unconfirmed"])
 	#     $find_url .= "&unconfirmed=".$_GET["unconfirmed"];
 	if ($dolist) {
-		printf('<table class="usersListing" border="1"><tr><td colspan="4" align="center">%s</td></tr><tr><td>%s</td>
-		    <td>%s</td><td>
-		            %s</td><td>%s</td></tr></table><p class=""><hr/>', $listing, PageLink2("users", "&lt;&lt;", 'start="0"' .
-		$find_url), PageLink2("users", "&lt;", sprintf('start=%d', max(0, $start -MAX_USER_PP)) .
-		$find_url), PageLink2("users", "&gt;", sprintf('start=%d', min($total, $start +MAX_USER_PP)) .
-		$find_url), PageLink2("users", "&gt;&gt;", sprintf('start=%d', $total -MAX_USER_PP) .
-		$find_url));
+		printf('<p><table class="usersListing" border="1">
+<tr><td colspan="4" align="center">%s</td></tr>
+<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
+</table></p><hr/>', $listing, 
+		       PageLink2("users", "&lt;&lt;", 'start="0"'. $find_url), 
+		       PageLink2("users", "&lt;", sprintf('start=%d', max(0, $start -MAX_USER_PP)).$find_url), 
+		       PageLink2("users", "&gt;", sprintf('start=%d', min($total-MAX_USER_PP, $start +MAX_USER_PP)).$find_url), 
+		       PageLink2("users", "&gt;&gt;", sprintf('start=%d', $total -MAX_USER_PP).$find_url));
 		$result = Sql_query("$listquery $order $limit");
 	} else {
 		print $GLOBALS['I18N']->get('too many users, use a search query to list some');
@@ -330,15 +331,14 @@ if ($total > MAX_USER_PP) {
 <tr><td colspan="4"><input type="hidden" name="id" value="<?php echo $listid?>">
 <?php echo $GLOBALS['I18N']->get('Find a user')?>:
 <input type="text" name="find" value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size="30">
-<select name="findby"><option value="email" <?php echo $findby == "email"? "selected":""?>><?php echo $GLOBALS['I18N']->get('Email')?></option>
-<option value="foreignkey" <?php echo $findby == "foreignkey"? "selected":""?>><?php echo $GLOBALS['I18N']->get('Foreign Key')?></option>
+<select name="findby"><option value="email" <?php echo $findby == "email"? 'selected="selected"':''?>><?php echo $GLOBALS['I18N']->get('Email')?></option>
+<option value="foreignkey" <?php echo $findby == "foreignkey"? 'selected="selected"':''?>><?php echo $GLOBALS['I18N']->get('Foreign Key')?></option>
 <?php
-
 $att_req = Sql_Query("select id,name from " . $tables["attribute"] . " where type = \"hidden\" or type = \"textline\" or type = \"select\"");
 while ($row = Sql_Fetch_Array($att_req)) {
-	printf('<option value="%d" %s>%s</option>', $row["id"], $row["id"] == $findby ? "selected" : "", substr($row["name"], 0, 20));
+	printf('<option value="%d" %s>%s</option>', $row["id"], $row["id"] == $findby ? 'selected="selected"' : '', substr($row["name"], 0, 20));
 }
-?></select><input type="submit" value="Go">&nbsp;&nbsp;<a href="./?page="users"&find="NULL""><?php echo $GLOBALS['I18N']->get('reset')?></a>
+?></select><input class="submit" type="submit" value="Go" />&nbsp;&nbsp;<a href="./?page=users&amp;find=NULL"><?php echo $GLOBALS['I18N']->get('reset')?></a>
 </form></td></tr>
 <tr><td colspan="4">
 <?php
@@ -356,14 +356,14 @@ $ls = new WebblerListing("users");
 if ($result)
 	while ($user = Sql_fetch_array($result)) {
 		$some = 1;
-		$ls->addElement($user["email"], PageURL2("user&start=$start&id=" . $user["id"] . $find_url));
+		$ls->addElement($user["email"], PageURL2("user&amp;start=$start&amp;id=" . $user["id"] . $find_url));
 		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('confirmed'), $user["confirmed"] ? $GLOBALS["img_tick"] : $GLOBALS["img_cross"]);
 		if (in_array("blacklist", $columns)) {
 			$onblacklist = isBlackListed($user["email"]);
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('bl l'), $onblacklist ? $GLOBALS["img_tick"] : $GLOBALS["img_cross"]);
 		}
 #		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="%s" onclick="return deleteRec(\'%s\');">del</a>',PageUrl2('users'.$find_url), PageURL2("users&start=$start&delete=" .$user["id"])));
-		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>', PageURL2("users&start=$start&delete=" .$user["id"])));
+		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>', PageURL2("users&amp;start=$start&amp;delete=" .$user["id"])));
 		if (isset ($user['foreignkey'])) {
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('key'), $user["foreignkey"]);
 		}

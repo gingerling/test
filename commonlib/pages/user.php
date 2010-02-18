@@ -228,7 +228,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
 
   addUserHistory($email,"Update by ".adminName($_SESSION["logindetails"]["id"]),$history_entry);
   if (!empty($newuser)) {
-    Redirect("user&id=$id");
+    Redirect("user&amp;id=$id");
     exit;
   }
   Info($GLOBALS['I18N']->get('Changes saved'));
@@ -254,7 +254,7 @@ if ($usegroups && !empty($GLOBALS['config']['usergroup_types']) && $access != "v
   if (!empty($delgroup)) {# && !empty($delgrouptype)) {
     Sql_Query(sprintf('delete from user_group where userid = %d and groupid = %d and type = %d',$id,$delgroup,$delgrouptype));
     print "<br/>".$GLOBALS['I18N']->get('User removed from group').' '.groupName($delgroup).' ';
-    print PageLink2('user&id='.$id,$GLOBALS['I18N']->get('Continue'));
+    print PageLink2('user&amp;id='.$id,$GLOBALS['I18N']->get('Continue'));
     return;
   }
 }
@@ -277,23 +277,23 @@ if ($id) {
     $membership = $GLOBALS['I18N']->get('No Lists');
   if (empty($returnur)) { $returnurl = ''; }
   if ($access != "view")
-  printf( "<br /><hr/>%s<li><a href=\"javascript:deleteRec('%s');\">delete</a> %s\n",
-    $delete_message,PageURL2("user","",'delete="$id"&$returnurl'),$user["email"]);
+  printf( "<br /><hr/>%s<a class=\"delete\" href=\"javascript:deleteRec('%s');\">delete</a> %s",
+    $delete_message,PageURL2("user","","delete=$id&amp;$returnurl"),$user["email"]);
   printf('&nbsp;&nbsp;<a href="%s">%s</a>',getConfig("preferencesurl").
-    '&uid='.$user["uniqid"],$GLOBALS['I18N']->get('update page'));
-  printf('&nbsp;&nbsp;<a href="%s">%s</a>',getConfig("unsubscribeurl").'&uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
-  print '&nbsp;&nbsp;'.PageLink2("userhistory&id=$id",$GLOBALS['I18N']->get('History'));
+    '&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('update page'));
+  printf('&nbsp;&nbsp;<a href="%s">%s</a>',getConfig("unsubscribeurl").'&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
+  print '&nbsp;&nbsp;'.PageLink2("userhistory&amp;id=$id",$GLOBALS['I18N']->get('History'));
 } else {
   $user = array();
   $id = 0;
-  print '<p><h3>'.$GLOBALS['I18N']->get('Add a new User').'</h3></p>';
+  print '<h3>'.$GLOBALS['I18N']->get('Add a new User').'</h3>';
 }
-  print '<p><h3>'.$GLOBALS['I18N']->get('User Details')."</h3></p>".formStart('enctype="multipart/form-data"').'<table class="userAdd" border="1">';
+  print '<h3>'.$GLOBALS['I18N']->get('User Details')."</h3>".formStart('enctype="multipart/form-data"').'<table class="userAdd" border="1"><tr><td>';
   if ( empty ($list) ) { $list = ''; }
-  print '<input type="hidden" name="list" value=$list><input type="hidden" name="id" value=$id>';
+  print '<input type="hidden" name="list" value="'.$list.'" /><input type="hidden" name="id" value="'.$id.'" />';
   if ( empty ($returnpage) ) { $returnpage = ''; }
   if ( empty ($returnoption) ) { $returnoption = ''; }
-  print '<input type="hidden" name="returnpage" value=$returnpage><input type="hidden" name="returnoption" value=$returnoption>';
+  print '<input type="hidden" name="returnpage" value="'.$returnpage.'" /><input type="hidden" name="returnoption" value="'.$returnoption.'" /></td></tr>';
 
   reset($struct);
 
@@ -305,12 +305,12 @@ if ($id) {
 
     if ($key == "confirmed") {
       if (!$require_login || ($require_login && isSuperUser())) {
-        printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size="5"></td></tr>'."\n",$GLOBALS['I18N']->get($b),$key,htmlspecialchars($user[$key]));
+        printf('<tr><td>%s (1/0)</td><td><input type="text" name="%s" value="%s" size="5" /></td></tr>'."\n",$GLOBALS['I18N']->get($b),$key,htmlspecialchars($user[$key]));
       } else {
         printf('<tr><td>%s</td><td>%s</td></tr>',$b,$user[$key]);
       }
     } elseif ($key == "password" && ENCRYPTPASSWORD) {
-      printf('<tr><td>%s (%s)</td><td><input type="text" name="%s" value="%s" size="30"></td></tr>'."\n",$GLOBALS['I18N']->get('encrypted'),$val[1],$key,"");
+      printf('<tr><td>%s (%s)</td><td><input type="text" name="%s" value="%s" size="30" /></td></tr>'."\n",$GLOBALS['I18N']->get('encrypted'),$val[1],$key,"");
     } elseif ($key == "blacklisted") {
       printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),isBlackListed($user['email']));
     } else {
@@ -318,7 +318,7 @@ if ($id) {
         if (ereg("sys",$a))
           printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),$user[$key]);
         elseif ($val[1])
-          printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size="30"></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,htmlspecialchars($user[$key]));
+          printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size="30" /></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,htmlspecialchars($user[$key]));
       }
     }
   }
@@ -328,31 +328,38 @@ if ($id) {
     $row["value"] = $val_req[0];
 
     if ($row["type"] == "date") {
-      printf('<input class="attributeinput" type="hidden" name="dateattribute[%d]" value="%s">',$row["id"],$row["name"]);
+      printf('<input class="attributeinput" type="hidden" name="dateattribute[%d]" value="%s" />',$row["id"],$row["name"]);
       $novalue = trim($row["value"]) == "" ? "checked":"";
-      printf('<tr><td>%s<!--%s--></td><td>%s&nbsp; Not set: <input type="checkbox" name="%s_novalue" %s></td></tr>'."\n",stripslashes($row["name"]),$row["value"],$date->showInput($row["name"],"",$row["value"]),normalize(stripslashes($row["name"])),$novalue);
+      printf('<tr><td>%s<!--%s--></td><td>%s&nbsp; Not set: <input type="checkbox" name="%s_novalue" %s /></td></tr>'."\n",stripslashes($row["name"]),$row["value"],$date->showInput($row["name"],"",$row["value"]),normalize(stripslashes($row["name"])),$novalue);
     } elseif ($row["type"] == "checkbox") {
-      $checked = $row["value"] == "on" ?"checked":"";
-      printf('<tr><td>%s</td><td><input class="attributeinput" type="hidden" name="cbattribute[%d]" value="%d"><input class="attributeinput" type="checkbox" name="attribute[%d]" value="on" %s></td></tr>'."\n",stripslashes($row["name"]),$row["id"],$row["id"],$row["id"],$checked);
+      $checked = $row["value"] == "on" ? 'checked="checked"':'';
+      printf('<tr><td>%s</td><td><input class="attributeinput" type="hidden" name="cbattribute[%d]" value="%d" />
+                        <input class="attributeinput" type="checkbox" name="attribute[%d]" value="on" %s />
+              </td></tr>'."\n",stripslashes($row["name"]),$row["id"],$row["id"],$row["id"],$checked);
     } elseif ($row["type"] == "checkboxgroup") {
-      printf ('<tr><td valign="top">%s</td><td>%s</td></tr>\n',stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
+      printf ('
+           <tr><td valign="top">%s</td><td>%s</td>
+           </tr>\n',stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
     } elseif ($row["type"] == "textarea") {
-      printf ('<tr><td valign="top">%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" wrap="virtual">%s</textarea></td></tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars(stripslashes($row["value"])));
+      printf ('
+           <tr><td valign="top">%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" wrap="virtual">%s</textarea></td>
+           </tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars(stripslashes($row["value"])));
     } elseif ($row["type"] == "avatar") {
       printf ('<tr><td valign="top">%s</td><td>',stripslashes($row["name"]));
       if ($row['value']) {
-        printf('<img src="./?page="avatar"&user="%d"&avatar="%s""><br/>',$id,$row['id']);
+        printf('<img src="./?page=avatar&amp;user=%d&amp;avatar=%s" /><br/>',$id,$row['id']);
       }
-      printf ('<input type="file" name="attribute[%d]" /><br/>MAX: %d Kbytes</td></tr>',$row["id"],MAX_AVATAR_SIZE/1024);
+      printf ('<input type="file" name="attribute[%d]" /><br/>MAX: %d Kbytes</td>
+           </tr>',$row["id"],MAX_AVATAR_SIZE/1024);
     } else {
     if ($row["type"] != "textline" && $row["type"] != "hidden")
       printf ("<tr><td>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueSelect($id,$row["id"]));
     else
-      printf('<tr><td>%s</td><td><input class="attributeinput" type="text" name="attribute[%d]" value="%s" size="30"></td></tr>'."\n",$row["name"],$row["id"],htmlspecialchars(stripslashes($row["value"])));
+      printf('<tr><td>%s</td><td><input class="attributeinput" type="text" name="attribute[%d]" value="%s" size="30" /></td></tr>'."\n",$row["name"],$row["id"],htmlspecialchars(stripslashes($row["value"])));
     }
   }
   if ($access != "view")
-  print '<tr><td colspan="2"><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'"></td></tr>';
+  print '<tr><td colspan="2"><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'" /></td></tr>';
   print '</table>';
 
   if (isBlackListed($user["email"])) {
@@ -371,7 +378,7 @@ if ($id) {
       $bgcol = '#ffffff';
       $subs = "";
     }
-    printf ('<td bgcolor="%s"><input type="checkbox" name="subscribe[]" value="%d" %s> %s</td>',
+    printf ('<td bgcolor="%s"><input type="checkbox" name="subscribe[]" value="%d" %s /> %s</td>',
       $bgcol,$row["id"],$subs,PageLink2("editlist",stripslashes($row["name"]),"id=".$row["id"]));
     $c++;
     if ($c % 4 == 0)
@@ -380,7 +387,7 @@ if ($id) {
   print '</tr>';
 
   if ($access != "view")
-    print '<tr><td><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'"></td></tr>';
+    print '<tr><td><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'" /></td></tr>';
 
   print '</table>';
 
@@ -406,11 +413,11 @@ if ($id) {
       $c = 1;
       while ($row = Sql_Fetch_array($req)) {
         if ($row["name"] != "Everyone") {
-          printf ('<i>%s</i><input type="checkbox" name="groups[]" value="%d" %s>&nbsp;&nbsp;',
-          $row["name"],$row["id"],in_array($row["id"],$selected_groups)?"checked":""
+          printf ('<i>%s</i><input type="checkbox" name="groups[]" value="%d" %s />&nbsp;&nbsp;',
+          $row["name"],$row["id"],in_array($row["id"],$selected_groups)?'checked="checked"':''
               );
         } else {
-          printf ('<b>%s</b>&nbsp;&nbsp;<input type="hidden" name="groups[]" value="%d">',
+          printf ('<b>%s</b>&nbsp;&nbsp;<input type="hidden" name="groups[]" value="%d" />',
           $row["name"],$row["id"]
               );
         }
@@ -432,7 +439,7 @@ if ($id) {
           $groupname = groupName($row['groupid']);
           $deleteLink = '';
           if (strtolower($groupname) != 'everyone') {
-            $deleteLink =  PageLink2('user&id='.$id.'&delgroup='.$row['groupid'].'&deltype='.$row['type'],'del');
+            $deleteLink =  PageLink2('user&amp;id='.$id.'&amp;delgroup='.$row['groupid'].'&amp;deltype='.$row['type'],'del');
           }
           printf('<li><strong>%s</strong> of <i>%s</i> %s</li>',$membership_type,$groupname,$deleteLink);
         }
@@ -462,7 +469,7 @@ if ($id) {
 
     print '</td></tr>';
     if ($access != "view")
-      print '<tr><td><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'"></td></tr>';
+      print '<tr><td><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'" /></td></tr>';
     print '</table>';
   }
 
