@@ -78,7 +78,7 @@ $system_findby = array (
 	"foreignkey"
 );
 if ($findby && $find && !in_array($findby, $system_findby)) {
-	$find_url = '&find=' . urlencode($find) . "&findby=" . urlencode($findby);
+	$find_url = '&amp;find=' . urlencode($find) . "&amp;findby=" . urlencode($findby);
 	$findatt = Sql_Fetch_Array_Query("select id,tablename,type,name from {$tables["attribute"]} where id = $findby");
 	switch ($findatt["type"]) {
 		case "textline" :
@@ -107,7 +107,7 @@ if ($findby && $find && !in_array($findby, $system_findby)) {
 	;
 	$findfield = $tables["user"] . ".bouncecount," . $tables["user"] . ".rssfrequency," . $tables["user"] . ".foreignkey";
 	$findfieldname = "Email";
-	$find_url = '&find=' . urlencode($find);
+	$find_url = '&amp;find=' . urlencode($find);
 }
 
 if ($require_login && !isSuperUser()) {
@@ -199,7 +199,7 @@ if (!empty($delete) && isSuperUser()) {
 	deleteUser($delete);
 
 	print '..' . $GLOBALS['I18N']->get('Done') . '<br/><hr/><br/>';
-	Redirect("users&start=$start");
+	Redirect("users&amp;start=$start");
 }
 #ob_end_flush();
 
@@ -234,28 +234,35 @@ print "<br/>" . $GLOBALS['I18N']->get('Users marked <span class="highlight">red<
 
 $url = getenv("REQUEST_URI");
 if ($unconfirmed) {
-	$unc = "checked";
+	$unc = 'checked="checked"';
 } else {
-	$unc = "unchecked";
+	$unc = "";
 }
 if ($blacklisted) {
-	$bll = "checked";
+	$bll = 'checked="checked"';
 } else {
-	$bll = "unchecked";
+	$bll = "";
 }
 if (!isset ($start)) {
 	$start = 0;
 }
 
 print '<table class="usersForm"><tr><td valign="top">';
-printf('<form method="get" name="listcontrol">
+printf('<form method="get" name="listcontrol" action="">
   <input type="hidden" name="page" value="users" />
   <input type="hidden" name="start" value="%d" />
   <input type="hidden" name="find" value="%s" />
   <input type="hidden" name="findby" value="%s" /><br/>%s:
   <input type="checkbox" name="unconfirmed" value="1" %s /><br/>%s:
-  <input type="checkbox" name="blacklisted" value="1" %s />', $start, htmlspecialchars(stripslashes($find)), htmlspecialchars(stripslashes($findby)), $GLOBALS['I18N']->get('Show only unconfirmed users'), $unc, $GLOBALS['I18N']->get('Show only blacklisted users'), $bll);
-print '</td><td valign="top">';
+  <input type="checkbox" name="blacklisted" value="1" %s />', 
+       $start, 
+       htmlspecialchars(stripslashes($find)), 
+       htmlspecialchars(stripslashes($findby)), 
+       $GLOBALS['I18N']->get('Show only unconfirmed users'), 
+       $unc, 
+       $GLOBALS['I18N']->get('Show only blacklisted users'), 
+       $bll);
+#print '</td><td valign="top">';
 $select = '';
 foreach (array (
 		"email",
@@ -264,19 +271,23 @@ foreach (array (
 		"modified",
 		"foreignkey"
 	) as $item) {
-	$select .= sprintf('<option value="%s" %s>%s</option>', $item, $item == $sortby ? 'selected="selected"' : '', $GLOBALS['I18N']->get($item));
+	$select .= sprintf('     <option value="%s" %s>%s</option>', $item, $item == $sortby ? 'selected="selected"' : '', $GLOBALS['I18N']->get($item));
 }
 
 printf('
   <br/>%s:
-  <select name="sortby" onChange="document.listcontrol.submit();">
+  <select name="sortby" onchange="document.listcontrol.submit();">
   <option value="0">-- default</option>
   %s
   </select>
   %s: <input type="radio" name="sortorder" value="desc" %s onchange="document.listcontrol.submit();" />
   %s: <input type="radio" name="sortorder" value="asc" %s onchange="document.listcontrol.submit();" />
-  <input type="submit" name="change" value="%s" />
-  ', $GLOBALS['I18N']->get('Sort by'), $select, $GLOBALS['I18N']->get('desc'), $sortorder == "desc" ? 'checked="checked"' : '', $GLOBALS['I18N']->get('asc'), $sortorder == "asc" ? 'checked="checked"' : '', $GLOBALS['I18N']->get('Go'));
+  <br/><input class="submit" type="submit" name="change" value="%s" />
+  ', 
+       $GLOBALS['I18N']->get('Sort by'), $select, 
+       $GLOBALS['I18N']->get('desc'), $sortorder == "desc" ? 'checked="checked"' : '', 
+       $GLOBALS['I18N']->get('asc'), $sortorder == "asc" ? 'checked="checked"' : '', 
+       $GLOBALS['I18N']->get('Go'));
 print '</td></tr></table>';
 
 $order = '';
@@ -327,10 +338,11 @@ if ($total > MAX_USER_PP) {
 }
 
 ?>
+
 <table class="usersFind" border="0">
-<tr><td colspan="4"><input type="hidden" name="id" value="<?php echo $listid?>">
+<tr><td colspan="4"><input type="hidden" name="id" value="<?php echo $listid?>" />
 <?php echo $GLOBALS['I18N']->get('Find a user')?>:
-<input type="text" name="find" value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size="30">
+<input type="text" name="find" value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size="30" />
 <select name="findby"><option value="email" <?php echo $findby == "email"? 'selected="selected"':''?>><?php echo $GLOBALS['I18N']->get('Email')?></option>
 <option value="foreignkey" <?php echo $findby == "foreignkey"? 'selected="selected"':''?>><?php echo $GLOBALS['I18N']->get('Foreign Key')?></option>
 <?php
