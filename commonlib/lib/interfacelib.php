@@ -92,7 +92,7 @@ class WebblerListing {
   function addInput ($name,$value) {
     $this->addElement($name);
     $this->addColumn($name,"value",
-      sprintf('<input type=text name="%s" value="%s" size=40 class="listinginput">',
+      sprintf('<input type="text" name="%s" value="%s" size="40" class="listinginput" />',
       strtolower($name),$value));
   }
 
@@ -777,7 +777,8 @@ class WebblerShader {
     <td class="shaderborder"><img src="images/transparent.png" alt="" height="1" border="0" width="1" /></td>
   </tr>
 '.$this->dividerRow().'
-</table></div>
+</table><!-- End table from header -->
+</div><!-- End tablewrapper -->
     ',$this->num,$this->display,addslashes($this->name),$this->num,$this->display);
     return $html;
   }
