@@ -410,7 +410,8 @@ function UserAttributeValueSelect($user = 0,$attribute = 0) {
     return "(No values available)";
   $html .= '<option value="0">-- no value</option>';
   while ($row = Sql_Fetch_Row($res))
-    $html .= sprintf('<option value="%d" %s>%s',$row[0],$row[1] == $value?"selected":"",$row[1]);
+    if ($row[1] != '')
+      $html .= sprintf('<option value="%d" %s>%s </option>',$row[0],$row[1] == $value?'selected="selected"':"",$row[1]);
   return $html . '</select>';
 }
 
@@ -431,13 +432,13 @@ function UserAttributeValueCbGroup($user = 0,$attribute = 0) {
   $att = Sql_Fetch_array_Query("select * from $att_table where id = $attribute");
   $values_req = Sql_Fetch_Row_Query("select value from $user_att_table where userid = $user and attributeid = $attribute");
   $values = split(",",$values_req[0]);
-  $html = sprintf('<input type="hidden" name="cbgroup[]" value="%d"><table>',$attribute);
+  $html = sprintf('<input type="hidden" name="cbgroup[]" value="%d" /><table>',$attribute);
  # $html = sprintf('<select name="attribute[%d]" style="attributeinput" >',$attribute);
   $res = Sql_Query("select id,name from $table_prefix"."listattr_".$att["tablename"]." order by listorder,name");
   if (!Sql_Affected_Rows())
     return "(No values available)";
   while ($row = Sql_Fetch_Row($res))
-    $html .= sprintf('<tr><td><input type="checkbox" name="cbgroup%d[]" value="%d" %s></td><td>%s</td></tr>',
+    $html .= sprintf('<tr><td><input type="checkbox" name="cbgroup%d[]" value="%d" %s /></td><td>%s</td></tr>',
       $attribute,$row[0],in_array($row[0],$values)?"checked":"",$row[1]);
   return $html . '</table>';
 }
