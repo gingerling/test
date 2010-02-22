@@ -270,12 +270,12 @@ if ($id) {
   $user = sql_fetch_array($result);
   $lists = Sql_query("SELECT listid,name FROM {$tables["listuser"]},{$tables["list"]} where userid = ".$user["id"]." and $tables[listuser].listid = $tables[list].id $subselect ");
   while ($lst = Sql_fetch_array($lists)) {
-    $membership .= "<li>".PageLink2("editlist",$lst["name"],"id=".$lst["listid"]);
+    $membership .= "<li>".PageLink2("editlist",$lst["name"],"id=".$lst["listid"]).'</li>';
     array_push($subscribed,$lst["listid"]);
   }
   if (!$membership)
     $membership = $GLOBALS['I18N']->get('No Lists');
-  if (empty($returnur)) { $returnurl = ''; }
+  if (empty($returnurl)) { $returnurl = ''; }
   if ($access != "view")
   printf( "<br /><hr/>%s<a class=\"delete\" href=\"javascript:deleteRec('%s');\">delete</a> %s",
     $delete_message,PageURL2("user","","delete=$id&amp;$returnurl"),$user["email"]);
@@ -339,10 +339,10 @@ if ($id) {
     } elseif ($row["type"] == "checkboxgroup") {
       printf ('
            <tr><td valign="top">%s</td><td>%s</td>
-           </tr>\n',stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
+           </tr>',stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
     } elseif ($row["type"] == "textarea") {
       printf ('
-           <tr><td valign="top">%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" wrap="virtual">%s</textarea></td>
+           <tr><td valign="top">%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" class="wrap virtual">%s</textarea></td>
            </tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars(stripslashes($row["value"])));
     } elseif ($row["type"] == "avatar") {
       printf ('<tr><td valign="top">%s</td><td>',stripslashes($row["name"]));
@@ -359,7 +359,7 @@ if ($id) {
     }
   }
   if ($access != "view")
-  print '<tr><td colspan="2"><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'" /></td></tr>';
+  print '<tr><td colspan="2"><input class="submit" type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'" /></td></tr>';
   print '</table>';
 
   if (isBlackListed($user["email"])) {
@@ -371,30 +371,29 @@ if ($id) {
   $req = Sql_Query("select * from {$tables["list"]} $subselect_where order by listorder,name");
   $c = 0;
   while ($row = Sql_Fetch_Array($req)) {
+    $c++;
+    if ($c % 4 == 0)
+      print '</tr><tr>';
     if (in_array($row["id"],$subscribed)) {
       $bgcol = '#F7E7C2';
-      $subs = "checked";
+      $subs = 'checked="checked"';
     } else {
       $bgcol = '#ffffff';
       $subs = "";
     }
     printf ('<td bgcolor="%s"><input type="checkbox" name="subscribe[]" value="%d" %s /> %s</td>',
       $bgcol,$row["id"],$subs,PageLink2("editlist",stripslashes($row["name"]),"id=".$row["id"]));
-    $c++;
-    if ($c % 4 == 0)
-      print '</tr><tr>';
   }
   print '</tr>';
-
   if ($access != "view")
-    print '<tr><td><input type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'" /></td></tr>';
+    print '<tr><td><input class="submit" type="submit" name="change" value="'.$GLOBALS['I18N']->get('Save Changes').'" /></td></tr>';
 
   print '</table>';
 
   if ($usegroups) {
     print "<h3>".$GLOBALS['I18N']->get('Group Membership').":</h3>";
-    print '<table class="userGroup" border="1"><tr>';
-    print '<tr><td colspan="2"><hr width="50%"></td></tr>
+    print '<table class="userGroup" border="1">';
+    print '<tr><td colspan="2"><hr width="50%" /></td></tr>
   <tr><td colspan="2">'.$GLOBALS['I18N']->get('Please select the groups this user is a member of').'</td></tr>
   <tr><td colspan="2">';
     
@@ -456,7 +455,7 @@ if ($id) {
       print '<hr/>Add new group membership:<br/><br/>';
       print '<select name="newgrouptype">';
       foreach ($GLOBALS['config']['usergroup_types'] as $key => $val) {
-        printf ('<option value="%d">%s</option>',$key,$val);
+        printf ('    <option value="%d">%s</option>',$key,$val);
       }
       print '</select>';
       print ' of ';
