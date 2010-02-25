@@ -804,7 +804,7 @@ function loadUser($loginname = "") {
   }
   $d_req = Sql_Fetch_Array_Query("select * from user where email = \"$loginname\"");
   $_SESSION["userid"] = $d_req["id"];
-  foreach (array("email","disabled","confirmed","htmlemail","uniqid",'password') as $field) {
+  foreach (array("email","disabled","confirmed","htmlemail","uniqid",'password','foreignkey') as $field) {
 #   if (!defined($_SESSION["userdata"][$field])) {
       $_SESSION["userdata"][$field] = array(
         "name" => $field,
