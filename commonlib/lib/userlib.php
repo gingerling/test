@@ -905,8 +905,12 @@ function saveUserAttribute($userid,$attid,$data) {
     $data["type"] = "textline";
 
   if ($data["type"] == "static" || $data["type"] == "password" || $data['type'] == 'htmlpref') {
+    if (!empty($GLOBALS['config']['dontsave_userpassword']) && $data['type'] == 'password') {
+      $data["value"] = 'not authoritative';
+    }
     Sql_Query(sprintf('update user set %s = "%s" where id = %d',
       $attid,$data["value"],$userid));
+      dbg('Saving','',DBG_TRACE);
     if ($data["type"] == "password") {
       Sql_Query(sprintf('update user set passwordchanged = now() where id = %d',
       $userid));
@@ -957,6 +961,10 @@ function saveUserAttribute($userid,$attid,$data) {
   switch ($attributetype) {
     case "static":
     case "password":
+  #  dbg('SAVING STATIC OR  PASSWORD');
+      if (!empty($GLOBALS['config']['dontsave_userpassword']) && $data['type'] == 'password') {
+        $data["value"] = 'not authoritative';
+      }
       Sql_Query(sprintf('update user set %s = "%s" where id = %d',
         $attid,$data["value"],$userid));
       break;
@@ -1016,7 +1024,7 @@ function saveUserByID($userid,$data) {
     } else {
       $attid = $key;
     }
- #   dbg("Saving attribute $key, $attid, $val for $userid");
+    dbg("Saving attribute $key, $attid, $val for $userid");
     if ($userid && $attid && $data[$key]["type"] != "userfield" && !$data[$key]["nodbsave"])
       saveUserAttribute($userid,$attid,$val);
   }
@@ -1048,7 +1056,8 @@ function saveUserData($username,$fields) {
   if (!$username) {
     $username = 'Unknown User';
   }
-  dbg("Saving user in session $username");
+  dbg("Saving user in session $username",'',DBG_TRACE);
+  
   $res = "";
   $required_fields = explode(",",$_POST["required"]);
   if ($_POST["unrequire"]) {
