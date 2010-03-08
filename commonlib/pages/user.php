@@ -228,7 +228,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
 
   addUserHistory($email,"Update by ".adminName($_SESSION["logindetails"]["id"]),$history_entry);
   if (!empty($newuser)) {
-    Redirect("user&amp;id=$id");
+    Redirect("user&id=$id");
     exit;
   }
   Info($GLOBALS['I18N']->get('Changes saved'));
