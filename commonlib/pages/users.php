@@ -324,7 +324,7 @@ if ($total > MAX_USER_PP) {
 <tr><td colspan="4" align="center">%s</td></tr>
 <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
 </table></p><hr/>', $listing, 
-		       PageLink2("users", "&lt;&lt;", 'start="0"'. $find_url), 
+		       PageLink2("users", "&lt;&lt;", 'start=0'. $find_url), 
 		       PageLink2("users", "&lt;", sprintf('start=%d', max(0, $start -MAX_USER_PP)).$find_url), 
 		       PageLink2("users", "&gt;", sprintf('start=%d', min($total-MAX_USER_PP, $start +MAX_USER_PP)).$find_url), 
 		       PageLink2("users", "&gt;&gt;", sprintf('start=%d', $total -MAX_USER_PP).$find_url));
@@ -375,7 +375,7 @@ if ($result)
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('bl l'), $onblacklist ? $GLOBALS["img_tick"] : $GLOBALS["img_cross"]);
 		}
 #		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="%s" onclick="return deleteRec(\'%s\');">del</a>',PageUrl2('users'.$find_url), PageURL2("users&start=$start&delete=" .$user["id"])));
-		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>', PageURL2("users&amp;start=$start&amp;delete=" .$user["id"])));
+		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>', PageURL2("user&amp;start=$start&amp;delete=" .$user["id"])));
 		if (isset ($user['foreignkey'])) {
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('key'), $user["foreignkey"]);
 		}
