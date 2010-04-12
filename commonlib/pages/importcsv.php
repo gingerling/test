@@ -111,7 +111,7 @@ if (!empty ($_GET["reset"]) && $_GET["reset"] == "yes") {
   return;
 } else {
   #  if ($_SESSION["test_import"])
-  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;reset="yes"', $GLOBALS['I18N']->get('Reset Import session')) . '</p>';
+  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;reset=yes"', $GLOBALS['I18N']->get('Reset Import session')) . '</p>';
 }
 
 if (isset ($_POST["import"])) {
