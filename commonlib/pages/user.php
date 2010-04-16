@@ -433,7 +433,8 @@ if ($id) {
           ## the config needs to start real types with 1, type index 0 will be considered no-value
           $membership_type = $GLOBALS['config']['usergroup_types'][$row['type']];
           if (empty($membership_type) || empty($row['type'])) {
-            $membership_type = 'undefined';
+            # $membership_type = 'undefined'; an entry "undefined of everyone" was showing in the backend
+            continue;
           }
           $groupname = groupName($row['groupid']);
           $deleteLink = '';
