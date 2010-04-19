@@ -981,10 +981,10 @@ function saveUserAttribute($userid,$attid,$data) {
         $attid,$data["value"],$userid));
       break;
     case "select":
-      $curval = Sql_Fetch_Row_Query(sprintf('select id from phplist_listattr_%s
+      $curval = Sql_Fetch_Row_Query(sprintf('select id from '.$usertable_prefix . 'listattr_%s
         where name = "%s"',$atttable,$data["displayvalue"]),1);
       if (!$curval[0] && $data['displayvalue'] && $data['displayvalue'] != '') {
-        Sql_Query(sprintf('insert into phplist_listattr_%s (name) values("%s")',$atttable,
+        Sql_Query(sprintf('insert into '.$usertable_prefix . 'listattr_%s (name) values("%s")',$atttable,
           $data["displayvalue"]));
         sendError("Added ".$data["displayvalue"]." to $atttable");
         $valid = Sql_Insert_id();
