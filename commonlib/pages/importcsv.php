@@ -758,6 +758,23 @@ if (sizeof($email_list)) {
                   $user_att_value = $d[0];
                 }
                 break;
+              case "checkboxgroup":
+                $values = explode(',',$uservalue);
+                $valueIds = array();
+                foreach ($values as $importValue) {
+                  $val = Sql_Query("select id from $table_prefix" . "listattr_$att[1] where name = \"$importValue\"");
+                  # if we do not have this value add it
+                  if (!Sql_Affected_Rows()) {
+                    Sql_Query("insert into $table_prefix" . "listattr_$att[1] (name) values(\"$importValue\")");
+                    Warn("Value $importValue added to attribute $att[2]");
+                    $valueIds[] = Sql_Insert_Id();
+                  } else {
+                    $d = Sql_Fetch_Row($val);
+                    $valueIds[] = $d[0];
+                  }
+                }
+                $user_att_value = join(',',$valueIds);
+                break;
               case "checkbox" :
                 if ($uservalue && $uservalue != "off")
                   $user_att_value = "on";
