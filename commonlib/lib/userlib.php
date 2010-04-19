@@ -281,6 +281,17 @@ function UserAttributeValue($user = 0,$attribute = 0) {
         if (function_exists('cleancommalist')) {
           $val_ids[0] = cleanCommaList($val_ids[0]);
         }
+        ## make sure the val_ids as numbers
+        $values = split(',',$val_ids[0]);
+        $ids = array();
+        foreach ($values as $valueIndex) {
+          $iValue = sprintf('%d',$valueIndex);
+          if ($iValue) {
+            $ids[] = $iValue;
+          }
+        }
+        if (!sizeof($ids)) return '';
+        $val_ids[0] = join(',',$ids);
  #       print '<br/>2 <b>'.$val_ids[0].'</b>';
         $value = '';
         $res = Sql_Query("select $table_prefix"."listattr_".$att["tablename"].".name
@@ -288,8 +299,9 @@ function UserAttributeValue($user = 0,$attribute = 0) {
           where $user_att_table".".userid = ".$user." and
           $table_prefix"."listattr_".$att["tablename"].".id in ($val_ids[0]) and
           $user_att_table".".attributeid = ".$attribute);
-        while ($row = Sql_Fetch_row($res))
+        while ($row = Sql_Fetch_row($res)) {
           $value .= $row[0]."; ";
+        }
         $value = substr($value,0,-2);
       } else {
         $value = "";
