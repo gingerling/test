@@ -292,7 +292,7 @@ print '</td></tr></table>';
 
 $order = '';
 if ($sortby) {
-	$order = ' order by ' . $sortby;
+	$order = ' order by ' .$tables["user"].'.'. $sortby;
 	if ($sortorder == "asc") {
 		$order .= ' asc';
 	} else {
