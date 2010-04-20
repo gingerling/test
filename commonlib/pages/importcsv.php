@@ -776,10 +776,12 @@ if (sizeof($email_list)) {
                 $user_att_value = join(',',$valueIds);
                 break;
               case "checkbox" :
-                if ($uservalue && $uservalue != "off")
+                $uservalue = trim($uservalue);
+                #print $uservalue;exit;
+                if (!empty($uservalue) && $uservalue != "off")
                   $user_att_value = "on";
                 else
-                  $user_att_value = "off";
+                  $user_att_value = "";
                 break;
               case "date" :
 #                $user_att_value = parseDate($uservalue);
