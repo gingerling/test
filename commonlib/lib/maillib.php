@@ -116,7 +116,7 @@ function addAbsoluteResources($text,$url) {
       $match = $foundtags[2][$i];
       $tagmatch = $foundtags[1][$i];
 #      print "$match<br/>";
-      if (preg_match("#[http|javascript|https|ftp|mailto]:#i",$match)) {
+      if (preg_match("#^[http|javascript|https|ftp|mailto]:#i",$match)) {
         # scheme exists, leave it alone
       } elseif (preg_match("#\[.*\]#U",$match)) {
         # placeholders used, leave alone as well
