@@ -883,10 +883,13 @@ function isGuestAccount() {
 }
 
 function saveUserAttribute($userid,$attid,$data) {
-  global $usertable_prefix, $tables;
+  global $usertable_prefix, $table_prefix, $tables;
   # workaround for integration webbler/phplist
   if (!isset($usertable_prefix)) {
     $usertable_prefix = '';
+  }
+  if (!isset($table_prefix)) {
+    $table_prefix = 'phplist_';
   }
   if (!empty($tables["attribute"])) {
     $att_table = $usertable_prefix .$tables["attribute"];
@@ -981,10 +984,10 @@ function saveUserAttribute($userid,$attid,$data) {
         $attid,$data["value"],$userid));
       break;
     case "select":
-      $curval = Sql_Fetch_Row_Query(sprintf('select id from '.$usertable_prefix . 'listattr_%s
+      $curval = Sql_Fetch_Row_Query(sprintf('select id from '.$table_prefix . 'listattr_%s
         where name = "%s"',$atttable,$data["displayvalue"]),1);
       if (!$curval[0] && $data['displayvalue'] && $data['displayvalue'] != '') {
-        Sql_Query(sprintf('insert into '.$usertable_prefix . 'listattr_%s (name) values("%s")',$atttable,
+        Sql_Query(sprintf('insert into '.$table_prefix . 'listattr_%s (name) values("%s")',$atttable,
           $data["displayvalue"]));
         sendError("Added ".$data["displayvalue"]." to $atttable");
         $valid = Sql_Insert_id();
@@ -1002,7 +1005,7 @@ function saveUserAttribute($userid,$attid,$data) {
         }
       
         $formfield = 'attribute'.$attid.'_file'; ## the name of the fileupload element
-        if (!empty($_FILES[$formfield]['name'])) {
+        if (!empty($_FILES[$formfield]['name']) && !empty($_FILES[$formfield]['tmp_name'])) {
           $tmpnam = $_FILES[$formfield]['tmp_name'];
           move_uploaded_file($tmpnam,'/tmp/avatar'.$userid.'.jpg');
 
