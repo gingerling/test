@@ -16,10 +16,15 @@ class WebblerListing {
   var $initialstate = "block";
   var $duplicatebuttons = array();
   var $buttonduplicate = 0;
+  private $useShader = true;
 
   function WebblerListing($title,$help = "") {
     $this->title = strip_tags($title);
     $this->help = strip_tags($help);
+  }
+  
+  function noShader() {
+    $this->useShader = false;
   }
 
   function addElement($name,$url = "",$colsize="") {
@@ -310,6 +315,9 @@ class WebblerListing {
       $html .= $this->listingElement($element);
     }
     $html .= $this->listingEnd();
+    if (!$this->useShader) {
+      return $html;
+    }
 
     $shader = new WebblerShader($this->title);
     $shader->addContent($html);
@@ -533,6 +541,7 @@ class WebblerTabs {
   }
 
   function display() {
+    $html = '';
     if (empty($GLOBALS['design'])) {
       $html = '<style type=text/css media=screen>@import url( styles/tabs.css );</style>';
     }
