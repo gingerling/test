@@ -2,6 +2,15 @@
 
 print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
 
+$subselect = ' where id > 0 ';
+if ($GLOBALS["require_login"] && !isSuperUser()) {
+  $access = accessLevel("import2");
+  if ($access == "owner")
+    $subselect = " where owner = " . $_SESSION["logindetails"]["id"];
+  elseif ($access == "all") $subselect = " where id > 0 ";
+  elseif ($access == "none") $subselect = " where id = 0 ";
+}
+
 ignore_user_abort();
 set_time_limit(500);
 $illegal_cha = array (
@@ -12,7 +21,6 @@ $illegal_cha = array (
   "\t"
 );
 $email_list = array ();
-$subselect = '';
 if (!isset ($GLOBALS['scheme'])) {
   $GLOBALS['scheme'] = 'http';
 }
@@ -925,15 +933,12 @@ if (sizeof($email_list)) {
 <?php print formStart('enctype="multipart/form-data" name="import"');?>
 <?php
 
-if ($GLOBALS["require_login"] && !isSuperUser()) {
-  $access = accessLevel("import2");
-  if ($access == "owner")
-    $subselect = " where owner = " . $_SESSION["logindetails"]["id"];
-  elseif ($access == "all") $subselect = "";
-  elseif ($access == "none") $subselect = " where id = 0";
-}
 
 if (Sql_Table_Exists($tables["list"])) {
+  if (isset($_GET['list'])) {
+    $subselect .= sprintf( ' and id= %d',$_GET['list']);
+  }
+  
   $result = Sql_query("SELECT id,name FROM " . $tables["list"] . " $subselect ORDER BY listorder");
   $c = 0;
   if (Sql_Affected_Rows() == 1) {
