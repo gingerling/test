@@ -17,6 +17,7 @@ class WebblerListing {
   var $duplicatebuttons = array();
   var $buttonduplicate = 0;
   private $useShader = true;
+  private $suppressHeader = false;
 
   function WebblerListing($title,$help = "") {
     $this->title = strip_tags($title);
@@ -25,6 +26,10 @@ class WebblerListing {
   
   function noShader() {
     $this->useShader = false;
+  }
+
+  function noHeader() {
+    $this->suppressHeader = true;
   }
 
   function addElement($name,$url = "",$colsize="") {
@@ -301,7 +306,9 @@ class WebblerListing {
 #     $html = $this->index();
 
     $html .= $this->listingStart();
-    $html .= $this->listingHeader();
+    if (!$this->suppressHeader) {
+      $html .= $this->listingHeader();
+    }
 #    global $float_menu;
 #    $float_menu .= "<a style=\"display: block;\" href=\"#".htmlspecialchars($this->title)."\">$this->title</a>";
     if ($this->sort) {
