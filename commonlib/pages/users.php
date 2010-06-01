@@ -199,7 +199,12 @@ if (!empty($delete) && isSuperUser()) {
 	deleteUser($delete);
 
 	print '..' . $GLOBALS['I18N']->get('Done') . '<br/><hr/><br/>';
-	Redirect("users&amp;start=$start");
+	$previous_search = '';
+	if (!$find == '') {
+		$previous_search = "&start=$start&find=$find&findby=$findby";
+	}
+	
+	Redirect("users$previous_search");
 }
 #ob_end_flush();
 
@@ -375,7 +380,8 @@ if ($result)
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('bl l'), $onblacklist ? $GLOBALS["img_tick"] : $GLOBALS["img_cross"]);
 		}
 #		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="%s" onclick="return deleteRec(\'%s\');">del</a>',PageUrl2('users'.$find_url), PageURL2("users&start=$start&delete=" .$user["id"])));
-		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>', PageURL2("user&amp;start=$start&amp;delete=" .$user["id"])));
+		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>',
+                                                                         PageURL2("users&amp;start=$start&amp;find=$find&amp;findby=$findby&amp;delete=" .$user["id"])));
 		if (isset ($user['foreignkey'])) {
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('key'), $user["foreignkey"]);
 		}
