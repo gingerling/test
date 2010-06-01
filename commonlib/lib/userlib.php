@@ -67,6 +67,9 @@ function deleteUser($id) {
   Sql_Query(sprintf('delete from %s where user = %d',$tables["user_message_bounce"],$id));
   Sql_Query(sprintf('delete from %s where id = %d',$tables["user"],$id));
   Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_history"],$id));
+	if (Sql_table_exists('user_group')) {
+		Sql_Query(sprintf('delete from user_group where userid = %d',$id));
+	}
   ### allow plugins to delete their data
 
   if (is_array($GLOBALS['plugins'])) {
