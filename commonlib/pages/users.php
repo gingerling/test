@@ -381,7 +381,7 @@ if ($result)
 		}
 #		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="%s" onclick="return deleteRec(\'%s\');">del</a>',PageUrl2('users'.$find_url), PageURL2("users&start=$start&delete=" .$user["id"])));
 		$ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>',
-                                                                         PageURL2("users&amp;start=$start&amp;find=$find&amp;findby=$findby&amp;delete=" .$user["id"])));
+                                                                         PageURL2("users&start=$start&find=$find&findby=$findby&delete=" .$user["id"])));
 		if (isset ($user['foreignkey'])) {
 			$ls->addColumn($user["email"], $GLOBALS['I18N']->get('key'), $user["foreignkey"]);
 		}
