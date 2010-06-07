@@ -56,9 +56,13 @@ if (Sql_Affected_Rows()) {
 }
 
 $ls = new WebblerListing($GLOBALS['I18N']->get('Messages'));
-$msgs = Sql_Query(sprintf('select messageid,entered,viewed,(viewed = 0 or viewed is null) as notviewed,
-  abs(unix_timestamp(entered) - unix_timestamp(viewed)) as responsetime from %s where userid = %d and status = "sent"',$tables["usermessage"],$user["id"]));
-$num = Sql_Affected_Rows();
+if (Sql_Table_Exists($tables["usermessage"])) {
+  $msgs = Sql_Query(sprintf('select messageid,entered,viewed,(viewed = 0 or viewed is null) as notviewed,
+    abs(unix_timestamp(entered) - unix_timestamp(viewed)) as responsetime from %s where userid = %d and status = "sent"',$tables["usermessage"],$user["id"]));
+  $num = Sql_Affected_Rows();
+} else {
+  $num = 0;
+}
 printf('%d ' . $GLOBALS['I18N']->get('messages sent to this user') . '<br/>', $num);
 if ($num) {
   $resptime = 0;
