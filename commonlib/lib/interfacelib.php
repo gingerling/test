@@ -155,9 +155,9 @@ class WebblerListing {
   }
 
   function listingElement($element) {
-    if ($element["colsize"])
+    if (!empty($element["colsize"]))
       $width = 'width='.$element["colsize"];
-    else
+    else 
       $width = "";
     if (isset($element['class'])) {
       $html = '<tr valign="middle" class="'.$element['class'].'">';
@@ -165,7 +165,7 @@ class WebblerListing {
       $html = '<tr valign="middle">';
     }
 
-    if ($element["url"]) {
+    if (!empty($element["url"])) {
       $html .= sprintf('<td valign="top" %s class="listingname"><span class="listingname"><a href="%s" class="listingname">%s</a></span></td>',$width,$element["url"],$element["name"]);
     } else {
       $html .= sprintf('<td valign="top" %s class="listingname"><span class="listingname">%s</span></td>',$width,$element["name"]);
@@ -335,6 +335,31 @@ class WebblerListing {
     $html .= $shader->contentDiv();
     $html .= $shader->footer();
     return $html;
+  }
+
+  function plainText($text) {
+    $text = strip_tags($text);
+    $text = str_ireplace('&nbsp;',' ',$text);
+    return $text;
+  }
+
+  function tabDelimited() {
+    print $this->title."\t";
+    foreach ($this->columns as $column => $columnname) {
+      print $this->plainText($column) . "\t";
+    }
+    print "\n";
+    foreach ($this->elements as $element) {
+      print $this->plainText($element['name'])."\t";
+      foreach ($this->columns as $column) {
+        if (isset($element["columns"][$column]) && $element["columns"][$column]["value"]) {
+          print $this->plainText($element["columns"][$column]["value"]);
+        }
+        print "\t";
+      }
+      print "\n";
+    }
+    exit;
   }
 }
 
