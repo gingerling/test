@@ -70,10 +70,15 @@ if ($num) {
   while ($msg = Sql_Fetch_Array($msgs)) {
     $ls->addElement($msg["messageid"],PageURL2("message",$GLOBALS['I18N']->get('view'),"id=".$msg["messageid"]));
     if (defined('CLICKTRACK') && CLICKTRACK) {
-      $clicks = Sql_Fetch_Row_Query(sprintf('select sum(clicked) as numclicks from %s where userid = %s and messageid = %s',
+      $clicksreq = Sql_Fetch_Row_Query(sprintf('select sum(clicked) as numclicks from %s where userid = %s and messageid = %s',
         $GLOBALS['tables']['linktrack'],$user['id'],$msg['messageid']));
-      $ls->addColumn($msg["messageid"],$GLOBALS['I18N']->get('clicks'),
-        PageLink2('userclicks&amp;userid='.$user['id'].'&amp;msgid='.$msg['messageid'],$clicks[0]));
+      $clicks = sprintf('%d',$clicksreq[0]);
+      if ($clicks) {
+        $ls->addColumn($msg["messageid"],$GLOBALS['I18N']->get('clicks'),
+          PageLink2('userclicks&amp;userid='.$user['id'].'&amp;msgid='.$msg['messageid'],$clicks));
+      } else {
+        $ls->addColumn($msg["messageid"],$GLOBALS['I18N']->get('clicks'),0);
+      }
     }
 
     $ls->addColumn($msg["messageid"],$GLOBALS['I18N']->get('sent'),formatDateTime($msg["entered"],1));
@@ -83,7 +88,9 @@ if ($num) {
       $resptime += $msg['responsetime'];
       $totalresp += 1;
     }
-    $ls->addColumn($msg["messageid"],$GLOBALS['I18N']->get('bounce'),$bounces[$msg["messageid"]]);
+    if (!empty($bounces[$msg["messageid"]])) {
+      $ls->addColumn($msg["messageid"],$GLOBALS['I18N']->get('bounce'),$bounces[$msg["messageid"]]);
+    }
   }
   if ($totalresp) {
     $avgresp = sprintf('%d',($resptime / $totalresp));
@@ -93,6 +100,7 @@ if ($num) {
 }
 
 print $ls->display();
+print '<br/>';
 print $bouncels->display();
 
 if (isBlackListed($user["email"])) {
