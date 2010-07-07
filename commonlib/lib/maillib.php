@@ -45,7 +45,12 @@ function HTML2Text($text) {
       'http://'.trim($linktext) == trim($linkurl)) {
         $linkreplace = $linkurl;
     } else {
-      $linkreplace = $linktext.' <'.$linkurl.'>';
+      ## if link is an anchor only, take it out
+      if (strpos($linkurl,'#') !== false) {
+        $linkreplace = $linktext;
+      } else {
+        $linkreplace = $linktext.' <'.$linkurl.'>';
+      }
     }
   #  $text = preg_replace('~'.preg_quote($fullmatch).'~',$linkreplace,$text);
     $text = str_replace($fullmatch,$linkreplace,$text);
@@ -55,11 +60,16 @@ function HTML2Text($text) {
   $text = replaceChars($text);
   
   $text = preg_replace("/###NL###/","\n",$text);
+  $text = preg_replace("/\n /","\n",$text);
+  $text = preg_replace("/\t/"," ",$text);
+  
   # reduce whitespace
-  while (preg_match("/  /",$text))
+  while (preg_match("/  /",$text)) {
     $text = preg_replace("/  /"," ",$text);
-  while (preg_match("/\n\s*\n\s*\n/",$text))
+  }
+  while (preg_match("/\n\s*\n\s*\n/",$text)) {
     $text = preg_replace("/\n\s*\n\s*\n/","\n\n",$text);
+  }
   $text = wordwrap($text,70);
 
   return $text;
@@ -80,6 +90,8 @@ $search = array ("'&(quot|#34);'i",  // Replace html entities
                  "'&(cent|#162);'i",
                  "'&(pound|#163);'i",
                  "'&(copy|#169);'i",
+                 "'&rsquo;'i",
+                 "'&ndash;'i",
                  "'&#(\d+);'e");  // evaluate as php
 
 $replace = array ("\"",
@@ -91,6 +103,8 @@ $replace = array ("\"",
                   chr(162),
                   chr(163),
                   chr(169),
+                  "'",
+                  "-",
                   "chr(\\1)");
 
   $text = preg_replace ($search, $replace, $text);
