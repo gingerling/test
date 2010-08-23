@@ -603,27 +603,19 @@ class pageInfo {
   private $page = '';
   private $infocontent = '';
 
-  function pageInfo($include) {
-    $this->noteid = basename($include,'.php');
-    $this->page = $this->noteid;
-    if (isset($_GET['note'.$this->noteid]) && $_GET['note'.$this->noteid] == 'hide') {
-      if (!isset($_SESSION['suppressinfo']) || !is_array($_SESSION['suppressinfo'])) {
-        $_SESSION['suppressinfo'] = array();
-      }
-      $_SESSION['suppressinfo'][$this->noteid] = 'hide';
-    }
+  function pageInfo($id = '') {
     $this->ajaxed = isset($_GET['ajaxed']);
+    $this->noteid = $id;
+    $this->page = $GLOBALS['page'];
   }
 
-  function show() {
-    $html = '';
-    $include = $this->page .'.php';
-    if ($this->ajaxed || !empty($_SESSION['suppressinfo'][$this->noteid])) {
-      return '';
-    }
-    $html = '<div class="note '.$this->noteid.'">';
-    $html .= '<a href="./?page='.$this->page.'&amp;note'.$this->noteid.'=hide" class="hide" />'.$GLOBALS['I18N']->get('Hide').'</a>';
+  function setContent($content) {
+    $this->infocontent = $content;
+  }
 
+  function fetchInfoContent($include) {
+    $this->noteid = basename($include,'.php');
+    $this->page = $this->noteid;
     $buffer = ob_get_contents();
     ob_end_clean();
     ob_start();
@@ -650,10 +642,27 @@ class pageInfo {
       print $buffer;
       return '';
     }
-    $info = ob_get_contents();
+    $this->infocontent = ob_get_contents();
     ob_end_clean();
     print $buffer;
-    $html .= $info;
+  }
+  
+  function show() {
+    $html = '';
+    if ($this->ajaxed || !empty($_SESSION['suppressinfo'][$this->noteid])) {
+      return '';
+    }
+    if (empty($this->infocontent)) return '';
+    if (isset($_GET['note'.$this->noteid]) && $_GET['note'.$this->noteid] == 'hide') {
+      if (!isset($_SESSION['suppressinfo']) || !is_array($_SESSION['suppressinfo'])) {
+        $_SESSION['suppressinfo'] = array();
+      }
+      $_SESSION['suppressinfo'][$this->noteid] = 'hide';
+    }
+    
+    $html = '<div class="note '.$this->noteid.'">';
+    $html .= '<a href="./?page='.$this->page.'&amp;note'.$this->noteid.'=hide" class="hide" />'.$GLOBALS['I18N']->get('Hide').'</a>';
+    $html .= $this->infocontent;
     $html  .= '</div>'; ## end of info div
     return $html;
   }
