@@ -602,6 +602,7 @@ class pageInfo {
   private $ajaxed = false;
   private $page = '';
   private $infocontent = '';
+  private $addhide = true;
 
   function pageInfo($id = '') {
     $this->ajaxed = isset($_GET['ajaxed']);
@@ -614,7 +615,12 @@ class pageInfo {
   }
 
   function fetchInfoContent($include) {
-    $this->noteid = basename($include,'.php');
+    ## pages to not allow hiding the info for
+    if (in_array($include,array('login.php','logout.php','community.php'))) {
+      $this->addhide = false;
+    }
+    
+    $this->noteid = substr(md5(basename($include,'.php')),0,15);
     $this->page = $this->noteid;
     $buffer = ob_get_contents();
     ob_end_clean();
@@ -653,7 +659,7 @@ class pageInfo {
       return '';
     }
     if (empty($this->infocontent)) return '';
-    if (isset($_GET['note'.$this->noteid]) && $_GET['note'.$this->noteid] == 'hide') {
+    if (isset($_GET['action']) && $_GET['action'] == 'hidenote' && isset($_GET['note']) && $_GET['note'] == $this->noteid) {
       if (!isset($_SESSION['suppressinfo']) || !is_array($_SESSION['suppressinfo'])) {
         $_SESSION['suppressinfo'] = array();
       }
@@ -661,7 +667,9 @@ class pageInfo {
     }
     
     $html = '<div class="note '.$this->noteid.'">';
-    $html .= '<a href="./?page='.$this->page.'&amp;note'.$this->noteid.'=hide" class="hide" />'.$GLOBALS['I18N']->get('Hide').'</a>';
+    if ($this->addhide) {
+      $html .= '<a href="./?page='.$GLOBALS['page'].'&amp;action=hidenote&amp;note='.$this->noteid.'" class="hide ajaxable" />'.$GLOBALS['I18N']->get('Hide').'</a>';
+    }
     $html .= $this->infocontent;
     $html  .= '</div>'; ## end of info div
     return $html;
