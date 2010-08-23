@@ -597,6 +597,68 @@ class WebblerTabs {
  }
 }
 
+class pageInfo {
+  private $noteid = '';
+  private $ajaxed = false;
+  private $page = '';
+  private $infocontent = '';
+
+  function pageInfo($include) {
+    $this->noteid = basename($include,'.php');
+    $this->page = $this->noteid;
+    if (isset($_GET['note'.$this->noteid]) && $_GET['note'.$this->noteid] == 'hide') {
+      if (!isset($_SESSION['suppressinfo']) || !is_array($_SESSION['suppressinfo'])) {
+        $_SESSION['suppressinfo'] = array();
+      }
+      $_SESSION['suppressinfo'][$this->noteid] = 'hide';
+    }
+    $this->ajaxed = isset($_GET['ajaxed']);
+  }
+
+  function show() {
+    $html = '';
+    $include = $this->page .'.php';
+    if ($this->ajaxed || !empty($_SESSION['suppressinfo'][$this->noteid])) {
+      return '';
+    }
+    $html = '<div class="note '.$this->noteid.'">';
+    $html .= '<a href="./?page='.$this->page.'&amp;note'.$this->noteid.'=hide" class="hide" />'.$GLOBALS['I18N']->get('Hide').'</a>';
+
+    $buffer = ob_get_contents();
+    ob_end_clean();
+    ob_start();
+
+    # include some information
+    if (empty($_GET['pi'])) {
+      if (is_file("info/".$_SESSION['adminlanguage']['info']."/$include")) {
+        @include "info/".$_SESSION['adminlanguage']['info']."/$include";
+      } elseif (is_file("info/en/$include")) {
+        @include "info/en/$include";
+      } else {
+        print $buffer;
+        return '';#'No file: '."info/en/$include";
+      }
+
+    } elseif (isset($_GET['pi']) && !empty($GLOBALS['plugins'][$_GET['pi']]) && is_object($GLOBALS['plugins'][$_GET['pi']])) {
+      if (is_file($GLOBALS['plugins'][$_GET['pi']]->coderoot.'/info/'.$_SESSION['adminlanguage']['info']."/$include")) {
+        @include $GLOBALS['plugins'][$_GET['pi']]->coderoot .'/info/'.$_SESSION['adminlanguage']['info']."/$include";
+      }
+    } elseif (is_file("info/en/$include")) {
+      @include "info/en/$include";
+    #  print "Not a file: "."info/".$adminlanguage["info"]."/$include";
+    } else {
+      print $buffer;
+      return '';
+    }
+    $info = ob_get_contents();
+    ob_end_clean();
+    print $buffer;
+    $html .= $info;
+    $html  .= '</div>'; ## end of info div
+    return $html;
+  }
+}  
+
 class WebblerShader {
   var $name = "Untitled";
   var $content = "";
@@ -641,7 +703,7 @@ class WebblerShader {
   <script language="Javascript" type="text/javascript">
 
   <!--
-  var states = Array("'.join('","',split(",",$_COOKIE[$cookie])).'");
+  var states = Array("'.join('","',explode(",",$_COOKIE[$cookie])).'");
   var cookieloaded = 0;
   var expireDate = new Date;
   expireDate.setDate(expireDate.getDate()+365);
