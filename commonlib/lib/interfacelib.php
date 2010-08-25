@@ -732,7 +732,7 @@ class buttonGroup {
     $html .= $this->topbutton->showA();
 
     if (sizeof($this->buttons)) {
-      $html .= '<img height="18" width="18" align="top" class="arrow" src="/images/menuarrow.png" />';
+      $html .= '<img height="18" width="18" align="top" class="arrow" src="ui/'.$GLOBALS['ui'].'/images/menuarrow.png" />';
     }
     
     $html .= $this->topbutton->showAend();
