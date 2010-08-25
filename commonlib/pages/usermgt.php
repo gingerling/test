@@ -1,10 +1,10 @@
 <?php
 
 if (!isset($_SESSION["userselection"]) || !is_array($_SESSION["userselection"]) || $_GET["reset"]) {
-	$_SESSION["userselection"] = array();
+  $_SESSION["userselection"] = array();
 }
 $tables = array(
-	"attribute" => "attribute",
+  "attribute" => "attribute",
   "user_attribute" => "user_attribute",
 );
 $GLOBALS["table_prefix"] = "phplist_";
@@ -16,7 +16,7 @@ $baseurl = PageURL2($_GET["page"].'&id='.$_GET["id"]);
 
 # should move this to common library area
 function parseDate($strdate,$format = 'Y-m-d') {
-	# parse a string date into a date
+  # parse a string date into a date
   $strdate = trim($strdate);
   if (strlen($strdate) < 6) {
     $newvalue = 0;
@@ -35,9 +35,9 @@ function parseDate($strdate,$format = 'Y-m-d') {
     }
   }
   if ($newvalue) {
-  	return date($format,$newvalue);
+    return date($format,$newvalue);
   } else {
-  	return "";
+    return "";
   }
 }
 
@@ -67,10 +67,10 @@ if ($_POST["criteria_attribute"]) {
   print '<p class="information">Adding '.$newcriterion["attribute_name"]." ".$newcriterion["operator"]." ".$newcriterion["values"]."</p>";
   $_SESSION["userselection"]["criterion$num"] = delimited($newcriterion);
   # increase number
-	$_SESSION["userselection"]["num"]++;
+  $_SESSION["userselection"]["num"]++;
 }
 if (isset($_POST["criteria_match"])) {
-	$_SESSION["criteria_overall_operator"] = $_POST["criteria_match"];
+  $_SESSION["criteria_overall_operator"] = $_POST["criteria_match"];
 }
 
 $num = sprintf('%d',$_SESSION["userselection"]["num"]);
