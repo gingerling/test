@@ -650,6 +650,7 @@ class pageInfo {
     }
     $this->infocontent = ob_get_contents();
     ob_end_clean();
+    ob_start();
     print $buffer;
   }
   
@@ -674,7 +675,82 @@ class pageInfo {
     $html  .= '</div>'; ## end of info div
     return $html;
   }
-}  
+}
+
+class button {
+  private $link;
+  private $title;
+  private $linktext;
+
+  function button($link,$linktext,$title = '') {
+    $this->link = $link;
+    $this->linktext = $linktext;
+    $this->title = $title;
+  }
+
+  function showA() {
+    $html = '<a href="'.$this->link.'"';
+    if ($this->title) {
+      $html .= ' title="'.htmlspecialchars($this->title).'"';
+    } else {
+      $html .= ' title="'.htmlspecialchars($this->linktext).'"';
+    }
+    $html .= '>';
+    $html .= $this->linktext;
+    return $html;
+  }
+
+  function showAend() {
+    $html = '</a>';
+    return $html;
+  }
+
+  function show() {
+    return $this->showA().$this->showAend();
+  }
+}
+
+class buttonGroup {
+  private $buttons = array();
+  private $topbutton = '';
+
+  function buttonGroup($topbutton = '') {
+    $this->topbutton = $topbutton;
+  }
+
+  function addButton($button) {
+    if (empty($this->topbutton)) {
+      $this->topbutton = $button;
+    } else {
+      $this->buttons[] = $button;
+    }
+  }
+
+  function show() {
+    $html = '<div class="dropButton">';
+
+    $html .= $this->topbutton->showA();
+
+    if (sizeof($this->buttons)) {
+      $html .= '<img height="18" width="18" align="top" class="arrow" src="/images/menuarrow.png" />';
+    }
+    
+    $html .= $this->topbutton->showAend();
+    
+    if (sizeof($this->buttons)) {
+      $html .= '<div class="submenu" style="display: none;">';
+
+      foreach ($this->buttons as $button) {
+        $html .= $button->show();
+      }
+
+      $html .= '</div>';
+    }
+
+    $html .= '</div>';
+    return $html;
+  }
+}
 
 class WebblerShader {
   var $name = "Untitled";
