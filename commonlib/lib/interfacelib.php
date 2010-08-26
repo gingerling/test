@@ -22,6 +22,10 @@ class WebblerListing {
   function WebblerListing($title,$help = "") {
     $this->title = strip_tags($title);
     $this->help = strip_tags($help);
+    ## in phpList don't use the shader
+    if (!defined('IN_WEBBLER') && !defined('WEBBLER')) {
+      $this->noShader();
+    }
   }
   
   function noShader() {
@@ -678,9 +682,11 @@ class pageInfo {
 }
 
 class button {
-  private $link;
-  private $title;
-  private $linktext;
+  protected $link;
+  protected $title;
+  protected $linktext;
+  protected $linkhtml = '';
+  protected $js = '';
 
   function button($link,$linktext,$title = '') {
     $this->link = $link;
@@ -689,7 +695,7 @@ class button {
   }
 
   function showA() {
-    $html = '<a href="'.$this->link.'"';
+    $html = '<a href="'.$this->link.'" '.$this->linkhtml;
     if ($this->title) {
       $html .= ' title="'.htmlspecialchars($this->title).'"';
     } else {
@@ -701,12 +707,34 @@ class button {
   }
 
   function showAend() {
-    $html = '</a>';
+    $html = '</a>'.$this->js;
     return $html;
   }
 
   function show() {
     return $this->showA().$this->showAend();
+  }
+}
+
+class confirmButton extends button {
+  protected $link;
+  protected $title;
+  protected $linktext;
+  protected $linkhtml = '';
+  protected $js;
+  
+  function confirmButton($confirmationtext,$link,$linktext,$title = '') {
+    if (!isset($GLOBALS['confirmButtonCount'])) $GLOBALS['confirmButtonCount'] = 0;
+    $GLOBALS['confirmButtonCount']++;
+    $this->linkhtml = ' class="confirm" id="confirm'.$GLOBALS['confirmButtonCount'].'"';
+    $this->link = $link;
+    $this->linktext = $linktext;
+    $this->js = '
+    <script type="text/javascript">
+    $("#confirm'.$GLOBALS['confirmButtonCount'].'").data("confirmText", "'.htmlspecialchars(strip_tags($confirmationtext)).'");
+    </script>';
+    
+    $this->title = $title;
   }
 }
 
