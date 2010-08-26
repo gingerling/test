@@ -7,6 +7,7 @@ $id = sprintf('%d',isset($_GET["id"]) ? $_GET['id']:0);
 $delete = sprintf('%d',isset($_GET['delete']) ? $_GET["delete"]:0);
 $date = new Date();
 $newuser = 0;
+$feedback = '';
 
 $access = accessLevel("user");
 switch ($access) {
@@ -67,7 +68,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
       } else {
         $a = $b = '';
       }
-      if (!ereg("sys",$a) && $val[1]) {
+      if (strpos($a,"sys") === false && $val[1]) {
         if ($key == "password" && ENCRYPTPASSWORD) {
           if ($_POST[$key])
             Sql_Query("update {$tables["user"]} set $key = \"".md5($_POST[$key])."\" where id = $id");
@@ -148,7 +149,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     if (is_array($_POST["groups"])) {
       foreach ($_POST["groups"] as $group) {
         Sql_Query(sprintf('insert into user_group (userid,groupid) values(%d,%d)',$id,$group));
-        print "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($group);
+        $feedback .= "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($group);
       }
     }
   } elseif ($usegroups) {
@@ -158,7 +159,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     
     if (!empty($newgrouptype) && !empty($newgroup)) {
       Sql_Query(sprintf('insert into user_group (userid,groupid,type) values(%d,%d,%d)',$id,$newgroup,$newgrouptype));
-      print "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($newgroup);
+      $feedback .= "<br/>".$GLOBALS['I18N']->get('User added to group').' '.groupName($newgroup);
     } 
     ## make sure they're in the everyone group
     Sql_Query(sprintf('insert ignore into user_group (userid,groupid,type) values(%d,%d,0)',$id,getEveryoneGroupID()));
@@ -177,7 +178,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
   if (isset($_POST["subscribe"]) && is_array($_POST["subscribe"])) {
     foreach ($_POST["subscribe"] as $ind => $lst) {
       Sql_Query("insert into {$tables["listuser"]} (userid,listid) values($id,$lst)");
-      print '<br/>'.sprintf($GLOBALS['I18N']->get('User added to list %s'),ListName($lst));
+      $feedback .= '<br/>'.sprintf($GLOBALS['I18N']->get('User added to list %s'),ListName($lst));
     }
     print "<br/>";
   }
@@ -187,7 +188,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
 
   foreach ($current_data as $key => $val) {
     if (!is_numeric($key))
-    if ($old_data[$key] != $val && $key != "modified") {
+    if (isset($old_data[$key]) && $old_data[$key] != $val && $key != "modified") {
       if ($old_data[$key] == '') $old_data[$key] = '(no data)';
       $history_entry .= "$key = $val\nchanged from $old_data[$key]\n";
      }
@@ -231,7 +232,7 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
     Redirect("user&id=$id");
     exit;
   }
-  Info($GLOBALS['I18N']->get('Changes saved'));
+  Info($GLOBALS['I18N']->get('Changes saved').$feedback);
 }
 
 if (isset($delete) && $delete && $access != "view") {
@@ -276,13 +277,13 @@ if ($id) {
   if (!$membership)
     $membership = $GLOBALS['I18N']->get('No Lists');
   if (empty($returnurl)) { $returnurl = ''; }
-  if ($access != "view")
-  printf( "<br /><hr/>%s<a class=\"delete\" href=\"javascript:deleteRec('%s');\">delete</a> %s",
-    $delete_message,PageURL2("user","","delete=$id&amp;$returnurl"),$user["email"]);
-  printf('&nbsp;&nbsp;<a href="%s">%s</a>',getConfig("preferencesurl").
+    printf('&nbsp;&nbsp;<a href="%s" class="button">%s</a>',getConfig("preferencesurl").
     '&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('update page'));
-  printf('&nbsp;&nbsp;<a href="%s">%s</a>',getConfig("unsubscribeurl").'&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
-  print '&nbsp;&nbsp;'.PageLink2("userhistory&amp;id=$id",$GLOBALS['I18N']->get('History'));
+  printf('&nbsp;&nbsp;<a href="%s" class="button">%s</a>',getConfig("unsubscribeurl").'&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
+  print '&nbsp;&nbsp;'.PageLinkButton("userhistory&amp;id=$id",$GLOBALS['I18N']->get('History'));
+  if ($access != "view")
+    printf( "<br /><hr/><div class=\"info\">%s</div><a class=\"delete button\" href=\"javascript:deleteRec('%s');\">delete</a> <h3>%s</h3>",
+      $delete_message,PageURL2("user","","delete=$id&amp;$returnurl"),$user["email"]);
 } else {
   $user = array();
   $id = 0;
@@ -315,7 +316,7 @@ if ($id) {
       printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),isBlackListed($user['email']));
     } else {
       if (!strpos($key,'_')) {
-        if (ereg("sys",$a))
+        if (strpos($a,"sys") !== false)
           printf('<tr><td>%s</td><td>%s</td></tr>',$GLOBALS['I18N']->get($b),$user[$key]);
         elseif ($val[1])
           printf('<tr><td>%s</td><td><input type="text" name="%s" value="%s" size="30" /></td></tr>'."\n",$GLOBALS['I18N']->get($val[1]),$key,htmlspecialchars($user[$key]));
@@ -382,7 +383,7 @@ if ($id) {
       $subs = "";
     }
     printf ('<td bgcolor="%s"><input type="checkbox" name="subscribe[]" value="%d" %s /> %s</td>',
-      $bgcol,$row["id"],$subs,PageLink2("editlist",stripslashes($row["name"]),"id=".$row["id"]));
+      $bgcol,$row["id"],$subs,stripslashes($row["name"]));
   }
   print '</tr>';
   if ($access != "view")
