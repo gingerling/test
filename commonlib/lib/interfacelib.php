@@ -560,12 +560,22 @@ if (state == "closed") {
 }
 
 class WebblerTabs {
-  var $tabs = array();
-  var $current = "";
-  var $linkcode = "";
+  private $tabs = array();
+  private $current = "";
+  private $linkcode = "";
+  private $liststyle = 'ul';
+  private $class = '';
 
   function addTab($name,$url = "") {
     $this->tabs[$name] = $url;
+  }
+
+  function listStyle($style) {
+    $this->liststyle = $style;
+  }
+
+  function setListClass($class) {
+    $this->class = $class;
   }
 
   function setCurrent($name) {
@@ -578,11 +588,15 @@ class WebblerTabs {
 
   function display() {
     $html = '';
-    if (empty($GLOBALS['design'])) {
+    if (empty($GLOBALS['design']) && empty($GLOBALS['ui'])) {
       $html = '<style type=text/css media=screen>@import url( styles/tabs.css );</style>';
     }
     $html .= '<div id="webblertabs">';
-    $html .= '<ul>';
+    $html .= '<'.$this->liststyle;
+    if (!empty($this->class)) {
+      $html .= ' class="'.$this->class.'"';
+    }
+    $html .= '>';
     reset($this->tabs);
     foreach ($this->tabs as $tab => $url) {
       if (strtolower($tab) == $this->current) {
@@ -593,7 +607,7 @@ class WebblerTabs {
       $html .= sprintf('<a href="%s" %s>%s</a>',$url,$this->linkcode,$tab);
       $html .= '</li>';
     }
-    $html .= '</ul>';
+    $html .= '</'.$this->liststyle.'>';
     $html .= '</div>';
 #    $html .= '<span class="faderight">&nbsp;</span>';
     $html .= '<br clear="all" />';
