@@ -562,6 +562,8 @@ if (state == "closed") {
 class WebblerTabs {
   private $tabs = array();
   private $current = "";
+  private $previous = "";
+  private $next = "";
   private $linkcode = "";
   private $liststyle = 'ul';
   private $class = '';
@@ -582,6 +584,27 @@ class WebblerTabs {
     $this->current = strtolower($name);
   }
 
+  function previousLink() {
+    if (!empty($this->previous)) {
+      return sprintf('<a href="%s" %s>',$this->tabs[$this->previous],$this->linkcode);
+    }
+    return '';
+  }
+  
+  function previous() {
+    if (!empty($this->previous)) {
+      return $this->tabs[$this->previous];
+    }
+    return '';
+  }
+
+  function next() {
+    if (!empty($this->next)) {
+      return $this->tabs[$this->next];
+    }
+    return '';
+  }
+
   function addLinkCode($code) {
     $this->linkcode = $code;
   }
@@ -598,14 +621,22 @@ class WebblerTabs {
     }
     $html .= '>';
     reset($this->tabs);
+    $previous = $next = "";
+    $gotcurrent = false;
     foreach ($this->tabs as $tab => $url) {
       if (strtolower($tab) == $this->current) {
+        $this->previous = $previous;
+        $gotcurrent = true;
         $html .= '<li id="current">';
       } else {
+        if ($gotcurrent && empty($this->next)) {
+          $this->next = $tab;
+        }
         $html .= '<li>';
       }
       $html .= sprintf('<a href="%s" %s>%s</a>',$url,$this->linkcode,$tab);
       $html .= '</li>';
+      $previous = $tab;
     }
     $html .= '</'.$this->liststyle.'>';
     $html .= '</div>';
