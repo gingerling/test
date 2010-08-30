@@ -3,6 +3,41 @@ require_once dirname(__FILE__).'/accesscheck.php';
 
 # interface functions
 
+
+class UIPanel {
+  private $header = '';
+  private $nav = '';
+  private $content = '';
+
+  function UIPanel($header,$content,$nav = '') {
+    $this->header = $header;
+    $this->nav = $nav;
+    $this->content = $content;
+  }
+
+  function display() {
+    $html = '<div class="panel">';
+    $html .= '<div class="header"><h2>'.$this->header.'</h2>';
+    if ($this->nav) {
+      $nav = '<div class="step-nav">'.$this->nav.'</div><!-- ENDOF .step-nav -->';
+      $html .= $nav;
+    }
+    $html .= '</div><!-- ENDOF .header -->';
+    $html .= '
+<div class="content">
+
+    '.$this->content.'
+  </div><!-- ENDOF .content -->';
+    $html .= '
+<div class="panelfooter">
+    '.$nav.'
+  </div><!-- ENDOF .footer -->
+</div><!-- ENDOF .panel -->
+    ';
+    return $html;
+  }
+}
+
 class WebblerListing {
   var $title;
   var $help;
@@ -566,14 +601,29 @@ class WebblerTabs {
   private $next = "";
   private $linkcode = "";
   private $liststyle = 'ul';
+  private $addTabNo = false;
   private $class = '';
+  private $addprevnext = false;
+  private $id = 'webblertabs';
 
   function addTab($name,$url = "") {
     $this->tabs[$name] = $url;
   }
 
+  function addPrevNext() {
+    $this->addprevnext = true;
+  }
+
+  function addTabNo() {
+    $this->addTabNo = true;
+  }
+
   function listStyle($style) {
     $this->liststyle = $style;
+  }
+
+  function setId($id) {
+    $this->id = $id;
   }
 
   function setListClass($class) {
@@ -609,12 +659,31 @@ class WebblerTabs {
     $this->linkcode = $code;
   }
 
+  function prevNextNav() {
+    $html = '<div class="step-nav">';
+
+    $previousTab = $this->previous();
+    $nextTab = $this->next();
+    if (!empty($previousTab)) {
+      $html .= '<a class="back savechanges" href="'.$previousTab.'">'.$GLOBALS['I18N']->get('Back').'</a>';
+    } else {
+      $html .= '<a class="back">'.$GLOBALS['I18N']->get('Back').'</a>';
+    }
+    if (!empty($nextTab)) {
+      $html .= '<a class="next savechanges" href="'.$nextTab.'">'.$GLOBALS['I18N']->get('Next').'</a>';
+    } else {
+      $html .= '<a class="next">'.$GLOBALS['I18N']->get('Next').'</a>';
+    }
+    $html .= '</div>';
+    return $html;
+  }
+
   function display() {
     $html = '';
     if (empty($GLOBALS['design']) && empty($GLOBALS['ui'])) {
       $html = '<style type=text/css media=screen>@import url( styles/tabs.css );</style>';
     }
-    $html .= '<div id="webblertabs">';
+    $html .= '<div id="'.$this->id.'">';
     $html .= '<'.$this->liststyle;
     if (!empty($this->class)) {
       $html .= ' class="'.$this->class.'"';
@@ -623,25 +692,35 @@ class WebblerTabs {
     reset($this->tabs);
     $previous = $next = "";
     $gotcurrent = false;
+    $count = 0;
     foreach ($this->tabs as $tab => $url) {
+      $count++;
       if (strtolower($tab) == $this->current) {
         $this->previous = $previous;
         $gotcurrent = true;
-        $html .= '<li id="current">';
+        $html .= '<li class="current">';
       } else {
         if ($gotcurrent && empty($this->next)) {
           $this->next = $tab;
         }
         $html .= '<li>';
       }
+      if ($this->addTabNo) {
+        $html .= sprintf('<span class="tabno">%d</span>',$count);
+      }
       $html .= sprintf('<a href="%s" %s>%s</a>',$url,$this->linkcode,$tab);
       $html .= '</li>';
       $previous = $tab;
     }
     $html .= '</'.$this->liststyle.'>';
+
+    if ($this->addprevnext) {
+      $html .= $this->prevNextNav();
+    }
     $html .= '</div>';
+
 #    $html .= '<span class="faderight">&nbsp;</span>';
-    $html .= '<br clear="all" />';
+  #  $html .= '<br clear="all" />';
     return $html;
  }
 }
