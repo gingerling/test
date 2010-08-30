@@ -8,6 +8,7 @@ class UIPanel {
   private $header = '';
   private $nav = '';
   private $content = '';
+  private $id = '';
 
   function UIPanel($header,$content,$nav = '') {
     $this->header = $header;
@@ -15,12 +16,20 @@ class UIPanel {
     $this->content = $content;
   }
 
+  function setID($id) {
+    $this->id = $id;
+  }
+
   function display() {
-    $html = '<div class="panel">';
+    $html = '<div class="panel"';
+    if (!empty($this->id)) {
+      $html .= 'id="'.$this->id.'"';
+    }
+    $html .= '>';
     $html .= '<div class="header"><h2>'.$this->header.'</h2>';
+    $nav = '';
     if ($this->nav) {
-      $nav = '<div class="step-nav">'.$this->nav.'</div><!-- ENDOF .step-nav -->';
-      $html .= $nav;
+      $html .= $this->nav;
     }
     $html .= '</div><!-- ENDOF .header -->';
     $html .= '
@@ -624,6 +633,10 @@ class WebblerTabs {
 
   function setId($id) {
     $this->id = $id;
+  }
+
+  function tabTitle() {
+    return $this->current;
   }
 
   function setListClass($class) {
