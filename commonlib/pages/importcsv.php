@@ -93,7 +93,7 @@ require $GLOBALS["coderoot"] . "structure.php";
 $system_attributes = array ();
 reset($DBstruct["user"]);
 while (list ($key, $val) = each($DBstruct["user"])) {
-  if (!ereg("^sys", $val[1]) && is_array($val)) {
+  if (strpos( $val[1],"sys") === false && is_array($val)) {
     $system_attributes[strtolower($key)] = $val[1];  ## allow columns like "htmlemail" and "foreignkey"
     $system_attributes_nicename[strtolower($val[1])] = $key; ## allow columns like "Send this user HTML emails" and "Foreign Key"
   } else {
@@ -152,6 +152,9 @@ if (isset ($_POST["import"])) {
     Fatal_Error($GLOBALS['I18N']->get('Use of wrong characters in filename, allowed are: ') . "0-9A-Za-z[SPACE]_.-()");
     return;
   }
+
+  ## set notify to always "no". Confirmation should run through the first campaing
+  $_POST['notify'] = 'no';
   if (!$_POST["notify"] && !$test_import) {
     Fatal_Error($GLOBALS['I18N']->get('Please choose whether to sign up immediately or to send a notification'));
     return;
@@ -1016,10 +1019,14 @@ printf($GLOBALS['I18N']->get('phplistuploadlimit'),IMPORT_FILESIZE);?>
 <tr><td><?php echo $GLOBALS['I18N']->get('Overwrite Existing')?>:</td><td><input type="checkbox" name="overwrite" value="yes" checked="checked" /></td></tr>
 <tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('retainold_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Retain Old User Email')?>:</td><td><input type="checkbox" name="retainold" value="yes" /></td></tr>
-<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('sendnotification_blurb')?></td></tr>
+
+<?php
+## we should not allow sending this, but run it through process queue instead
+?>
+<!--tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('sendnotification_blurb')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Send&nbsp;Notification&nbsp;email')?>&nbsp;<input type="radio" name="notify" value="yes" /></td><td><?php echo $GLOBALS['I18N']->get('Make confirmed immediately')?>&nbsp;<input type="radio" name="notify" value="no" checked="checked"/></td></tr>
 <tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you are going to send notification to users, you may want to add a little delay between messages')?></td></tr>
-<tr><td><?php echo $GLOBALS['I18N']->get('Notification throttle')?>:</td><td><input type="text" name="throttle_import" size="5"> <?php echo $GLOBALS['I18N']->get('(default is nothing, will send as fast as it can)')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Notification throttle')?>:</td><td><input type="text" name="throttle_import" size="5"> <?php echo $GLOBALS['I18N']->get('(default is nothing, will send as fast as it can)')?></td></tr-->
 
 <tr><td><div class="submit"><input type="submit" name="import" value="<?php echo $GLOBALS['I18N']->get('Import')?>"></div></td><td>&nbsp;</td></tr>
 </table>
