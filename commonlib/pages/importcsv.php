@@ -166,7 +166,7 @@ if (isset ($_POST["import"])) {
 
   if ($_FILES["import_file"] && $_FILES["import_file"]['size'] > 10) {
   #  $newfile = $GLOBALS['tmpdir'] . '/' . basename($_FILES['import_file']['name']) . time();
-    $newfile = $GLOBALS['tmpdir'].'/'.'csvimport'.$GLOBALS['installationname'].time();
+    $newfile = $GLOBALS['tmpdir'].'/'.'csvimport'.$GLOBALS['installation_name'].time();
     if (!$GLOBALS['commandline']) {
       move_uploaded_file($_FILES['import_file']['tmp_name'], $newfile);
     } else {
