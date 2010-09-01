@@ -148,10 +148,12 @@ if (isset ($_POST["import"])) {
     Fatal_Error($GLOBALS['I18N']->get('File too big, please split it up into smaller ones'));
     return;
   }
+/*
   if (!preg_match("/^[0-9A-Za-z_\.\-\s \(\)]+$/", $_FILES["import_file"]["name"])) {
     Fatal_Error($GLOBALS['I18N']->get('Use of wrong characters in filename, allowed are: ') . "0-9A-Za-z[SPACE]_.-()");
     return;
   }
+*/
 
   ## set notify to always "no". Confirmation should run through the first campaing
   $_POST['notify'] = 'no';
@@ -163,7 +165,8 @@ if (isset ($_POST["import"])) {
   }
 
   if ($_FILES["import_file"] && $_FILES["import_file"]['size'] > 10) {
-    $newfile = $GLOBALS['tmpdir'] . '/' . basename($_FILES['import_file']['name']) . time();
+  #  $newfile = $GLOBALS['tmpdir'] . '/' . basename($_FILES['import_file']['name']) . time();
+    $newfile = $GLOBALS['tmpdir'].'/'.'csvimport'.$GLOBALS['installationname'].time();
     if (!$GLOBALS['commandline']) {
       move_uploaded_file($_FILES['import_file']['tmp_name'], $newfile);
     } else {
