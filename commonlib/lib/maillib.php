@@ -134,7 +134,7 @@ function addAbsoluteResources($text,$url) {
         # scheme exists, leave it alone
       } elseif (preg_match("#\[.*\]#U",$match)) {
         # placeholders used, leave alone as well
-      } elseif (ereg("^/",$match)) {
+      } elseif (preg_match("/^\//",$match)) {
         # starts with /
         $text = preg_replace('#'.preg_quote($foundtags[0][$i]).'#im',$tagmatch.'"'.$parts["scheme"].'://'.$parts["host"].$match.'"',$text,1);
       } else {
