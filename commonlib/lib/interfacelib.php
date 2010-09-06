@@ -61,6 +61,7 @@ class WebblerListing {
   var $duplicatebuttons = array();
   var $buttonduplicate = 0;
   private $useShader = true;
+  private $usePanel = false;
   private $suppressHeader = false;
 
   function WebblerListing($title,$help = "") {
@@ -69,6 +70,7 @@ class WebblerListing {
     ## in phpList don't use the shader
     if (!defined('IN_WEBBLER') && !defined('WEBBLER')) {
       $this->noShader();
+      $this->usePanel();
     }
   }
   
@@ -78,6 +80,10 @@ class WebblerListing {
 
   function noHeader() {
     $this->suppressHeader = true;
+  }
+
+  function usePanel() {
+    $this->usePanel = true;
   }
 
   function addElement($name,$url = "",$colsize="") {
@@ -370,6 +376,12 @@ class WebblerListing {
       $html .= $this->listingElement($element);
     }
     $html .= $this->listingEnd();
+
+    if ($this->usePanel) {
+      $p = new UIPanel($this->title,$html);
+      return $p->display();
+    }
+    
     if (!$this->useShader) {
       return $html;
     }
