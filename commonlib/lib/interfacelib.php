@@ -187,18 +187,18 @@ class WebblerListing {
       $tophelp = $this->help;
     }
     $html = '<tr valign="top">';
-    $html .= sprintf('<td><a name="%s"></a><div class="listinghdname">%s%s</div></td>',str_replace(" ","_",htmlspecialchars(strtolower($this->title))),$tophelp,$this->title);
+    $html .= sprintf('<th><a name="%s"></a><div class="listinghdname">%s%s</div></th>',str_replace(" ","_",htmlspecialchars(strtolower($this->title))),$tophelp,$this->title);
     $c = 1;
     foreach ($this->columns as $column => $columnname) {
       if ($c == sizeof($this->columns)) {
-        $html .= sprintf('<td><div class="listinghdelement">%s%s</div></td>',$columnname,$this->help);
+        $html .= sprintf('<th><div class="listinghdelement">%s%s</div></th>',$columnname,$this->help);
       } else {
         if ($this->sortby[$columnname] && $this->sort) {
           $display = sprintf('<a href="./?%s&amp;sortby=%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
         } else {
           $display = $columnname;
         }
-        $html .= sprintf('<td><div class="listinghdelement">%s</div></td>',$display);
+        $html .= sprintf('<th><div class="listinghdelement">%s</div></th>',$display);
       }
       $c++;
 
@@ -214,15 +214,15 @@ class WebblerListing {
     else 
       $width = "";
     if (isset($element['class'])) {
-      $html = '<tr valign="middle" class="'.$element['class'].'">';
+      $html = '<tr class="'.$element['class'].'">';
     } else {
-      $html = '<tr valign="middle">';
+      $html = '<tr>';
     }
 
     if (!empty($element["url"])) {
-      $html .= sprintf('<td valign="top" %s class="listingname"><span class="listingname"><a href="%s" class="listingname">%s</a></span></td>',$width,$element["url"],$element["name"]);
+      $html .= sprintf('<td %s class="listingname"><span class="listingname"><a href="%s" class="listingname">%s</a></span></td>',$width,$element["url"],$element["name"]);
     } else {
-      $html .= sprintf('<td valign="top" %s class="listingname"><span class="listingname">%s</span></td>',$width,$element["name"]);
+      $html .= sprintf('<td %s class="listingname"><span class="listingname">%s</span></td>',$width,$element["name"]);
     }
     foreach ($this->columns as $column) {
       if (isset($element["columns"][$column]) && $element["columns"][$column]["value"]) {
@@ -236,11 +236,11 @@ class WebblerListing {
         $align = '';
       }
       if (!empty($element["columns"][$column]["url"])) {
-        $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s"><a href="%s" class="listingelement">%s</a></span></td>',$align,$align,$element["columns"][$column]["url"],$value);
+        $html .= sprintf('<td class="listingelement%s"><span class="listingelement%s"><a href="%s" class="listingelement">%s</a></span></td>',$align,$align,$element["columns"][$column]["url"],$value);
       } elseif (isset($element["columns"][$column])) {
-        $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,$element["columns"][$column]["value"]);
+        $html .= sprintf('<td class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,$element["columns"][$column]["value"]);
       } else {
-        $html .= sprintf('<td valign="top" class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,'');
+        $html .= sprintf('<td class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,'');
       }
     }
     $html .= '</tr>';
@@ -256,21 +256,21 @@ class WebblerListing {
         $align = 'left';
       }
       if (!empty($row["url"])) {
-        $html .= sprintf('<tr><td valign="top" class="listingrowname">
+        $html .= sprintf('<tr><td class="listingrowname">
           <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
-          </td><td valign="top" class="listingelement%s" colspan="%d">
+          </td><td class="listingelement%s" colspan="%d">
           <span class="listingelement%s">%s</span>
           </td></tr>',$row["url"],$row["name"],$align,sizeof($this->columns),$align,$value);
       } else {
-        $html .= sprintf('<tr><td valign="top" class="listingrowname">
+        $html .= sprintf('<tr><td class="listingrowname">
           <span class="listingrowname">%s</span>
-          </td><td valign="top" class="listingelement%s" colspan="%d">
+          </td><td class="listingelement%s" colspan="%d">
           <span class="listingelement%s">%s</span>
           </td></tr>',$row["name"],$align,sizeof($this->columns),$align,$value);
       }
     }
     $html .= sprintf('<!--greenline start-->
-      <tr valign="middle">
+      <tr>
       <td colspan="%d" bgcolor="#CCCC99"><img height="1" alt="" src="images/transparent.png" width="1" border="0" /></td>
       </tr>
       <!--greenline end-->
