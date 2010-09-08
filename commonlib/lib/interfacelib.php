@@ -730,10 +730,11 @@ class WebblerTabs {
         }
         $html .= '<li>';
       }
+      $html .= sprintf('<a href="%s" %s>',$url,$this->linkcode);
       if ($this->addTabNo) {
-        $html .= sprintf('<span class="tabno">%d</span>',$count);
+        $html .= sprintf('<span class="tabno">%d</span> ',$count);
       }
-      $html .= sprintf('<a href="%s" %s>%s</a>',$url,$this->linkcode,$tab);
+      $html .= sprintf('<span class="title">%s</span></a>',$tab);
       $html .= '</li>';
       $previous = $tab;
     }
