@@ -692,12 +692,12 @@ class WebblerTabs {
     if (!empty($previousTab)) {
       $html .= '<a class="back savechanges" href="'.$previousTab.'">'.$GLOBALS['I18N']->get('Back').'</a>';
     } else {
-      $html .= '<a class="back">'.$GLOBALS['I18N']->get('Back').'</a>';
+    #  $html .= '<a class="back">'.$GLOBALS['I18N']->get('Back').'</a>';
     }
     if (!empty($nextTab)) {
       $html .= '<a class="next savechanges" href="'.$nextTab.'">'.$GLOBALS['I18N']->get('Next').'</a>';
     } else {
-      $html .= '<a class="next">'.$GLOBALS['I18N']->get('Next').'</a>';
+    #  $html .= '<a class="next">'.$GLOBALS['I18N']->get('Next').'</a>';
     }
     $html .= '</div>';
     return $html;
