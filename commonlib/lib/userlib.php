@@ -798,7 +798,8 @@ function loadUser($loginname = "") {
         "name" => $att["name"],
         "value" => $att["value"],
         "type" => $att["type"],
-        "attid" => $att["id"]
+        "attid" => $att["id"],
+        "displayvalue" => $att['value'],
         );
       switch ($att["type"]) {
         case "textline":
@@ -813,6 +814,10 @@ function loadUser($loginname = "") {
         case "select":
           $_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
             AttributeValue($att["tablename"],$att["value"]);
+          break;
+        case "date":
+          $_SESSION["userdata"]["attribute".$att["id"]]["displayvalue"] =
+            formatDate($att["value"]);
           break;
       }
 #    }
