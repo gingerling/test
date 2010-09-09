@@ -38,7 +38,7 @@ class UIPanel {
     '.$this->content.'
   </div><!-- ENDOF .content -->';
     $html .= '
-<div class="panelfooter">
+<div class="footer">
     '.$this->nav.'
   </div><!-- ENDOF .footer -->
 </div><!-- ENDOF .panel -->
