@@ -720,7 +720,7 @@ class WebblerTabs {
     $count = 0;
     foreach ($this->tabs as $tab => $url) {
       $count++;
-      if (strtolower($tab) == $this->current) {
+      if (strtolower(strip_tags($tab)) == $this->current) {
         $this->previous = $previous;
         $gotcurrent = true;
         $html .= '<li class="current">';
@@ -772,6 +772,10 @@ class pageInfo {
     ## pages to not allow hiding the info for
     if (in_array($include,array('login.php','logout.php','community.php'))) {
       $this->addhide = false;
+    }
+    ## import has too much in the info and needs replacing
+    if (in_array($include,array('import.php'))) {
+      return '';
     }
     
     $this->noteid = substr(md5(basename($include,'.php')),0,15);
