@@ -679,8 +679,8 @@ if (sizeof($email_list)) {
         $uniqid = getUniqid();
         $confirmed = $_SESSION["notify"] != "yes" && !preg_match("/Invalid Email/i", $index);
 
-        $query = sprintf('INSERT INTO %s (email,entered,confirmed,uniqid)
-                  values("%s",now(),%d,"%s")', $tables["user"], $user["systemvalues"]["email"], $confirmed, $uniqid);
+        $query = sprintf('INSERT INTO %s (email,entered,confirmed,uniqid,htmlemail)
+                  values("%s",now(),%d,"%s",1)', $tables["user"], $user["systemvalues"]["email"], $confirmed, $uniqid);
         $result = Sql_query($query, 1);
         $userid = Sql_insert_id();
         if (!$userid) {
@@ -690,8 +690,8 @@ if (sizeof($email_list)) {
           $c = 0;
           while (!$userid) {
             $c++;
-            $query = sprintf('INSERT INTO %s (email,entered,confirmed,uniqid)
-                          values("%s",now(),%d,"%s")', $tables["user"], $user["systemvalues"]["email"] .
+            $query = sprintf('INSERT INTO %s (email,entered,confirmed,uniqid,htmlemail)
+                          values("%s",now(),%d,"%s",1)', $tables["user"], $user["systemvalues"]["email"] .
             " ($c)", 0, $uniqid);
             $result = Sql_query($query, 1);
             $userid = Sql_insert_id();
