@@ -564,6 +564,9 @@ if (sizeof($email_list)) {
     )));
     $user["systemvalues"]["email"] = clean($user["systemvalues"]["email"]);
     $c++;
+    if (!isset($user["systemvalues"]["htmlemail"])) {
+      $user["systemvalues"]["htmlemail"] = 1;
+    }
     if ($_SESSION["test_import"]) {
       
 #      var_dump($user["systemvalues"]);exit;
