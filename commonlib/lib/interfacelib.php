@@ -64,6 +64,7 @@ class WebblerListing {
   private $usePanel = false;
   private $suppressHeader = false;
   private $suppressGreenline = false;
+  private $buttonsOutsideTable = false;
 
   function WebblerListing($title,$help = "") {
     $this->title = strip_tags($title);
@@ -73,6 +74,7 @@ class WebblerListing {
       $this->noShader();
       $this->usePanel();
       $this->suppressGreenline();
+      $this->buttonsOutsideTable = true;
     }
   }
   
@@ -313,24 +315,32 @@ class WebblerListing {
       foreach ($this->buttons as $button => $url) {
         $buttons .= sprintf('<a class="button" href="%s">%s</a>',$url,strtoupper($button));
       }
-      $html .= sprintf('
-    <tr><td colspan="2">&nbsp;</td></tr>
-    <tr><td colspan="%d" align="right">%s</td></tr>
-    <tr><td colspan="2">&nbsp;</td></tr>
-    ',sizeof($this->columns)+2,$buttons);
+      if (!$this->buttonsOutsideTable) {
+        $html .= sprintf('
+      <tr><td colspan="2">&nbsp;</td></tr>
+      <tr><td colspan="%d" align="right">%s</td></tr>
+      <tr><td colspan="2">&nbsp;</td></tr>
+      ',sizeof($this->columns)+2,$buttons);
+      }
     }
     $buttons = '';
     if (sizeof($this->submitbuttons)) {
       foreach ($this->submitbuttons as $name => $label) {
         $buttons .= sprintf('<button type="submit" name="%s">%s</button>',$name,strtoupper($label));
       }
-      $html .= sprintf('
-    <tr><td colspan="2">&nbsp;</td></tr>
-    <tr><td colspan="%d" align="right">%s</td></tr>
-    <tr><td colspan="2">&nbsp;</td></tr>
-    ',sizeof($this->columns)+2,$buttons);
+      if (!$this->buttonsOutsideTable) {
+        $html .= sprintf('
+      <tr><td colspan="2">&nbsp;</td></tr>
+      <tr><td colspan="%d" align="right">%s</td></tr>
+      <tr><td colspan="2">&nbsp;</td></tr>
+      ',sizeof($this->columns)+2,$buttons);
+      }
     }
     $html .= '</table>';
+    if ($this->buttonsOutsideTable) {
+      $html .= $buttons;
+    }
+      
     return $html;
   }
 
