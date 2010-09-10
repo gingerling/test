@@ -63,6 +63,7 @@ class WebblerListing {
   private $useShader = true;
   private $usePanel = false;
   private $suppressHeader = false;
+  private $suppressGreenline = false;
 
   function WebblerListing($title,$help = "") {
     $this->title = strip_tags($title);
@@ -71,6 +72,7 @@ class WebblerListing {
     if (!defined('IN_WEBBLER') && !defined('WEBBLER')) {
       $this->noShader();
       $this->usePanel();
+      $this->suppressGreenline();
     }
   }
   
@@ -80,6 +82,10 @@ class WebblerListing {
 
   function noHeader() {
     $this->suppressHeader = true;
+  }
+
+  function suppressGreenline() {
+    $this->suppressGreenline = true;
   }
 
   function usePanel() {
@@ -269,17 +275,14 @@ class WebblerListing {
           </td></tr>',$row["name"],$align,sizeof($this->columns),$align,$value);
       }
     }
-    $html .= sprintf('<!--greenline start-->
-      <tr>
-      <td colspan="%d" bgcolor="#CCCC99"><img height="1" alt="" src="images/transparent.png" width="1" border="0" /></td>
-      </tr>
-      <!--greenline end-->
-    ',sizeof($this->columns)+2);
-#    $this->duplicatebuttons[$name] = array(
-#      "button" => $name,
-#      "rows" => $rows,
-#      "rowcount" => 0
-#    );
+    if (!$this->suppressGreenline) {
+      $html .= sprintf('<!--greenline start-->
+        <tr>
+        <td colspan="%d" bgcolor="#CCCC99"><img height="1" alt="" src="images/transparent.png" width="1" border="0" /></td>
+        </tr>
+        <!--greenline end-->
+      ',sizeof($this->columns)+2);
+    }
     $this->buttonduplicate = 1;
     if ($this->buttonduplicate) {
       $buttons = '';
@@ -423,6 +426,181 @@ class WebblerListing {
   }
 }
 
+class WebblerListing2 extends WebblerListing {
+
+  function listingStart() {
+    return '<div class="listing">';
+  }
+
+  function listingHeader() {
+    return '
+<div class="header"> 	
+	<a href="#">Test list d2e53c3bd01</a>     
+<input type="text" name="listorder[3]" value="1" size="5">     
+</div><!--ENDOF .header -->      ';
+    $tophelp = '';
+    if (!sizeof($this->columns)) {
+      $tophelp = $this->help;
+    }
+    $html = '<tr valign="top">';
+    $html .= sprintf('<th><a name="%s"></a><div class="listinghdname">%s%s</div></th>',str_replace(" ","_",htmlspecialchars(strtolower($this->title))),$tophelp,$this->title);
+    $c = 1;
+    foreach ($this->columns as $column => $columnname) {
+      if ($c == sizeof($this->columns)) {
+        $html .= sprintf('<th><div class="listinghdelement">%s%s</div></th>',$columnname,$this->help);
+      } else {
+        if ($this->sortby[$columnname] && $this->sort) {
+          $display = sprintf('<a href="./?%s&amp;sortby=%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
+        } else {
+          $display = $columnname;
+        }
+        $html .= sprintf('<th><div class="listinghdelement">%s</div></th>',$display);
+      }
+      $c++;
+
+    }
+  #  $html .= sprintf('<td align="right"><span class="listinghdelementright">%s</span></td>',$lastelement);
+    $html .= '</tr>';
+    return $html;
+  }
+
+  function listingElement($element) {
+/*
+    return '<div class="column members">     
+	<a href="#"><span class="label">Members</span> <span class="value">55425</span></a>
+	<a class="button" href="#" title="add">Add</a>
+</div><!--ENDOF .column --> ';
+*/
+    
+    if (!empty($element["colsize"]))
+      $width = 'width='.$element["colsize"];
+    else 
+      $width = "";
+    if (isset($element['class'])) {
+      $html = '<tr class="'.$element['class'].'">';
+    } else {
+      $html = '<tr>';
+    }
+
+    $html = '<div class="column '.$element['class'].'">';
+
+    foreach ($this->columns as $column) {
+      if (isset($element["columns"][$column]) && $element["columns"][$column]["value"]) {
+        $value = $element["columns"][$column]["value"];
+      } else {
+        $value = $column;
+      }
+      if (!empty($element["columns"][$column]["url"])) {
+        $url = $element["columns"][$column]["url"];
+      } else {
+        $url = '#';
+      }
+      $html .= sprintf('
+          <a href="%s">
+            <span class="label">%s</span>
+            <span class="value">%s</span>
+          </a>',$url,$column,$value);
+    }
+    return $html;
+    foreach ($element["rows"] as $row) {
+      if ($row["value"]) {
+        $value = $row["value"];
+      } else {
+        $value = "";
+      }
+      if (isset($row["align"])) {
+        $align = $row["align"];
+      } else {
+        $align = 'left';
+      }
+      if (!empty($row["url"])) {
+        $html .= sprintf('<tr><td class="listingrowname">
+          <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
+          </td><td class="listingelement%s" colspan="%d">
+          <span class="listingelement%s">%s</span>
+          </td></tr>',$row["url"],$row["name"],$align,sizeof($this->columns),$align,$value);
+      } else {
+        $html .= sprintf('<tr><td class="listingrowname">
+          <span class="listingrowname">%s</span>
+          </td><td class="listingelement%s" colspan="%d">
+          <span class="listingelement%s">%s</span>
+          </td></tr>',$row["name"],$align,sizeof($this->columns),$align,$value);
+      }
+    }
+    $this->buttonduplicate = 1;
+    if ($this->buttonduplicate) {
+      $buttons = '';
+      foreach ($this->duplicatebuttons as $key => $val) {
+        $this->duplicatebuttons[$key]['rowcount']++;
+        if ($val['rowcount'] >= $val['rows']) {
+          if ($this->buttons[$val['button']]) {
+            $buttons .= sprintf('<a class="button" href="%s">%s</a>',$this->buttons[$val['button']],strtoupper($val['button']));
+          }
+          $this->duplicatebuttons[$key]['rowcount'] = 1;
+        }
+      }
+      if ($buttons) {
+          $html .= sprintf('
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr><td colspan="%d" align="right">%s</td></tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        ',sizeof($this->columns)+2,$buttons);
+      }
+    }
+
+    return $html;
+  }
+
+  function listingEnd() {
+    return '</div><!--ENDOF .listing -->  ';
+    $html = '';$buttons = "";
+    if (sizeof($this->buttons)) {
+      foreach ($this->buttons as $button => $url) {
+        $buttons .= sprintf('<a class="button" href="%s">%s</a>',$url,strtoupper($button));
+      }
+      $html .= sprintf('
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr><td colspan="%d" align="right">%s</td></tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    ',sizeof($this->columns)+2,$buttons);
+    }
+    $buttons = '';
+    if (sizeof($this->submitbuttons)) {
+      foreach ($this->submitbuttons as $name => $label) {
+        $buttons .= sprintf('<button type="submit" name="%s">%s</button>',$name,strtoupper($label));
+      }
+      $html .= sprintf('
+    <tr><td colspan="2">&nbsp;</td></tr>
+    <tr><td colspan="%d" align="right">%s</td></tr>
+    <tr><td colspan="2">&nbsp;</td></tr>
+    ',sizeof($this->columns)+2,$buttons);
+    }
+    $html .= '</table>';
+    return $html;
+  }
+}
+ 	
+        
+         
+/*
+<div class="column bounces">
+	<a href="#"><span class="label">Bounces</span>
+	<span class="value">10910</span></a>
+</div><!--ENDOF .column -->
+<div class="column settings">
+	<div class="listingfield">
+	<label for="checkbox" class="inline">Public</label>
+	<input type="checkbox" name="active[3]" value="1" checked="checked">
+	</div>
+	<div class="listingfield">
+	<span class="label inline">Owner</span> <span class="title">Admin<span class="title"> 	
+	</div>     
+</div><!--ENDOF .settings -->
+<div class="content">
+<p>This is a text description of this list decribing it in as much detail as required by the administartor that creates the list</p> 	
+</div><!--ENDOF .content --> 
+
+*/
 
 class DomTab {
 
