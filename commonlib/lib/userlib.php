@@ -539,7 +539,7 @@ function is_email($email) {
 			  if(preg_match($pattern, $email)) {
 			    return 1;
 			  } else {
-			    return(0);
+			    return 0;
 			  }
       break;
   }
@@ -599,7 +599,7 @@ function validateEmail($email) {
     $GLOBALS["check_for_host"] = 0;
   }
   if (isset($email) && $GLOBALS["check_for_host"]) {
-    list($username,$domaincheck) = split('@',$email);
+    list($username,$domaincheck) = explode('@',$email);
     # checking for an MX is not sufficient
 #    $mxhosts = array();
 #    $validhost = getmxrr ($domaincheck,$mxhosts);
