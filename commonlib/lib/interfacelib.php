@@ -62,6 +62,7 @@ class WebblerListing {
   var $buttonduplicate = 0;
   private $useShader = true;
   private $usePanel = false;
+  private $panelNav = '';
   private $suppressHeader = false;
   private $suppressGreenline = false;
   private $buttonsOutsideTable = false;
@@ -90,7 +91,8 @@ class WebblerListing {
     $this->suppressGreenline = true;
   }
 
-  function usePanel() {
+  function usePanel($panelnav = '') {
+    $this->panelNav = $panelnav;
     $this->usePanel = true;
   }
 
@@ -391,7 +393,7 @@ class WebblerListing {
     $html .= $this->listingEnd();
 
     if ($this->usePanel) {
-      $p = new UIPanel($this->title,$html);
+      $p = new UIPanel($this->title,$html,$this->panelNav);
       return $p->display();
     }
     
