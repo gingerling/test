@@ -323,22 +323,22 @@ class WebblerListing {
       ',sizeof($this->columns)+2,$buttons);
       }
     }
-    $buttons = '';
+    $submitbuttons = '';
     if (sizeof($this->submitbuttons)) {
       foreach ($this->submitbuttons as $name => $label) {
-        $buttons .= sprintf('<button type="submit" name="%s">%s</button>',$name,strtoupper($label));
+        $submitbuttons .= sprintf('<button type="submit" name="%s">%s</button>',$name,strtoupper($label));
       }
       if (!$this->buttonsOutsideTable) {
         $html .= sprintf('
       <tr><td colspan="2">&nbsp;</td></tr>
       <tr><td colspan="%d" align="right">%s</td></tr>
       <tr><td colspan="2">&nbsp;</td></tr>
-      ',sizeof($this->columns)+2,$buttons);
+      ',sizeof($this->columns)+2,$submitbuttons);
       }
     }
     $html .= '</table>';
     if ($this->buttonsOutsideTable) {
-      $html .= $buttons;
+      $html .= $buttons.$submitbuttons;
     }
       
     return $html;
