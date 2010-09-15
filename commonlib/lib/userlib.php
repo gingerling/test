@@ -598,7 +598,7 @@ function validateEmail($email) {
   if (!isset($GLOBALS["check_for_host"])) {
     $GLOBALS["check_for_host"] = 0;
   }
-  if (isset($email) && $GLOBALS["check_for_host"]) {
+  if (!empty($email) && $GLOBALS["check_for_host"]) {
     list($username,$domaincheck) = explode('@',$email);
     # checking for an MX is not sufficient
 #    $mxhosts = array();
