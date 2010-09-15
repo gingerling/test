@@ -923,6 +923,9 @@ if (sizeof($email_list)) {
       if (function_exists('logevent')) {
         logEvent($report);
       }
+      foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
+        $plugin->importReport($report);
+      }
     } else {
       output($report);
     }
