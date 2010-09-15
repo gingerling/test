@@ -2,6 +2,9 @@
 <script language="Javascript" src="js/jslib.js" type="text/javascript"></script>
 
 <?php
+
+$filterpanel = $countpanel = $paging = '';
+
 if (!isset ($_SESSION["userlistfilter"]) || !$_SESSION["userlistfilter"]) {
   $_SESSION["userlistfilter"] = array ();
 }
@@ -195,18 +198,19 @@ $total = $totalres[0];
 
 if (!empty($delete) && isSuperUser()) {
   # delete the index in delete
-  print $GLOBALS['I18N']->get('deleting') . " $delete ..\n";
+  $action_result = $GLOBALS['I18N']->get('deleting') . " $delete ..\n";
   deleteUser($delete);
 
-  print '..' . $GLOBALS['I18N']->get('Done') . '<br/><hr/><br/>';
+  $action_result .= '..' . $GLOBALS['I18N']->get('Done') . '<br/><hr/>';
   $previous_search = '';
   if (!$find == '') {
     $previous_search = "&start=$start&find=$find&findby=$findby";
   }
-  
+
+  $_SESSION['action_result'] = $action_result;
   Redirect("users$previous_search");
 } elseif (!empty($delete)) {
-  print $GLOBALS['I18N']->get('Sorry, only super users can delete users')."\n";
+  print ActionResult($GLOBALS['I18N']->get('Sorry, only super users can delete users'));
 }
 
 #ob_end_flush();
@@ -219,10 +223,11 @@ if (isset ($add)) {
     $query = "insert into " . $tables["listuser"] . " (userid,listid,entered) values($userid,$id,now())";
     $result = Sql_query($query);
   }
-  echo '<br/><p class="information">' . $GLOBALS['I18N']->get('User added') . "</p><br/>";
+  echo ActionResult($GLOBALS['I18N']->get('User added'));
 }
 
-printf($GLOBALS['I18N']->get('%s users in total'), $total);
+$countpanel .= sprintf($GLOBALS['I18N']->get('%s users in total'), $total);
+/*
 if ($find && !$findby && !$total) { # a search for an email has been done and not found
   print "<hr/><h4>" . $GLOBALS['I18N']->get('Add this user') . "</h4>";
   $req = Sql_Query(sprintf('select * from %s where active', $tables["subscribepage"]));
@@ -237,8 +242,9 @@ if ($find && !$findby && !$total) { # a search for an email has been done and no
   }
   print '<hr/>';
 }
+*/
 
-print "<br/>" . $GLOBALS['I18N']->get('Users marked <span class="highlight">red</span> are unconfirmed') . " ($totalunconfirmed)<br/>";
+$countpanel .= "<br/>" . $GLOBALS['I18N']->get('Users marked <span class="highlight">red</span> are unconfirmed') . " ($totalunconfirmed)<br/>";
 
 $url = getenv("REQUEST_URI");
 if ($unconfirmed) {
@@ -255,14 +261,14 @@ if (!isset ($start)) {
   $start = 0;
 }
 
-print '<table class="usersForm"><tr><td valign="top">';
-printf('<form method="get" name="listcontrol" action="">
+$filterpanel .= '<table><tr><td valign="top">';
+$filterpanel .= sprintf('<form method="get" name="listcontrol" action="">
   <input type="hidden" name="page" value="users" />
   <input type="hidden" name="start" value="%d" />
   <input type="hidden" name="find" value="%s" />
-  <input type="hidden" name="findby" value="%s" /><br/>%s:
-  <input type="checkbox" name="unconfirmed" value="1" %s /><br/>%s:
-  <input type="checkbox" name="blacklisted" value="1" %s />', 
+  <input type="hidden" name="findby" value="%s" />
+  <label for="unconfirmed">%s:<input type="checkbox" name="unconfirmed" value="1" %s /></label>
+  <label for="blacklisted">%s:<input type="checkbox" name="blacklisted" value="1" %s /></label>', 
        $start, 
        htmlspecialchars(stripslashes($find)), 
        htmlspecialchars(stripslashes($findby)), 
@@ -282,21 +288,20 @@ foreach (array (
   $select .= sprintf('     <option value="%s" %s>%s</option>', $item, $item == $sortby ? 'selected="selected"' : '', $GLOBALS['I18N']->get($item));
 }
 
-printf('
-  <br/>%s:
-  <select name="sortby" onchange="document.listcontrol.submit();">
+$filterpanel .= sprintf('
+  <label for="sortby">%s: <select name="sortby" onchange="document.listcontrol.submit();">
   <option value="0">-- default</option>
   %s
-  </select>
-  %s: <input type="radio" name="sortorder" value="desc" %s onchange="document.listcontrol.submit();" />
-  %s: <input type="radio" name="sortorder" value="asc" %s onchange="document.listcontrol.submit();" />
-  <br/><input class="submit" type="submit" name="change" value="%s" />
+  </select></label>
+  <label for="sortdesc">%s: <input type="radio" name="sortorder" id="sortdesc" value="desc" %s onchange="document.listcontrol.submit();" /></label>
+  <label for="sortasc">%s: <input type="radio" name="sortorder" id="sortasc" value="asc" %s onchange="document.listcontrol.submit();" /></label>
+  <input class="submit" type="submit" name="change" value="%s" />
   ', 
        $GLOBALS['I18N']->get('Sort by'), $select, 
        $GLOBALS['I18N']->get('desc'), $sortorder == "desc" ? 'checked="checked"' : '', 
        $GLOBALS['I18N']->get('asc'), $sortorder == "asc" ? 'checked="checked"' : '', 
        $GLOBALS['I18N']->get('Go'));
-print '</td></tr></table>';
+$filterpanel .= '</td></tr></table>';
 
 $order = '';
 if ($sortby) {
@@ -328,7 +333,8 @@ if ($total > MAX_USER_PP) {
   #  if ($_GET["unconfirmed"])
   #     $find_url .= "&unconfirmed=".$_GET["unconfirmed"];
   if ($dolist) {
-    printf('<p><table class="usersListing" border="1">
+/*
+    printf('<table class="usersListing" border="1">
 <tr><td colspan="4" align="center">%s</td></tr>
 <tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>
 </table></p><hr/>', $listing, 
@@ -336,43 +342,59 @@ if ($total > MAX_USER_PP) {
            PageLink2("users", "&lt;", sprintf('start=%d', max(0, $start -MAX_USER_PP)).$find_url), 
            PageLink2("users", "&gt;", sprintf('start=%d', min($total-MAX_USER_PP, $start +MAX_USER_PP)).$find_url), 
            PageLink2("users", "&gt;&gt;", sprintf('start=%d', $total -MAX_USER_PP).$find_url));
+*/
+    $paging = simplePaging("users".$find_url,$start,$total,MAX_USER_PP,$GLOBALS['I18N']->get('Subscribers'));
     $result = Sql_query("$listquery $order $limit");
   } else {
-    print $GLOBALS['I18N']->get('too many users, use a search query to list some');
+    print Info($GLOBALS['I18N']->get('too many subscribers, use a search query to list some'));
     $result = 0;
   }
 } else {
   $result = Sql_Query("$listquery $order");
 }
 
-?>
+$filterpanel .= '
+<table class="usersFind" border="1">
+<tr><td colspan="4"><input type="hidden" name="id" value="'.$listid.'" />';
 
-<table class="usersFind" border="0">
-<tr><td colspan="4"><input type="hidden" name="id" value="<?php echo $listid?>" />
-<?php echo $GLOBALS['I18N']->get('Find a user')?>:
-<input type="text" name="find" value="<?php echo $find != '%' ? htmlspecialchars(stripslashes($find)) : ""?>" size="30" />
-<select name="findby"><option value="email" <?php echo $findby == "email"? 'selected="selected"':''?>><?php echo $GLOBALS['I18N']->get('Email')?></option>
-<option value="foreignkey" <?php echo $findby == "foreignkey"? 'selected="selected"':''?>><?php echo $GLOBALS['I18N']->get('Foreign Key')?></option>
-<?php
+$filterpanel .= '<label for="find">'.$GLOBALS['I18N']->get('Find a user').'</label>';
+$filterpanel .= '<input type="text" name="find" value="';
+$filterpanel .= $find != '%' ? htmlspecialchars(stripslashes($find)) : "";
+$filterpanel .= '" size="30" />';
+
+$filterpanel .=  '<select name="findby">';
+
+$filterpanel .= '<option value="email" ';
+$filterpanel .= $findby == "email" ? 'selected="selected"':'';
+$filterpanel .= '>'. $GLOBALS['I18N']->get('Email').'</option>';
+$filterpanel .= '<option value="foreignkey" ';
+$filterpanel .= $findby == "foreignkey"? 'selected="selected"':'';
+$filterpanel .= '>'. $GLOBALS['I18N']->get('Foreign Key').'</option>';
+
 $att_req = Sql_Query("select id,name from " . $tables["attribute"] . " where type = \"hidden\" or type = \"textline\" or type = \"select\"");
 while ($row = Sql_Fetch_Array($att_req)) {
-  printf('<option value="%d" %s>%s</option>', $row["id"], $row["id"] == $findby ? 'selected="selected"' : '', substr($row["name"], 0, 20));
+  $filterpanel .= sprintf('<option value="%d" %s>%s</option>', $row["id"], $row["id"] == $findby ? 'selected="selected"' : '', substr($row["name"], 0, 20));
 }
-?></select><input class="submit" type="submit" value="Go" />&nbsp;&nbsp;<a href="./?page=users&amp;find=NULL"><?php echo $GLOBALS['I18N']->get('reset')?></a>
-</form></td></tr>
-<tr><td colspan="4">
-<?php
+
+$filterpanel .= '</select><input class="submit" type="submit" value="Go" />&nbsp;&nbsp;<a href="./?page=users&amp;find=NULL">'. $GLOBALS['I18N']->get('reset').'</a>';
+$filterpanel .= '</form></td></tr>';
+$filterpanel .= '<tr><td colspan="4"></td></tr>
+</table>';
+
+print Info($countpanel);
+
+
+$panel = new UIPanel($GLOBALS['I18N']->get('Find subscribers'),$filterpanel);
+print $panel->display();
 
 #if (($require_login && isSuperUser()) || !$require_login)
-print '<p class="button">' . PageLink2("dlusers", $GLOBALS['I18N']->get('Download all users as CSV file'), "nocache=" . uniqid("")) . '</p>&nbsp;<br/>';
-print '<p class="button">' . PageLink2("user", $GLOBALS['I18N']->get('Add a User')) . '</p>';
-?></td></tr>
-</table>
-
-<?php
+print PageLinkButton("dlusers", $GLOBALS['I18N']->get('Download all users as CSV file'), "nocache=" . uniqid("")) ;
+print PageLinkButton("user", $GLOBALS['I18N']->get('Add a User')) ;
 
 $some = 0;
+
 $ls = new WebblerListing("users");
+$ls->usePanel($paging);
 if ($result)
   while ($user = Sql_fetch_array($result)) {
     $some = 1;
@@ -432,7 +454,8 @@ if ($result)
   }
 print $ls->display();
 if (!$some && !$total) {
-  print '<p class="information">' . $GLOBALS['I18N']->get('No users apply') . '</p>';
+  $p = new UIPanel($GLOBALS['I18N']->get('no results'),$GLOBALS['I18N']->get('No users apply'));
+  print $p->display();
 }
 ?>
 
