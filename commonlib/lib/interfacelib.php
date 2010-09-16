@@ -924,7 +924,7 @@ class WebblerTabs {
       if ($this->addTabNo) {
         $html .= sprintf('<span class="tabno">%d</span> ',$count);
       }
-      $html .= sprintf('<span class="title">%s</span></a>',$tab);
+      $html .= sprintf('<span class="title">%s</span></a>',ucfirst($tab));
       $html .= '</li>';
       $previous = $tab;
     }
