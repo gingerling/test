@@ -29,7 +29,9 @@ class UIPanel {
     $html .= '<div class="header"><h2>'.$this->header.'</h2>';
     $nav = '';
     if ($this->nav) {
+      $html .= '<div class="controls">';
       $html .= $this->nav;
+      $html .= '</div>';
     }
     $html .= '</div><!-- ENDOF .header -->';
     $html .= '
@@ -39,7 +41,9 @@ class UIPanel {
   </div><!-- ENDOF .content -->';
     $html .= '
 <div class="footer">
-    '.$this->nav.'
+      <div class="controls">
+      '.$this->nav.'
+      </div>
   </div><!-- ENDOF .footer -->
 </div><!-- ENDOF .panel -->
     ';
