@@ -63,6 +63,7 @@ class WebblerListing {
   private $useShader = true;
   private $usePanel = false;
   private $panelNav = '';
+  private $insideNav = '';
   private $suppressHeader = false;
   private $suppressGreenline = false;
   private $buttonsOutsideTable = false;
@@ -91,8 +92,8 @@ class WebblerListing {
     $this->suppressGreenline = true;
   }
 
-  function usePanel($panelnav = '') {
-    $this->panelNav = $panelnav;
+  function usePanel($nav = '') {
+    $this->insideNav = $nav;
     $this->usePanel = true;
   }
 
@@ -377,6 +378,10 @@ class WebblerListing {
     $html .= $this->listingStart();
     if (!$this->suppressHeader) {
       $html .= $this->listingHeader();
+    }
+
+    if (!empty($this->insideNav)) {
+      $html .= $this->insideNav;
     }
 #    global $float_menu;
 #    $float_menu .= "<a style=\"display: block;\" href=\"#".htmlspecialchars($this->title)."\">$this->title</a>";
