@@ -388,8 +388,10 @@ $panel = new UIPanel($GLOBALS['I18N']->get('Find subscribers'),$filterpanel);
 print $panel->display();
 
 #if (($require_login && isSuperUser()) || !$require_login)
+print '<div class="actions">';
 print PageLinkButton("dlusers", $GLOBALS['I18N']->get('Download all users as CSV file'), "nocache=" . uniqid("")) ;
 print PageLinkButton("user", $GLOBALS['I18N']->get('Add a User')) ;
+print '</div>';
 
 $some = 0;
 
