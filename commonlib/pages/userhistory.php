@@ -39,14 +39,17 @@ if (!Sql_Affected_Rows()) {
   return;
 }
 $user = sql_fetch_array($result);
-print '<h4>'.$GLOBALS['I18N']->get('user').' '.PageLink2("user&id=".$user["id"],$user["email"]).'</h4>';
-printf('&nbsp;&nbsp;<a href="%s" class="button">%s</a>',getConfig("preferencesurl").
+
+print '<h3>'.$GLOBALS['I18N']->get('user').' '.PageLink2("user&id=".$user["id"],$user["email"]).'</h3>';
+print '<div class="actions">';
+printf('<a href="%s" class="button">%s</a>',getConfig("preferencesurl").
   '&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('update page'));
-printf('&nbsp;&nbsp;<a href="%s" class="button">%s</a>',getConfig("unsubscribeurl").'&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
-print '&nbsp;&nbsp;'.PageLinkButton("user&amp;id=$id",$GLOBALS['I18N']->get('Details'));
+printf('<a href="%s" class="button">%s</a>',getConfig("unsubscribeurl").'&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
+print PageLinkButton("user&amp;id=$id",$GLOBALS['I18N']->get('Details'));
 if ($access != "view")
-printf( "<br /><hr/><a class=\"delete button\" href=\"javascript:deleteRec('%s');\">delete</a> <h3>%s</h3>",
-  PageURL2("user","","delete=$id"),$user["email"]);
+printf( "<a class=\"delete button\" href=\"javascript:deleteRec('%s');\">delete</a>",
+  PageURL2("user","","delete=$id"));
+print '</div>';
 
 $bouncels = new WebblerListing($GLOBALS['I18N']->get('Bounces'));
 $bouncelist = "";
@@ -106,9 +109,21 @@ if ($num) {
   }
 }
 
+print '<div class="tabbed">';
+print '<ul>';
+print '<li><a href="#messages">'.$GLOBALS['I18N']->get('Campaigns').'</a></li>';
+if (count($bounces)) {
+  print '<li><a href="#bounces">'.$GLOBALS['I18N']->get('Bounces').'</a></li>';
+}  
+print '<li><a href="#subscription">'.$GLOBALS['I18N']->get('Subscription').'</a></li>';
+print '</ul>';
+
+print '<div id="messages">';
 print $ls->display();
-print '<br/>';
+print '</div>';
+print '<div id="bounces">';
 print $bouncels->display();
+print '</div>';
 
 if (isBlackListed($user["email"])) {
   print "<h3>" . $GLOBALS['I18N']->get('user is Blacklisted since') . " ";
@@ -130,7 +145,6 @@ if (isBlackListed($user["email"])) {
   print $ls->display();
 }
 
-print "<h3>" . $GLOBALS['I18N']->get('user subscription history') . "</h3>";
 
 $ls = new WebblerListing($GLOBALS['I18N']->get('Subscription History'));
 $req = Sql_Query(sprintf('select * from %s where userid = %d order by date desc',$tables["user_history"],$user["id"]));
@@ -146,5 +160,9 @@ while ($row = Sql_Fetch_Array($req)) {
   $ls->addRow($row["id"],$GLOBALS['I18N']->get('info'),nl2br($row["systeminfo"]));
 }
 
+print '<div id="subscription">';
+print "<h3>" . $GLOBALS['I18N']->get('user subscription history') . "</h3>";
 print $ls->display();
+print '</div>';
+print '</div>'; ## end of tabbed
 ?>
