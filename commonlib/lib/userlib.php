@@ -265,7 +265,7 @@ function UserAttributeValue($user = 0,$attribute = 0) {
   global $table_prefix,$tables;
   if (!isset($table_prefix))
     $table_prefix = "phplist_";
-#  if (!$user || !$attribute) return;
+  if (!$user || !$attribute) return;
 
   if (isset($tables["attribute"])) {
     $att_table = $tables["attribute"];
@@ -285,7 +285,7 @@ function UserAttributeValue($user = 0,$attribute = 0) {
           $val_ids[0] = cleanCommaList($val_ids[0]);
         }
         ## make sure the val_ids as numbers
-        $values = split(',',$val_ids[0]);
+        $values = explode(',',$val_ids[0]);
         $ids = array();
         foreach ($values as $valueIndex) {
           $iValue = sprintf('%d',$valueIndex);
@@ -396,6 +396,15 @@ function addEmailToBlackList($email,$reason = '') {
         $item,addslashes($_SERVER[$item])));
     }
   }
+  ## call plugins to tell them
+  if (isset($GLOBALS['plugins']) && is_array($GLOBALS['plugins'])) {
+    foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
+      if (method_exists($plugin, "blacklistEmail")) {
+         $plugin->blacklistEmail($email);
+      }
+    }
+  }
+  
 }
 
 function UserAttributeValueSelect($user = 0,$attribute = 0) {
@@ -446,7 +455,7 @@ function UserAttributeValueCbGroup($user = 0,$attribute = 0) {
 
   $att = Sql_Fetch_array_Query("select * from $att_table where id = $attribute");
   $values_req = Sql_Fetch_Row_Query("select value from $user_att_table where userid = $user and attributeid = $attribute");
-  $values = split(",",$values_req[0]);
+  $values = explode(",",$values_req[0]);
   $html = sprintf('<input type="hidden" name="cbgroup[]" value="%d" /><table>',$attribute);
  # $html = sprintf('<select name="attribute[%d]" style="attributeinput" >',$attribute);
   $res = Sql_Query("select id,name from $table_prefix"."listattr_".$att["tablename"]." order by listorder,name");
