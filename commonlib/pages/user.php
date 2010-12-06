@@ -328,40 +328,42 @@ if ($id) {
       }
     }
   }
-  $res = Sql_Query("select * from $tables[attribute] order by listorder");
-  while ($row = Sql_fetch_array($res)) {
-    $val_req = Sql_Fetch_Row_Query("select value from $tables[user_attribute] where userid = $id and attributeid = $row[id]");
-    $row["value"] = $val_req[0];
+  if (empty($GLOBALS['config']['hide_user_attributes']) && !defined('HIDE_USER_ATTRIBUTES')) {
+    $res = Sql_Query("select * from $tables[attribute] order by listorder");
+    while ($row = Sql_fetch_array($res)) {
+      $val_req = Sql_Fetch_Row_Query("select value from $tables[user_attribute] where userid = $id and attributeid = $row[id]");
+      $row["value"] = $val_req[0];
 
-    if ($row["type"] == "date") {
-      $userdetailsHTML .= sprintf('<input class="attributeinput" type="hidden" name="dateattribute[%d]" value="%s" />',$row["id"],$row["name"]);
-      $novalue = trim($row["value"]) == "" ? "checked":"";
-      $userdetailsHTML .= sprintf('<tr><td>%s<!--%s--></td><td>%s&nbsp; Not set: <input type="checkbox" name="%s_novalue" %s /></td></tr>'."\n",stripslashes($row["name"]),$row["value"],$date->showInput($row["name"],"",$row["value"]),normalize(stripslashes($row["name"])),$novalue);
-    } elseif ($row["type"] == "checkbox") {
-      $checked = $row["value"] == "on" ? 'checked="checked"':'';
-      $userdetailsHTML .= sprintf('<tr><td>%s</td><td><input class="attributeinput" type="hidden" name="cbattribute[%d]" value="%d" />
-                        <input class="attributeinput" type="checkbox" name="attribute[%d]" value="on" %s />
-              </td></tr>'."\n",stripslashes($row["name"]),$row["id"],$row["id"],$row["id"],$checked);
-    } elseif ($row["type"] == "checkboxgroup") {
-      $userdetailsHTML .= sprintf ('
-           <tr><td valign="top">%s</td><td>%s</td>
-           </tr>',stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
-    } elseif ($row["type"] == "textarea") {
-      $userdetailsHTML .= sprintf ('
-           <tr><td valign="top">%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" class="wrap virtual">%s</textarea></td>
-           </tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars(stripslashes($row["value"])));
-    } elseif ($row["type"] == "avatar") {
-      $userdetailsHTML .= sprintf ('<tr><td valign="top">%s</td><td>',stripslashes($row["name"]));
-      if ($row['value']) {
-        $userdetailsHTML .= sprintf('<img src="./?page=avatar&amp;user=%d&amp;avatar=%s" /><br/>',$id,$row['id']);
+      if ($row["type"] == "date") {
+        $userdetailsHTML .= sprintf('<input class="attributeinput" type="hidden" name="dateattribute[%d]" value="%s" />',$row["id"],$row["name"]);
+        $novalue = trim($row["value"]) == "" ? "checked":"";
+        $userdetailsHTML .= sprintf('<tr><td>%s<!--%s--></td><td>%s&nbsp; Not set: <input type="checkbox" name="%s_novalue" %s /></td></tr>'."\n",stripslashes($row["name"]),$row["value"],$date->showInput($row["name"],"",$row["value"]),normalize(stripslashes($row["name"])),$novalue);
+      } elseif ($row["type"] == "checkbox") {
+        $checked = $row["value"] == "on" ? 'checked="checked"':'';
+        $userdetailsHTML .= sprintf('<tr><td>%s</td><td><input class="attributeinput" type="hidden" name="cbattribute[%d]" value="%d" />
+                          <input class="attributeinput" type="checkbox" name="attribute[%d]" value="on" %s />
+                </td></tr>'."\n",stripslashes($row["name"]),$row["id"],$row["id"],$row["id"],$checked);
+      } elseif ($row["type"] == "checkboxgroup") {
+        $userdetailsHTML .= sprintf ('
+             <tr><td valign="top">%s</td><td>%s</td>
+             </tr>',stripslashes($row["name"]),UserAttributeValueCbGroup($id,$row["id"]));
+      } elseif ($row["type"] == "textarea") {
+        $userdetailsHTML .= sprintf ('
+             <tr><td valign="top">%s</td><td><textarea name="attribute[%d]" rows="10" cols="40" class="wrap virtual">%s</textarea></td>
+             </tr>',stripslashes($row["name"]),$row["id"],htmlspecialchars(stripslashes($row["value"])));
+      } elseif ($row["type"] == "avatar") {
+        $userdetailsHTML .= sprintf ('<tr><td valign="top">%s</td><td>',stripslashes($row["name"]));
+        if ($row['value']) {
+          $userdetailsHTML .= sprintf('<img src="./?page=avatar&amp;user=%d&amp;avatar=%s" /><br/>',$id,$row['id']);
+        }
+        $userdetailsHTML .= sprintf ('<input type="file" name="attribute[%d]" /><br/>MAX: %d Kbytes</td>
+             </tr>',$row["id"],MAX_AVATAR_SIZE/1024);
+      } else {
+      if ($row["type"] != "textline" && $row["type"] != "hidden")
+        $userdetailsHTML .= sprintf ("<tr><td>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueSelect($id,$row["id"]));
+      else
+        $userdetailsHTML .= sprintf('<tr><td>%s</td><td><input class="attributeinput" type="text" name="attribute[%d]" value="%s" size="30" /></td></tr>'."\n",$row["name"],$row["id"],htmlspecialchars(stripslashes($row["value"])));
       }
-      $userdetailsHTML .= sprintf ('<input type="file" name="attribute[%d]" /><br/>MAX: %d Kbytes</td>
-           </tr>',$row["id"],MAX_AVATAR_SIZE/1024);
-    } else {
-    if ($row["type"] != "textline" && $row["type"] != "hidden")
-      $userdetailsHTML .= sprintf ("<tr><td>%s</td><td>%s</td></tr>\n",stripslashes($row["name"]),UserAttributeValueSelect($id,$row["id"]));
-    else
-      $userdetailsHTML .= sprintf('<tr><td>%s</td><td><input class="attributeinput" type="text" name="attribute[%d]" value="%s" size="30" /></td></tr>'."\n",$row["name"],$row["id"],htmlspecialchars(stripslashes($row["value"])));
     }
   }
   if ($access != "view")
