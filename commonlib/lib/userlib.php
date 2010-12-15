@@ -1130,7 +1130,9 @@ function saveUserData($username,$fields) {
            $_SESSION["userdata"][$key]["displayvalue"] = $fields[$key]["values"][$val];
          }
        } elseif ($fields[$key]["type"] == "checkboxgroup") {
-         $_SESSION["userdata"][$key]["value"] = join(",",$val);
+         if (is_array($val)) { // if val is empty join crashes
+           $_SESSION["userdata"][$key]["value"] = join(",",$val);
+         }
        } elseif ($fields[$key]["type"] == "creditcardno") {
           # erase any non digits from the CC numbers
           $_SESSION["userdata"][$key]["value"] = preg_replace("/\D/","",$_SESSION["userdata"][$key]["value"]);
