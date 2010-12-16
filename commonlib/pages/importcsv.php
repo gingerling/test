@@ -124,7 +124,7 @@ if (!empty ($_GET["reset"]) && $_GET["reset"] == "yes") {
   return;
 } else {
   #  if ($_SESSION["test_import"])
-  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;reset=yes"', $GLOBALS['I18N']->get('Reset Import session')) . '</p>';
+  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;reset=yes', $GLOBALS['I18N']->get('Reset Import session')) . '</p>';
 }
 
 if (isset ($_POST["import"])) {
@@ -449,7 +449,7 @@ if (!empty($_SESSION["test_import"])) {
   print '<h3>';
   printf($GLOBALS['I18N']->get('%d lines will be imported'), $total);
   print '</h3>';
-  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;confirm=yes"', $GLOBALS['I18N']->get('Confirm Import')) . '</p>';
+  print '<p class="button">' . PageLink2($_GET["page"] . '&amp;confirm=yes', $GLOBALS['I18N']->get('Confirm Import')) . '</p>';
   print '<p class="button"><h3>' . $GLOBALS['I18N']->get('Test Output') . '</h3></p>';
 #  dbg($_SESSION["import_attribute"]);
 }
