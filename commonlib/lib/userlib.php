@@ -1105,6 +1105,7 @@ function saveUserData($username,$fields) {
 #  dbg("Checking fields");
   foreach ($fields as $fname => $fielddetails) {
     dbg('Saving user Saving '.$fname.' to session '.$_POST[$fname]);
+ #   dbg($fielddetails);
     $key = $fname;
     $val = $_POST[$fname];
     if (!ereg("required",$key) && $key != "unrequire" &&
@@ -1117,7 +1118,11 @@ function saveUserData($username,$fields) {
          $_SESSION["userdata"][$key] = array();
        $_SESSION["userdata"][$key]["name"] = $fields[$key]["name"];
        $_SESSION["userdata"][$key]["type"] = $fields[$key]["type"];
-       if ($fields[$key]["type"] == "creditcardno") {
+       if ($fields[$key]["type"] == "date") {
+         $_SESSION["userdata"][$key]["value"] = sprintf('%04d-%02d-%02d',
+          $_POST['year'][$key],$_POST['month'][$key],$_POST['day'][$key]);
+         $_SESSION["userdata"][$key]["displayvalue"] = $_SESSION["userdata"][$key]["value"];
+       } elseif ($fields[$key]["type"] == "creditcardno") {
          # dont overwrite known CC with ***
          if (!preg_match("#^\*+#",$val)) {
            $_SESSION["userdata"][$key]["value"] = ltrim($val);
