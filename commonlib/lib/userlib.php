@@ -945,8 +945,8 @@ function saveUserAttribute($userid,$attid,$data) {
       $attid,$data["value"],$userid));
       dbg('Saving','',DBG_TRACE);
     if ($data["type"] == "password") {
-      Sql_Query(sprintf('update user set passwordchanged = now() where id = %d',
-      $userid));
+      Sql_Query(sprintf('update user set passwordchanged = now(),password="%s" where id = %d',
+      hash('sha256',$data['value']),$userid));
     }
     return 1;
   }
