@@ -562,7 +562,7 @@ if (sizeof($email_list)) {
     $user["systemvalues"]["email"] = parsePlaceHolders($system_values["email"], array_merge($replace, $system_values, array (
       "number" => $c
     )));
-    $user["systemvalues"]["email"] = clean($user["systemvalues"]["email"]);
+    $user["systemvalues"]["email"] = cleanEmail($user["systemvalues"]["email"]);
     $c++;
     if (!isset($user["systemvalues"]["htmlemail"])) {
       $user["systemvalues"]["htmlemail"] = 1;
@@ -713,7 +713,7 @@ if (sizeof($email_list)) {
         $count["dataupdate"]++;
         $old_data = Sql_Fetch_Array_Query(sprintf('select * from %s where id = %d', $tables["user"], $userid));
         $old_data = array_merge($old_data, getUserAttributeValues('', $userid));
-        $history_entry = $GLOBALS['scheme'] . '://' . getConfig("website") . $GLOBALS["adminpages"] . '/?page="user"&id=' . $userid . "\n\n";
+        $history_entry = $GLOBALS['scheme'] . '://' . getConfig("website") . $GLOBALS["adminpages"] . '/?page=user&id=' . $userid . "\n\n";
         foreach ($user["systemvalues"] as $column => $value) {
           if (!empty($column) && !empty($value)) {
             if ($column == 'groupmapping' || strpos($column,'grouptype_') === 0) {
