@@ -352,6 +352,12 @@ while ($row = Sql_Fetch_array($res)) {
     }
   }
 
+  if ((!defined('IN_WEBBLER') || !IN_WEBBLER) && (!defined('WEBBLER') || !WEBBLER) ) {
+    if ($row['type'] == 'select' || $row['type'] == 'radio' || $row['type'] == 'checkboxgroup') {
+      print PageLinkButton('editattributes&id='.$row['id'],$I18N->get('edit values'));
+    }
+  }
+
   print '</td></tr>';
   print '<tr><td colspan="2">'.$GLOBALS['I18N']->get('defaultvalue').': </td><td colspan="2"><input type="text" name="default['.$row["id"].']" value="'.htmlspecialchars(stripslashes($row["default_value"])).'" size="40" /></td></tr>';
   print '<tr><td>'.$GLOBALS['I18N']->get('orderoflisting').': </td><td><input type="text" name="listorder['.$row["id"].']" value="'.$row["listorder"].'" size="5" /></td>';
