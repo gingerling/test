@@ -609,11 +609,15 @@ function validateEmail($email) {
     $GLOBALS["check_for_host"] = 0;
   }
   if (!empty($email) && $GLOBALS["check_for_host"]) {
-    list($username,$domaincheck) = explode('@',$email);
-    # checking for an MX is not sufficient
-#    $mxhosts = array();
-#    $validhost = getmxrr ($domaincheck,$mxhosts);
-    $validhost = checkdnsrr($domaincheck, "MX") || checkdnsrr($domaincheck, "A");
+    if (strpos($email,'@')) {
+      list($username,$domaincheck) = explode('@',$email);
+      # checking for an MX is not sufficient
+  #    $mxhosts = array();
+  #    $validhost = getmxrr ($domaincheck,$mxhosts);
+      $validhost = checkdnsrr($domaincheck, "MX") || checkdnsrr($domaincheck, "A");
+    } else {
+      $validhost = 0;
+    }
   } else {
     $validhost = 1;
   }
