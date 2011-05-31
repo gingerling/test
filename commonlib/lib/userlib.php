@@ -107,6 +107,8 @@ function addNewUser($email,$password = "") {
   $exists = Sql_Fetch_Row_Query(sprintf('select id from %s where email = "%s"',
     $GLOBALS['tables']['user'],$email));
   if ($exists[0]) return $exists[0];
+
+  $password = hash("sha256",$password); 
   
   Sql_Query(sprintf('insert into %s set email = "%s",
     entered = now(),modified = now(),password = "%s",
