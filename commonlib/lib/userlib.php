@@ -112,7 +112,8 @@ function addNewUser($email,$password = "") {
     entered = now(),modified = now(),password = "%s",
     passwordchanged = now(),disabled = 0,
     uniqid = "%s",htmlemail = 1
-    ',$GLOBALS['tables']['user'],$email,hash("sha256",$password),getUniqid()));
+    ',$GLOBALS['tables']['user'],$email,$password,getUniqid()));
+  ##hash("sha256",$password)
 
   $id = Sql_Insert_Id();
   return $id;
