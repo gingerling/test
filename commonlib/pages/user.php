@@ -41,6 +41,10 @@ $error_exist= 0;
 
 
 if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
+  if (!verifyToken()) {
+    print Error($GLOBALS['I18N']->get('No Access'));
+    return;
+  }
   if (isset($_POST['email'])) {
     ## let's not validate here, an admin can add anything as an email, if they like
     $email = $_POST['email'];
@@ -92,18 +96,17 @@ if (!empty($_POST["change"]) && ($access == "owner"|| $access == "all")) {
              if (!empty($_POST[$key])){
                Sql_Query("update {$tables["user"]} set $key = \"".md5($_POST[$key])."\" where id = $id");
              }
-           }
-           else {
-              if ($key != "password" || !empty($_POST[$key])){
-                 if ($key == "password"){
+           } else {
+             if ($key != "password" || !empty($_POST[$key])){
+               if ($key == "password") {
                  $_POST[$key] = hash("sha256",$_POST[$key]);
-}
+               }
 
-                 Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
-              }
+               Sql_Query("update {$tables["user"]} set $key = \"".sql_escape($_POST[$key])."\" where id = $id");
+             }
            }
          } elseif ((!$require_login || ($require_login && isSuperUser())) && $key == "confirmed") {
-           Sql_Query("update {$tables["user"]} set $key = \"".$_POST[$key]."\" where id = $id");
+           Sql_Query("update {$tables["user"]} set $key = \"".sql_escape($_POST[$key])."\" where id = $id");
          }
        }
      }
@@ -324,6 +327,11 @@ if ($id) {
          '&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('update page'));
   printf('&nbsp;&nbsp;<a href="%s" class="button">%s</a>',getConfig("unsubscribeurl").'&amp;uid='.$user["uniqid"],$GLOBALS['I18N']->get('unsubscribe page'));
   print '&nbsp;&nbsp;'.PageLinkButton("userhistory&amp;id=$id",$GLOBALS['I18N']->get('History'));
+  if (!empty($GLOBALS['config']['plugins']) && is_array($GLOBALS['config']['plugins'])) {
+    foreach ($GLOBALS['config']['plugins'] as $pluginName => $plugin) {
+      print $plugin->userpageLink($id);
+    }
+  }
 
   if ($access != "view")
   printf("<a class=\"delete button\" href=\"javascript:deleteRec('%s');\">delete</a> %s<h3>%s</h3>",
