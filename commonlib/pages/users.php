@@ -376,7 +376,7 @@ while ($row = Sql_Fetch_Array($att_req)) {
   $filterpanel .= sprintf('<option value="%d" %s>%s</option>', $row["id"], $row["id"] == $findby ? 'selected="selected"' : '', substr($row["name"], 0, 20));
 }
 
-$filterpanel .= '</select><input class="submit" type="submit" value="Go" />&nbsp;&nbsp;<a href="./?page=users&amp;find=NULL">'. $GLOBALS['I18N']->get('reset').'</a>';
+$filterpanel .= '</select><input class="submit" type="submit" value="Go" />&nbsp;&nbsp;<a href="./?page=users&amp;find=NULL" class="reset">'. $GLOBALS['I18N']->get('reset').'</a>';
 $filterpanel .= '</form></td></tr>';
 $filterpanel .= '<tr><td colspan="4"></td></tr>
 </table>';
@@ -408,7 +408,7 @@ if ($result)
     }
 #    $ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="%s" onclick="return deleteRec(\'%s\');">del</a>',PageUrl2('users'.$find_url), PageURL2("users&start=$start&delete=" .$user["id"])));
     if (isSuperUser()) {
-      $ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');">del</a>',
+      $ls->addColumn($user["email"], $GLOBALS['I18N']->get('del'), sprintf('<a href="javascript:deleteRec(\'%s\');" class="del">del</a>',
                                                                         PageURL2("users&start=$start&find=$find&findby=$findby&delete=" .$user["id"])));
     }
                                                                          
