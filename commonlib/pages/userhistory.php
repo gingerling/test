@@ -131,8 +131,8 @@ if (isBlackListed($user["email"])) {
     $tables["user_blacklist"],$user["email"]));
   print $blacklist_info["added"]."</h3><br/>";
   print '';
-  print "<a href=\"javascript:deleteRec2('" . $GLOBALS['I18N']->get('are you sure you want to delete this user from the blacklist') . "?\\n"
-  . $GLOBALS['I18N']->get('it should only be done with explicit permission from this user') . "','./?page=userhistory&unblacklist={$user["id"]}&id={$user["id"]}')\">
+  print "<a href=\"javascript:deleteRec2('" . htmlspecialchars($GLOBALS['I18N']->get('are you sure you want to delete this user from the blacklist')) . "?\\n"
+  . htmlspecialchars($GLOBALS['I18N']->get('it should only be done with explicit permission from this user')) . "','./?page=userhistory&unblacklist={$user["id"]}&id={$user["id"]}')\">
   " . $GLOBALS['I18N']->get('remove User from Blacklist') . "</a>".'<br/><br/>';
 
   $ls = new WebblerListing($GLOBALS['I18N']->get('Blacklist Info'));
