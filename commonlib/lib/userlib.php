@@ -1093,7 +1093,7 @@ function saveUserData($username,$fields) {
   if (!is_array($_SESSION["userdata"])) {
     initialiseUserSession();
   }
-#  if (!empty($_SESSION['usersaved'])) return;
+  if (!empty($GLOBALS['usersaved'])) return;
   if (!$username) {
     $username = 'Unknown User';
   }
@@ -1262,7 +1262,7 @@ function saveUserData($username,$fields) {
        }
     }
   }
-  $_SESSION['usersaved'] = time();
+  $GLOBALS['usersaved'] = time();
 
   return $res;
 }
