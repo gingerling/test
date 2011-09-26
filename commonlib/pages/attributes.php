@@ -1,5 +1,10 @@
 <?php
-$types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea","date",'avatar');
+
+$types = array('textline','checkbox','checkboxgroup','radio','select',"hidden","textarea","date");
+if ((defined('IN_WEBBLER') && IN_WEBBLER)  || (defined('WEBBLER') && WEBBLER)){
+  $types[] = 'avatar';
+}
+
 $formtable_exists = Sql_Table_exists("formfield");
 
 #ob_end_flush();
@@ -7,6 +12,7 @@ $formtable_exists = Sql_Table_exists("formfield");
 #  print "$key = ".print_r($val)."<br/>";
 #}
 #return;
+print '<div class="panel"><div class="header"></div><div class="content">';
 print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
 if (isset($_POST["action"])) {
   if (isset($_POST["name"])) {
@@ -310,7 +316,7 @@ function warn() {
 </script>
 <?php echo formStart()?>
 <?php
-print $GLOBALS['I18N']->get('loadfrom')." ".PageLink2("defaults",$GLOBALS['I18N']->get('defaults')).'<br />';
+print $GLOBALS['I18N']->get('loadfrom')." ".PageLinkButton("defaults",$GLOBALS['I18N']->get('defaults')).'<br />';
 
 $res = Sql_Query("select * from {$tables['attribute']} order by listorder");
 if (Sql_Affected_Rows()) 
@@ -396,5 +402,5 @@ print'
 
 <input class="submit" type="submit" name="action" value="'.$GLOBALS['I18N']->get('savechanges').'" />
 </form>
-
+</div></div>
 ';
