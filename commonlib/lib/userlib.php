@@ -543,6 +543,11 @@ function is_email($email) {
 		  $ats = substr_count($email,'@');
 		  if ($ats != 1) return 0;
 
+      ## fail on emails starting or ending "-" in the pre-at
+      if (preg_match('/^-/',$email) || preg_match('/-@/',$email)) {
+        return 0;
+      }
+
 		  # hmm, it seems people are starting to have emails with & and ' or ` chars in the name
 		  #'
 
