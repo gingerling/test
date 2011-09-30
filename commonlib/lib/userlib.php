@@ -543,8 +543,8 @@ function is_email($email) {
 		  $ats = substr_count($email,'@');
 		  if ($ats != 1) return 0;
 
-      ## fail on emails starting or ending "-" in the pre-at
-      if (preg_match('/^-/',$email) || preg_match('/-@/',$email)) {
+      ## fail on emails starting or ending "-" or "." in the pre-at
+      if (preg_match('/^-/',$email) || preg_match('/-@/',$email) || preg_match('/\.@/',$email) || preg_match('/^\./',$email)) {
         return 0;
       }
 
