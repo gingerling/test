@@ -384,7 +384,7 @@ if ($c) {
   </span><hr/>',$GLOBALS['I18N']->get('delete'),$GLOBALS['I18N']->get('merge'),Help("mergeattributes"));
 }
 
-print '
+print '<div id="new-attribute">
 <a name="new"></a>
 <h3>'.$GLOBALS['I18N']->get('addnew').':</h3>
 <table class="attributesNew" border="1">
@@ -401,6 +401,7 @@ print'
 </table><hr/>
 
 <input class="submit" type="submit" name="action" value="'.$GLOBALS['I18N']->get('savechanges').'" />
+</div>
 </form>
 </div></div>
 ';
