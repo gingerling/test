@@ -509,6 +509,7 @@ if (sizeof($email_list)) {
   $count['duplicate'] = 0;
   $additional_emails = 0;
   foreach ($email_list as $line) {
+    set_time_limit(60);
     # will contain attributes to store / change
     $user = array ();
     # get rid of text delimiters generally added by spreadsheet apps
@@ -1006,33 +1007,33 @@ if (defined('IN_WEBBLER') && Sql_Table_Exists("groups")) {
 
 <table class="importcsvMain" border="1">
 <tr><td colspan="2">
-<?php echo $GLOBALS['I18N']->get('importintro')?>
+<?php echo $GLOBALS['I18N']->get('The file you upload will need to have the attributes of the records on    the first line.     Make sure that the email column is called "email" and not something like "e-mail" or     "Email Address".     Case is not important.          If you have a column called "Foreign Key", this will be used for synchronisation between an     external database and the phpList database. The foreignkey will take precedence when matching     an existing subscriber. This will slow down the import process. If you use this, it is allowed to have     records without email, but an "Invalid Email" will be created instead. You can then do     a search on "invalid email" to find those records. Maximum size of a foreign key is 100.          Warning: the file needs to be plain text. Do not upload binary files like a Word Document.     ')?>
 </td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('File containing emails')?>:<br/>
 </td><td><input type="file" name="import_file">
-<br/><?php printf($GLOBALS['I18N']->get('uploadlimits'),ini_get("post_max_size"),ini_get("upload_max_filesize"));
-printf($GLOBALS['I18N']->get('phplistuploadlimit'),IMPORT_FILESIZE);?>
+<br/><?php printf($GLOBALS['I18N']->get('The following limits are set by your server: Maximum size of a total data sent to server: %s Maximum size of each individual file: %s'),ini_get("post_max_size"),ini_get("upload_max_filesize"));
+printf($GLOBALS['I18N']->get('phpList will not process files larger than %dMB'),IMPORT_FILESIZE);?>
 </td></tr>
-<tr><td><?php echo $GLOBALS['I18N']->get('Field Delimiter')?>:</td><td><input type="text" name="import_field_delimiter" size="5"> <?php echo $GLOBALS['I18N']->get('(default is TAB)')?></td></tr>
-<tr><td><?php echo $GLOBALS['I18N']->get('Record Delimiter')?>:</td><td><input type="text" name="import_record_delimiter" size="5"> <?php echo $GLOBALS['I18N']->get('(default is line break)')?></td></tr>
-<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('testoutput_blurb')?></td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Field Delimiter')?>:</td><td><input type="text" name="import_field_delimiter" size="5"> (<?php echo $GLOBALS['I18N']->get('default is TAB')?>)</td></tr>
+<tr><td><?php echo $GLOBALS['I18N']->get('Record Delimiter')?>:</td><td><input type="text" name="import_record_delimiter" size="5"> (<?php echo $GLOBALS['I18N']->get('default is line break')?>)</td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you check "Test Output", you will get the list of parsed emails on screen, and the database will not be filled with the information. This is useful to find out whether the format of your file is correct. It will only show the first 50 records.')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Test output')?>:</td><td><input type="checkbox" name="import_test" value="yes" checked="checked" /></td></tr>
-<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('warnings_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you check "Show Warnings", you will get warnings for invalid records. Warnings will only be shown if you check "Test Output". They will be ignored when actually importing. ')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Show Warnings')?>:</td><td><input type="checkbox" name="show_warnings" value="yes" /></td></tr>
-<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('omitinvalid_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you check "Omit Invalid", invalid records will not be added. Invalid records are records without an email. Any other attributes will be added automatically, ie if the country of a record is not found, it will be added to the list of countries.')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Omit Invalid')?>:</td><td><input type="checkbox" name="omit_invalid" value="yes" /></td></tr>
-<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('assigninvalid_blurb')?>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('Assign Invalid will be used to create an email for subscribers with an invalid email address. You can use values between [ and ] to make up a value for the email. For example if your import file contains a column "First Name" and one called "Last Name", you can use "[first name] [last name]" to construct a new value for the email for this subscriber containing their first name and last name. The value [number] can be used to insert the sequence number for importing.')?>
 </td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Assign Invalid')?>:</td><td><input type="text" name="assign_invalid" value="<?php echo $GLOBALS["assign_invalid_default"]?>" /></td></tr>
-<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('overwriteexisting_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you check "Overwrite Existing", information about a subscriber in the database will be replaced by the imported information. Subscribers are matched by email or foreign key.')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Overwrite Existing')?>:</td><td><input type="checkbox" name="overwrite" value="yes" checked="checked" /></td></tr>
-<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('retainold_blurb')?></td></tr>
+<tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you check "Retain Old Email", a conflict of two emails being the same will keep the old one and add "duplicate" to the new one. If you don&quot;t check it, the old one will get "duplicate" and the new one will take precedence.')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Retain Old User Email')?>:</td><td><input type="checkbox" name="retainold" value="yes" /></td></tr>
 
 <?php
 ## we should not allow sending this, but run it through process queue instead
 ?>
-<!--tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('sendnotification_blurb')?></td></tr>
+<!--tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you choose "send notification email" the subscribers you are adding will be sent the request for confirmation of subscription to which they will have to reply. This is recommended, because it will identify invalid emails.')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Send&nbsp;Notification&nbsp;email')?>&nbsp;<input type="radio" name="notify" value="yes" /></td><td><?php echo $GLOBALS['I18N']->get('Make confirmed immediately')?>&nbsp;<input type="radio" name="notify" value="no" checked="checked"/></td></tr>
 <tr><td colspan="2"><?php echo $GLOBALS['I18N']->get('If you are going to send notification to users, you may want to add a little delay between messages')?></td></tr>
 <tr><td><?php echo $GLOBALS['I18N']->get('Notification throttle')?>:</td><td><input type="text" name="throttle_import" size="5"> <?php echo $GLOBALS['I18N']->get('(default is nothing, will send as fast as it can)')?></td></tr-->
