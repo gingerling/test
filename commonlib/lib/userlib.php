@@ -68,7 +68,7 @@ function deleteUser($id) {
   Sql_Query(sprintf('delete from %s where id = %d',$tables["user"],$id));
   Sql_Query(sprintf('delete from %s where userid = %d',$tables["user_history"],$id));
 	if (Sql_table_exists('user_group')) {
-		Sql_Query(sprintf('delete from user_group where userid = %d',$id));
+		Sql_Query(sprintf('delete from user_group where userid = %d',$id),1);
 	}
   ### allow plugins to delete their data
 
@@ -492,6 +492,21 @@ function is_email($email) {
 
   $email = trim($email);
 
+  ## do some basic validation first
+  # quite often emails have two @ signs
+  $ats = substr_count($email,'@');
+  if ($ats != 1) return 0;
+
+  ## fail on emails starting or ending "-" or "." in the pre-at, seems to happen quite often, probably cut-n-paste errors
+  if (preg_match('/^-/',$email) ||
+      preg_match('/-@/',$email) ||
+      preg_match('/\.@/',$email) ||
+      preg_match('/^\./',$email) ||
+      preg_match('/^\-/',$email)
+    ) {
+    return 0;
+  }
+
   switch (EMAIL_ADDRESS_VALIDATION_LEVEL) {
     case 0: # No email address validation.
 	    return 1;
@@ -539,14 +554,6 @@ function is_email($email) {
       break;
 
     default: # 10.4 style email validation
-		  # quite often emails have two @ signs
-		  $ats = substr_count($email,'@');
-		  if ($ats != 1) return 0;
-
-      ## fail on emails starting or ending "-" or "." in the pre-at
-      if (preg_match('/^-/',$email) || preg_match('/-@/',$email) || preg_match('/\.@/',$email) || preg_match('/^\./',$email)) {
-        return 0;
-      }
 
 		  # hmm, it seems people are starting to have emails with & and ' or ` chars in the name
 		  #'
@@ -613,9 +620,9 @@ function addUserHistory($email,$msg,$detail) {
 function validateEmail($email) {
   if ( !empty($GLOBALS["config"]["dont_require_validemail"]) )
     return 1;
-  if (!isset($GLOBALS["check_for_host"])) {
+  #if (!isset($GLOBALS["check_for_host"])) {
     $GLOBALS["check_for_host"] = 0;
-  }
+  #}
   if (!empty($email) && $GLOBALS["check_for_host"]) {
     if (strpos($email,'@')) {
       list($username,$domaincheck) = explode('@',$email);
