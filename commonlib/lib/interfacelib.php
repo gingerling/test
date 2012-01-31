@@ -143,6 +143,10 @@ class WebblerListing {
     $this->columns[$oldname] = $newname;
   }
 
+  function deleteColumn($colname) {
+    unset($this->columns[$colname]);
+  }
+
   function removeGetParam($remove) {
     $res = "";
     foreach ($_GET as $key => $val) {
