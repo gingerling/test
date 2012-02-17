@@ -209,7 +209,7 @@ class WebblerListing {
         $html .= sprintf('<th><div class="listinghdelement">%s%s</div></th>',$columnname,$this->help);
       } else {
         if ($this->sortby[$columnname] && $this->sort) {
-          $display = sprintf('<a href="./?%s&amp;sortby=%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
+          $display = sprintf('<a href="./?%s&amp;sortby=%s" title="%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),sprintf($GLOBALS['I18N']->get('sort by %s'),$columnname),$columnname);
         } else {
           $display = $columnname;
         }
@@ -235,7 +235,7 @@ class WebblerListing {
     }
 
     if (!empty($element["url"])) {
-      $html .= sprintf('<td %s class="listingname"><span class="listingname"><a href="%s" class="listingname">%s</a></span></td>',$width,$element["url"],$element["name"]);
+      $html .= sprintf('<td %s class="listingname"><span class="listingname"><a href="%s" class="listingname" title="%s">%s</a></span></td>',$width,$element["url"],htmlspecialchars(strip_tags($element["name"])),$element["name"]);
     } else {
       $html .= sprintf('<td %s class="listingname"><span class="listingname">%s</span></td>',$width,$element["name"]);
     }
@@ -251,7 +251,7 @@ class WebblerListing {
         $align = '';
       }
       if (!empty($element["columns"][$column]["url"])) {
-        $html .= sprintf('<td class="listingelement%s"><span class="listingelement%s"><a href="%s" class="listingelement">%s</a></span></td>',$align,$align,$element["columns"][$column]["url"],$value);
+        $html .= sprintf('<td class="listingelement%s"><span class="listingelement%s"><a href="%s" class="listingelement" title="%s">%s</a></span></td>',$align,$align,$element["columns"][$column]["url"],htmlspecialchars($value),$value);
       } elseif (isset($element["columns"][$column])) {
         $html .= sprintf('<td class="listingelement%s"><span class="listingelement%s">%s</span></td>',$align,$align,$element["columns"][$column]["value"]);
       } else {
@@ -272,10 +272,10 @@ class WebblerListing {
       }
       if (!empty($row["url"])) {
         $html .= sprintf('<tr><td class="listingrowname">
-          <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
+          <span class="listingrowname"><a href="%s" class="listinghdname" title="%s">%s</a></span>
           </td><td class="listingelement%s" colspan="%d">
           <span class="listingelement%s">%s</span>
-          </td></tr>',$row["url"],$row["name"],$align,sizeof($this->columns),$align,$value);
+          </td></tr>',$row["url"],htmlspecialchars($row["name"]),$row["name"],$align,sizeof($this->columns),$align,$value);
       } else {
         $html .= sprintf('<tr><td class="listingrowname">
           <span class="listingrowname">%s</span>
@@ -471,7 +471,7 @@ class WebblerListing2 extends WebblerListing {
         $html .= sprintf('<th><div class="listinghdelement">%s%s</div></th>',$columnname,$this->help);
       } else {
         if ($this->sortby[$columnname] && $this->sort) {
-          $display = sprintf('<a href="./?%s&amp;sortby=%s">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
+          $display = sprintf('<a href="./?%s&amp;sortby=%s" title="sortby">%s</a>',$this->removeGetParam("sortby"),urlencode($columnname),$columnname);
         } else {
           $display = $columnname;
         }
@@ -517,10 +517,10 @@ class WebblerListing2 extends WebblerListing {
         $url = '#';
       }
       $html .= sprintf('
-          <a href="%s">
+          <a href="%s" title="%s">
             <span class="label">%s</span>
             <span class="value">%s</span>
-          </a>',$url,$column,$value);
+          </a>',$url,htmlspecialchars(strip_tags($value)),$column,$value);
     }
     return $html;
     foreach ($element["rows"] as $row) {
@@ -536,10 +536,10 @@ class WebblerListing2 extends WebblerListing {
       }
       if (!empty($row["url"])) {
         $html .= sprintf('<tr><td class="listingrowname">
-          <span class="listingrowname"><a href="%s" class="listinghdname">%s</a></span>
+          <span class="listingrowname"><a href="%s" class="listinghdname" title="%s">%s</a></span>
           </td><td class="listingelement%s" colspan="%d">
           <span class="listingelement%s">%s</span>
-          </td></tr>',$row["url"],$row["name"],$align,sizeof($this->columns),$align,$value);
+          </td></tr>',$row["url"],htmlspecialchars(strip_tags($row["name"])),$row["name"],$align,sizeof($this->columns),$align,$value);
       } else {
         $html .= sprintf('<tr><td class="listingrowname">
           <span class="listingrowname">%s</span>
@@ -652,7 +652,7 @@ class DomTab {
         <ul class="domtabs">
         ';
     foreach ($this->tabs as $title => $content) {
-      $html .= sprintf('<li><a href="#%s">%s</a></li>',$this->domtabcluster.urlencode(strtolower($title)),$title);
+      $html .= sprintf('<li><a href="#%s" title="%s">%s</a></li>',$this->domtabcluster.urlencode(strtolower($title)),htmlspecialchars($title),$title);
     }
     $html .= '</ul>';
 
@@ -860,7 +860,7 @@ class WebblerTabs {
 
   function previousLink() {
     if (!empty($this->previous)) {
-      return sprintf('<a href="%s" %s>',$this->tabs[$this->previous],$this->linkcode);
+      return sprintf('<a href="%s" %s title="%s">',$this->tabs[$this->previous],$this->linkcode,$GLOBALS['I18N']->get('Previous'));
     }
     return '';
   }
@@ -929,7 +929,7 @@ class WebblerTabs {
         }
         $html .= '<li>';
       }
-      $html .= sprintf('<a href="%s" %s>',$url,$this->linkcode);
+      $html .= sprintf('<a href="%s" %s title="%s">',$url,$this->linkcode,htmlspecialchars(strip_tags($tab)));
       if ($this->addTabNo) {
         $html .= sprintf('<span class="tabno">%d</span> ',$count);
       }
