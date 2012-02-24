@@ -967,6 +967,10 @@ class pageInfo {
     $this->infocontent = $content;
   }
 
+  function suppressHide() {
+    $this->addhide = false;
+  }
+
   function fetchInfoContent($include) {
     ## pages to not allow hiding the info for
     if (in_array($include,array('login.php','logout.php','community.php'))) {
@@ -1026,7 +1030,7 @@ class pageInfo {
     
     $html = '<div class="note '.$this->noteid.'">';
     if ($this->addhide) {
-      $html .= '<a href="./?page='.$GLOBALS['page'].'&amp;action=hidenote&amp;note='.$this->noteid.'" class="hide ajaxable" />'.$GLOBALS['I18N']->get('Hide').'</a>';
+      $html .= '<a href="./?page='.$GLOBALS['page'].'&amp;action=hidenote&amp;note='.$this->noteid.'" class="hide ajaxable" title="'.$GLOBALS['I18N']->get('Close this box').'" />'.$GLOBALS['I18N']->get('Hide').'</a>';
     }
     $html .= $this->infocontent;
     $html  .= '</div>'; ## end of info div
