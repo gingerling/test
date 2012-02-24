@@ -385,13 +385,18 @@ function addUserToBlackList($email,$reason = '') {
   addEmailToBlackList($email,$reason);
 }
 
-function addEmailToBlackList($email,$reason = '') {
+function addEmailToBlackList($email,$reason = '',$date = '') {
+  if (empty($date)) {
+    $sqldate = 'now()';
+  } else {
+    $sqldate = '"'.$date.'"';
+  }
   #0012262: blacklist only email when email bounces. (not users): Function split so email can be blacklisted without blacklisting user
-  Sql_Query(sprintf('insert ignore into %s (email,added) values("%s",now())',
-    $GLOBALS['tables']["user_blacklist"],addslashes($email)));
+  Sql_Query(sprintf('insert ignore into %s (email,added) values("%s",%s)',
+    $GLOBALS['tables']["user_blacklist"],sql_escape($email),$sqldate));
   # save the reason, and other data
   Sql_Query(sprintf('insert ignore into %s (email,name,data) values("%s","%s","%s")',
-    $GLOBALS['tables']["user_blacklist_data"],addslashes($email),
+    $GLOBALS['tables']["user_blacklist_data"],sql_escape($email),
     "reason",addslashes($reason)));
   foreach (array("REMOTE_ADDR") as $item ) { # @@@do we want to know more?
     if (isset($_SERVER[$item])) {
@@ -408,7 +413,6 @@ function addEmailToBlackList($email,$reason = '') {
       }
     }
   }
-  
 }
 
 function UserAttributeValueSelect($user = 0,$attribute = 0) {
