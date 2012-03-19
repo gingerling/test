@@ -10,6 +10,8 @@ if (!isset ($_SESSION["userlistfilter"]) || !$_SESSION["userlistfilter"]) {
 }
 if (isset ($_GET['sortby'])) {
   $sortby = removeXss($_GET['sortby']);
+  ## only allow spaces and word chars
+  $sortby = preg_replace('/[^\w ]+/','',$sortby);
 } else {
   $sortby = '';
 }
