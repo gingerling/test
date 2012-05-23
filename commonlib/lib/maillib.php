@@ -22,8 +22,7 @@ function HTML2Text($text) {
 
 #  $text = preg_replace("/<a href=\"(.*?)\"[^>]*>(.*?)<\/a>/is","[URLTEXT]\\2[/URLTEXT][LINK]\\1[/LINK]",$text,100);
 
-  $text = preg_replace("/<a.*href=[\"\'](.*)[\"\'][^>]*>(.*)<\/a>/Umis","[URLTEXT]\\2[ENDURLTEXT][LINK]\\1[ENDLINK]\n",$text);
-
+  $text = preg_replace("/<a[^>]*href=[\"\'](.*)[\"\'][^>]*>(.*)<\/a>/Umis","[URLTEXT]\\2[ENDURLTEXT][LINK]\\1[ENDLINK]\n",$text);
   $text = preg_replace("/<b>(.*?)<\/b\s*>/is","*\\1*",$text);
   $text = preg_replace("/<h[\d]>(.*?)<\/h[\d]\s*>/is","**\\1**\n",$text);
 #  $text = preg_replace("/\s+/"," ",$text);
