@@ -185,7 +185,7 @@ function AttributeValue($table,$value) {
     $table_prefix = "phplist_";
   }
 
-  if (ereg(",",$value)) {
+  if (strpos($value,",") !== false) {
     $result = "";
     $res = Sql_Query(sprintf('select name from %slistattr_%s where id in (%s)',
     $table_prefix,$table,$value));
@@ -1095,7 +1095,7 @@ function saveUser($loginname,$data) {
   if ($id_req[0]) {
     $userid = $id_req[0];
     while (list($key,$val) = each($data)) {
-      if (ereg("^attribute(\d+)",$key,$regs)) {
+      if (preg_match("/^attribute(\d+)/",$key,$regs)) {
         $attid = $regs[1];
       }
  #     dbg("Saving attribute $key, $attid, $val for $loginname, $userid");
@@ -1135,7 +1135,7 @@ function saveUserData($username,$fields) {
  #   dbg($fielddetails);
     $key = $fname;
     $val = $_POST[$fname];
-    if (!ereg("required",$key) && $key != "unrequire" &&
+    if (strpos($key,"required") === false) && $key != "unrequire" &&
       $fields[$key]["type"] != "separator" &&
       $fields[$key]["type"] != "emailcheck" &&
       $fields[$key]["type"] != "passwordcheck"

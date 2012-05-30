@@ -849,7 +849,7 @@ if (sizeof($email_list)) {
         if ($addition)
           $count["list_add"]++;
         if (!TEST && $_SESSION["notify"] == "yes" && $addition) {
-          $subscribemessage = ereg_replace('\[LISTS\]', $listoflists, getUserConfig("subscribemessage", $userid));
+          $subscribemessage = str_replace('[LISTS]', $listoflists, getUserConfig("subscribemessage", $userid));
           if (function_exists('sendmail')) {
             sendMail($user["systemvalues"]["email"], getConfig("subscribesubject"), $subscribemessage, system_messageheaders(), $envelope);
             if (isset ($_SESSION["throttle_import"])) {
