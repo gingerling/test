@@ -5,53 +5,65 @@
 
 $ls = new WebblerListing("Database Structure");
 while (list($table, $tablename) = each($GLOBALS["tables"])) {
+  $createlink = '';
   $ls->addElement($table);
   if ($table != $tablename) {
     $ls->addColumn($table,"real name",$tablename);
   }
-  $req = Sql_Query("show columns from $tablename",0);
-  $columns = array();
-  if (!Sql_Affected_Rows()) {
-    $ls->addColumn($table,"exist",$GLOBALS["img_cross"]);
-  }
-  while ($row = Sql_Fetch_Array($req)) {
-    $columns[strtolower($row["Field"])] = $row["Type"];
-  }
-  $tls = new WebblerListing($table);
-  $struct = $DBstruct[$table];
-  $haserror = 0;
-  $indexes = $uniques = $engine = $category = '';
-  if (is_array($struct)) {
-     foreach ($struct as $column => $colstruct) {
-      if (!ereg("index_",$column) &&
-        !ereg("^unique_",$column) &&
-        $column != "primary key" &&
-        $column != "storage_engine" &&
-        $column != 'table_category') {
-          $tls->addElement($column);
-          $exist = isset($columns[strtolower($column)]);
-          if ($exist) {
-            $tls->addColumn($column,"exist",$GLOBALS["img_tick"]);
-          } else {
-            $haserror = 1;
-            $tls->addColumn($column,"exist",$GLOBALS["img_cross"]);
-          }
-        } else {
-          if (ereg("index_",$column)) {
-            $indexes .= $colstruct[0].'<br/>';
-          }
-          if (ereg("unique_",$column)) {
-            $uniques .= $colstruct[0].'<br/>';
-          }
-#          if ($column == "primary key")
-          if ($column == "storage_engine") {
-            $engine = $colstruct[0];
-          }
-          if ($column == 'table_category') {
-            $category = $colstruct;
-          }
-        }
+  if (Sql_Table_Exists($tablename)) {
+    $req = Sql_Query("show columns from $tablename",0);
+    $columns = array();
+    if (!Sql_Affected_Rows()) {
+      $ls->addColumn($table,"exist",$GLOBALS["img_cross"]);
     }
+    while ($row = Sql_Fetch_Array($req)) {
+      $columns[strtolower($row["Field"])] = $row["Type"];
+    }
+    $tls = new WebblerListing($table);
+    if (isset($DBstruct[$table])) {
+      $struct = $DBstruct[$table];
+    } else {
+      $struct = '';
+    }
+    $haserror = 0;
+    if (is_array($struct)) {
+      $indexes = $uniques = $engine = $category = '';
+      foreach ($struct as $column => $colstruct) {
+        if (strpos($column,"index_") === false &&
+          strpos($column,"unique_") === false &&
+          $column != "primary key" &&
+          $column != "storage_engine" &&
+          $column != 'table_category') {
+            $tls->addElement($column);
+            $exist = isset($columns[strtolower($column)]);
+            if ($exist) {
+              $tls->addColumn($column,"exist",$GLOBALS["img_tick"]);
+            } else {
+              $haserror = 1;
+              $tls->addColumn($column,"exist",$GLOBALS["img_cross"]);
+            }
+          } else {
+            if (strpos($column,"index_") !== false) {
+              $indexes .= $colstruct[0].'<br/>';
+            }
+            if (strpos($column,"unique_") !== false) {
+              $uniques .= $colstruct[0].'<br/>';
+            }
+  #          if ($column == "primary key")
+            if ($column == "storage_engine") {
+              $engine = $colstruct[0];
+            }
+            if ($column == 'table_category') {
+              $category = $colstruct;
+            }
+          }
+      }
+    }
+  } else {
+    $haserror = true;
+    unset($tls);
+    $indexes = $uniques = $engine = $category = '';
+    $createlink = PageUrl2('pageaction&action=createtable&table='.urlencode($table));
   }
   if (!$haserror) {
     $tls->collapse();
@@ -68,8 +80,15 @@ while (list($table, $tablename) = each($GLOBALS["tables"])) {
   if (!empty($category)) {
     $ls->addColumn($table,"category",$category);
   }
- 
-  $ls->addColumn($table,"check",$tls->display());
+  if (!empty($tls)) {
+    $ls->addColumn($table,"check",$tls->display());
+  }
+/*
+  if (!empty($createlink)) {
+    $ls->addColumn($table,"create",'<div> Table is missing <a href="'.$createlink.'" class="ajaxable">Create</a></div>');
+  }
+*/
+    
 }
 print $ls->display();
 
