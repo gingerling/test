@@ -187,13 +187,6 @@ if ($GLOBALS["commandline"]) {
   }
 }
 
-/*
-# fix for old PHP versions, although not failsafe :-(
-if (!isset($_POST) && isset($HTTP_POST_VARS)) {
-  include_once dirname(__FILE__) ."/commonlib/lib/oldphp_vars.php";
-}
-*/
-
 if (!isset($_GET['page'])) {
   $page = $GLOBALS['homepage'];
 } else {
@@ -360,11 +353,12 @@ if ($page != '' && $page != 'install') {
 $pageinfo = new pageInfo();
 $pageinfo->fetchInfoContent($include);
 
-if (!$ajax) {
-  include 'ui/'.$GLOBALS['ui']."/header.inc";
-} elseif (is_file('ui/'.$GLOBALS['ui']."/mainmenu.php")) {
+if (is_file('ui/'.$GLOBALS['ui']."/mainmenu.php")) {
   include 'ui/'.$GLOBALS['ui']."/mainmenu.php";
 }  
+if (!$ajax) {
+  include 'ui/'.$GLOBALS['ui']."/header.inc";
+} 
 
 if (!$ajax) {
   print '<h4 class="pagetitle">'.strtolower($page_title).'</h4>';
