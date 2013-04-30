@@ -207,7 +207,7 @@ if (!empty($_POST['action']) && $_POST['action'] == "addimages") {
           }
             
         } elseif (trim($email) != '') {
-          $actionresult .= '<p>'.$GLOBALS['I18N']->get('Error sending test messages to').' '.$email.'</p>';
+          $actionresult .= '<p>'.$GLOBALS['I18N']->get('Error sending test messages to').' '.htmlspecialchars($email).'</p>';
         }
       }
     } else {
@@ -299,7 +299,7 @@ if ($id) {
 <?php  $sendtest_content = sprintf('<div class="sendTest" id="sendTest">
     '.$sendtestresult .'
     <input class="submit" type="submit" name="sendtest" value="%s"/>  %s: 
-    <input type="text" name="testtarget" size="40" value="'.$testtarget.'"/><br />%s
+    <input type="text" name="testtarget" size="40" value="'.htmlspecialchars($testtarget).'"/><br />%s
     </div>',
     $GLOBALS['I18N']->get('Send test message'),$GLOBALS['I18N']->get('to email addresses'),
     $GLOBALS['I18N']->get('(comma separate addresses - all must be existing subscribers)'));
