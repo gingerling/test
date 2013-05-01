@@ -527,7 +527,7 @@ function previewTemplate($id,$adminid = 0,$text = "", $footer = "") {
     $template = str_ireplace("[FOOTER]",$footer,$template);
   }
   $template = preg_replace("#\[CONTENT\]#",$text,$template);
-  $template = str_ireplace("[SUBJECT]",'SUBJECT',$template);
+  $template = str_ireplace("[SUBJECT]",'This is the Newsletter Subject',$template);
   $template = str_ireplace("[UNSUBSCRIBE]",sprintf('<a href="%s">%s</a>',getConfig("unsubscribeurl"),$GLOBALS["strThisLink"]),$template);
   #0013076: Blacklisting posibility for unknown users
   $template = str_ireplace("[BLACKLIST]",sprintf('<a href="%s">%s</a>',getConfig("blacklisturl"),$GLOBALS["strThisLink"]),$template);
