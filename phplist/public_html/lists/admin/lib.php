@@ -206,6 +206,9 @@ function loadMessageData($msgid) {
   if (empty($messagedata["fromname"])) {
     $messagedata["fromname"] = $messagedata["fromemail"];
   }
+  
+  unset($messagedata['targetlist']['unselect']);
+  unset($messagedata['excludelist']['unselect']);
 
   $GLOBALS['MD'][$msgid] = $messagedata;
 #  var_dump($messagedata);
