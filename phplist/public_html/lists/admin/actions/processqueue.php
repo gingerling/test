@@ -859,7 +859,7 @@ while ($message = Sql_fetch_array($messages)) {
       if ($script_stage < 4)
         $script_stage = 4; # we know a subscriber to send to
       $someusers = 1;
-      $users = Sql_query("select id,email,uniqid,htmlemail,rssfrequency,confirmed,blacklisted,disabled from {$tables['user']} where id = $userid");
+      $users = Sql_query("select id,email,uniqid,htmlemail,confirmed,blacklisted,disabled from {$tables['user']} where id = $userid");
 
       # pick the first one (rather historical from before email was unique)
       $user = Sql_fetch_Assoc($users); 
@@ -868,7 +868,6 @@ while ($message = Sql_fetch_array($messages)) {
         $useremail = $user['email']; # email of the subscriber
         $userhash = $user['uniqid'];  # unique string of the user
         $htmlpref = $user['htmlemail'];  # preference for HTML emails
-//        $rssfrequency = $user[4];
         $confirmed = $user['confirmed'] && !$user['disabled']; ## 7 = disabled flag 
         $blacklisted = $user['blacklisted'];
 
@@ -880,11 +879,16 @@ while ($message = Sql_fetch_array($messages)) {
 
       reset($GLOBALS['plugins']);
       while ($cansend && $plugin = current($GLOBALS['plugins']) ) {
-        cl_output('Checking plugin '. $plugin->name());
+        if (VERBOSE) {
+          cl_output('Checking plugin '. $plugin->name());
+        }
         $cansend = $plugin->canSend($msgdata, $user);
         if (!$cansend) {
           $failure_reason .= 'Sending blocked by plugin '.$plugin->name;
           $counters['send blocked by '.$plugin->name]++;
+          if (VERBOSE) {
+            cl_output('Sending blocked by plugin '.$plugin->name);
+          }
         }
 
         next($GLOBALS['plugins']);
