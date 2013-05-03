@@ -100,11 +100,11 @@ if (!empty($_POST['pluginurl']) && class_exists('ZipArchive')) {
           
           $bu_dir = time();
           if (file_exists($pluginDestination.'/'.$dirEntry)) {
-            print s(' updating existing plugin');
+            print ' '.s('updating existing plugin');
             @rename($pluginDestination.'/'.$dirEntry,
               $pluginDestination.'/'.$dirEntry.'.'.$bu_dir);
           } else {
-            print s(' new plugin');
+            print ' '.s('new plugin');
           }
    #       var_dump($pluginInfo);
             
@@ -170,7 +170,8 @@ if (empty($GLOBALS['allplugins'])) return;
 
 foreach ($GLOBALS['allplugins'] as $pluginname => $plugin) {
   $pluginDetails = array();
-  if (is_file($pluginDestination.'/'.$pluginname.'.info.txt')) {
+  $refl = new ReflectionObject($plugin);
+  if (is_file(dirname($refl->getFileName()).'/'.$pluginname.'.info.txt')) {
     $pluginDetails = unserialize(file_get_contents($pluginDestination.'/'.$pluginname.'.info.txt'));
   }
   
