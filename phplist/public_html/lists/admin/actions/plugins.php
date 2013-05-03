@@ -17,7 +17,7 @@ if (isset($_GET['disable'])) {
     $plugin_initialised = getConfig(md5('plugin-'.$_GET['enable'].'-initialised'));
     if (empty($plugin_initialised)) {
       if (method_exists($GLOBALS['allplugins'][$_GET['enable']],'initialise')) {
-        $GLOBALS['plugins'][$_GET['enable']]->initialise();
+        $GLOBALS['allplugins'][$_GET['enable']]->initialise();
       }
       saveConfig(md5('plugin-'.$_GET['enable'].'-initialised'),time(),0);
     }
