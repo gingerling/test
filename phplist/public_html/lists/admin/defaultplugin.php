@@ -105,8 +105,38 @@ class phplistPlugin {
         $GLOBALS['default_config'][$item] = $itemDetails;
       }
     }
-    
+    $this->version = $this->getVersion();
   }
+  
+  function getVersion() {
+    $refl = new ReflectionObject($this);
+    $version = array();
+    
+    ## interesting trick from Dokuwiki inc/infoutils.php
+    if(is_dir(dirname($refl->getFileName()).'/../.git')) {
+        $version['type'] = 'Git';
+        $version['date'] = 'unknown';
+
+        $inventory = dirname($refl->getFileName()).'/../.git/logs/HEAD';
+        if(is_file($inventory)){
+            $sz   = filesize($inventory);
+            $seek = max(0,$sz-2000); // read from back of the file
+            $fh   = fopen($inventory,'rb');
+            fseek($fh,$seek);
+            $chunk = fread($fh,2000);
+            fclose($fh);
+            $chunk = trim($chunk);
+            $chunk = @array_pop(explode("\n",$chunk));   //last log line
+            $chunk = @array_shift(explode("\t",$chunk)); //strip commit msg
+            $chunk = explode(" ",$chunk);
+            array_pop($chunk); //strip timezone
+            $date = date('Y-m-d',array_pop($chunk));
+            if($date) $version['date'] = $date;
+        }
+        return $version['type']. ' - ' .$version['date'];
+    } 
+    return $this->version;
+  } 
   
   function activate() {
     # Startup code, all other objects are constructed 
