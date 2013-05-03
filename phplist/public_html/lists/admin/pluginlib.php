@@ -75,7 +75,22 @@ foreach ($pluginFiles as $file) {
           if (!$GLOBALS['editorplugin'] && $pluginInstance->editorProvider && method_exists($pluginInstance,'editor')) {
             $GLOBALS['editorplugin'] = $className;
           }
-          $GLOBALS["plugins"][$className]->enabled = true;
+       #   print md5('plugin-'.$className.'-initialised');exit;
+          $plugin_initialised = getConfig(md5('plugin-'.$className.'-initialised'));
+          if (!empty($plugin_initialised)) {
+            $GLOBALS["plugins"][$className]->enabled = true;
+          } else {
+            $GLOBALS["plugins"][$className]->enabled = false;
+            $disabled_plugins[$className] = 1;
+            saveConfig('plugins_disabled',serialize($disabled_plugins),0);
+          }
+          
+          if (!empty($GLOBALS["plugins"][$className]->DBstruct)) {
+            foreach ($GLOBALS["plugins"][$className]->DBstruct as $tablename => $tablecolumns) {
+              $GLOBALS['tables'][$className.'_'.$tablename] =  $GLOBALS['table_prefix'] . $className.'_'.$tablename;
+            }
+          }
+          $GLOBALS["plugins"][$className]->activate();
         } else {
           $GLOBALS["allplugins"][$className]->enabled = false;
           dbg( $className .' disabled');

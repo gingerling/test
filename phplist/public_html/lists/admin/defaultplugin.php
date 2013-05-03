@@ -45,6 +45,8 @@ class phplistPlugin {
    */
   public $editorProvider = false;
   
+  public $tables = array(); // will hold tablename -> real table mapping
+  
   /* array of pages in this plugin to add to the main menu
    * 
    * example format: 
@@ -106,6 +108,11 @@ class phplistPlugin {
       }
     }
     $this->version = $this->getVersion();
+    ## map table names
+    $refl = new ReflectionObject($this);
+    foreach ($this->DBstruct as $table => $structure) {
+      $this->tables[$table] = $GLOBALS['table_prefix'].$refl->getName().'_'.$table;
+    }
   }
   
   function getVersion() {
