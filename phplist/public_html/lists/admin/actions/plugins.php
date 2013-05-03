@@ -14,7 +14,7 @@ if (isset($_GET['disable'])) {
     unset($disabled_plugins[$_GET['enable']]);
   }
   if (isset($GLOBALS['allplugins'][$_GET['enable']])) {
-     GLOBALS['allplugins'][$_GET['enable']]->initialise();
+     $GLOBALS['allplugins'][$_GET['enable']]->initialise();
   }
   saveConfig('plugins_disabled',serialize($disabled_plugins),0);
   $status = $GLOBALS['img_tick'];
