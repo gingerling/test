@@ -87,6 +87,9 @@ class phplistPlugin {
    * use the "activate" function instead
    * that way you can use processDBerror to handle DB errors
    */
+  function __construct() {
+    $this->phplistplugin();
+  }
 
   function phplistplugin() {
     # constructor
@@ -109,22 +112,22 @@ class phplistPlugin {
     }
     $this->version = $this->getVersion();
     ## map table names
-    $refl = new ReflectionObject($this);
+    $me = new ReflectionObject($this);
     foreach ($this->DBstruct as $table => $structure) {
-      $this->tables[$table] = $GLOBALS['table_prefix'].$refl->getName().'_'.$table;
+      $this->tables[$table] = $GLOBALS['table_prefix'].$me->getName().'_'.$table;
     }
   }
   
   function getVersion() {
-    $refl = new ReflectionObject($this);
     $version = array();
+    $me = new ReflectionObject($this);
     
     ## interesting trick from Dokuwiki inc/infoutils.php
-    if(is_dir(dirname($refl->getFileName()).'/../.git')) {
+    if(is_dir(dirname($me->getFileName()).'/../.git')) {
         $version['type'] = 'Git';
         $version['date'] = 'unknown';
 
-        $inventory = dirname($refl->getFileName()).'/../.git/logs/HEAD';
+        $inventory = dirname($me->getFileName()).'/../.git/logs/HEAD';
         if(is_file($inventory)){
             $sz   = filesize($inventory);
             $seek = max(0,$sz-2000); // read from back of the file
@@ -143,7 +146,22 @@ class phplistPlugin {
         return $version['type']. ' - ' .$version['date'];
     } 
     return $this->version;
-  } 
+  }
+  
+  function initialise() {
+    global $table_prefix;
+    $me = new ReflectionObject($this);
+    $plugin_initialised = getConfig(md5('plugin-'.$me->getName().'-initialised'));
+    if (empty($plugin_initialised)) {
+      foreach ($this->DBstruct as $table => $structure) {
+        if (!Sql_Table_exists( $table_prefix.$me->getName().'_'.$table) ) {
+       #  print s('Creating table').' '.$table . '<br/>';
+          Sql_Create_Table($table_prefix.$me->getName().'_'.$table, $structure);
+        }
+      }
+      saveConfig(md5('plugin-'.$me->getName().'-initialised'),time(),0);
+    }
+  }
   
   function activate() {
     # Startup code, all other objects are constructed 

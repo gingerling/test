@@ -14,13 +14,7 @@ if (isset($_GET['disable'])) {
     unset($disabled_plugins[$_GET['enable']]);
   }
   if (isset($GLOBALS['allplugins'][$_GET['enable']])) {
-    $plugin_initialised = getConfig(md5('plugin-'.$_GET['enable'].'-initialised'));
-    if (empty($plugin_initialised)) {
-      if (method_exists($GLOBALS['allplugins'][$_GET['enable']],'initialise')) {
-        $GLOBALS['allplugins'][$_GET['enable']]->initialise();
-      }
-      saveConfig(md5('plugin-'.$_GET['enable'].'-initialised'),time(),0);
-    }
+     GLOBALS['allplugins'][$_GET['enable']]->initialise();
   }
   saveConfig('plugins_disabled',serialize($disabled_plugins),0);
   $status = $GLOBALS['img_tick'];
