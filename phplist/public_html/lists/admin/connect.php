@@ -97,7 +97,7 @@ $commandlinePluginPages = array();
 $commandlinePlugins = array();
 if (sizeof($GLOBALS["plugins"])) {
   foreach ($GLOBALS["plugins"] as $pluginName => $plugin) {
-    $cl_pages = $plugin->commandlinePages;
+    $cl_pages = $plugin->commandlinePluginPages;
     if (sizeof($cl_pages)) {
       $commandlinePlugins[] = $pluginName;
       $commandlinePluginPages[$pluginName] = $cl_pages;
