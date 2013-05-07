@@ -114,9 +114,10 @@ if (INTERFACELIB == 2 && is_file(dirname(__FILE__).'/interfacelib.php')) {
 if (!empty($_SESSION['hasconf']) || Sql_Table_exists($tables["config"],1)) {
   $_SESSION['hasconf'] = true;
   ### Activate all plugins
-  foreach ($GLOBALS['plugins'] as $plugin) {
-    $plugin->activate();
-  }
+  /* already done in pluginlib */
+  //foreach ($GLOBALS['plugins'] as $plugin) {
+    //$plugin->activate();
+  //}
 }
 if (!empty($_GET['page']) && $_GET['page'] == 'logout') {
   foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
