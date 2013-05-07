@@ -163,6 +163,10 @@ class phplistPlugin {
     }
   }
   
+  function upgrade($previous) {
+    return true;
+  }
+  
   function activate() {
     # Startup code, all other objects are constructed 
     # returns success or failure, false means we cannot start
