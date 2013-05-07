@@ -56,7 +56,7 @@ if (is_array($disabled_plugins)) {
     }
   }
 }
-
+#var_dump($GLOBALS['plugins_disabled']);
 foreach ($pluginFiles as $file) {
   list($className,$ext) = explode(".",basename($file));
   if (preg_match("/[\w]+/",$className)) {# && !in_array($className,$GLOBALS['plugins_disabled'])) {
@@ -64,7 +64,7 @@ foreach ($pluginFiles as $file) {
       include_once $file;
       if (class_exists($className)) {
         $pluginInstance = new $className();
-     #   print "Instance $className<br/>";
+      #  print "Instance $className<br/>";
         ## bit of a duplication of plugins, but $GLOBALS['plugins'] should only contain active ones
         ## using "allplugins" allow listing them, and switch on/off in the plugins page
         $GLOBALS["allplugins"][$className] = $pluginInstance;
@@ -75,7 +75,7 @@ foreach ($pluginFiles as $file) {
           if (!$GLOBALS['editorplugin'] && $pluginInstance->editorProvider && method_exists($pluginInstance,'editor')) {
             $GLOBALS['editorplugin'] = $className;
           }
-       #   print md5('plugin-'.$className.'-initialised');exit;
+     #     print $className.' '.md5('plugin-'.$className.'-initialised').'<br/>';
           $plugin_initialised = getConfig(md5('plugin-'.$className.'-initialised'));
           if (!empty($plugin_initialised)) {
             $GLOBALS["plugins"][$className]->enabled = true;
@@ -90,7 +90,9 @@ foreach ($pluginFiles as $file) {
               $GLOBALS['tables'][$className.'_'.$tablename] =  $GLOBALS['table_prefix'] . $className.'_'.$tablename;
             }
           }
-          $GLOBALS["plugins"][$className]->activate();
+          if ($GLOBALS["plugins"][$className]->enabled) {
+            $GLOBALS["plugins"][$className]->activate();
+          }
         } else {
           $GLOBALS["allplugins"][$className]->enabled = false;
           dbg( $className .' disabled');
@@ -109,6 +111,19 @@ foreach ($GLOBALS['plugins'] as $className => $pluginInstance) {
     foreach ($plugin_sendformats as $val => $desc) {
       $val = preg_replace("/\W/",'',strtolower(trim($val)));
       $GLOBALS['pluginsendformats'][$val] = $className;
+    }
+  }
+}
+
+function upgradePlugins($toUpgrade) {
+  foreach ($toUpgrade as $pluginname) {
+#    print '<h2>Upgrading '.$pluginname. '</h2><br/> ';
+#    print md5('plugin-'.$pluginname.'-versiondate');
+    $currentDate = getConfig(md5('plugin-'.$pluginname.'-versiondate'));
+#    print 'CUrrent '.$currentDate;
+    if ($GLOBALS['allplugins'][$pluginname]->upgrade($currentDate)) {
+#      print "Saving ".'plugin-'.$pluginname.'-versiondate';
+      SaveConfig(md5('plugin-'.$pluginname.'-versiondate'),date('Y-m-d'),0);
     }
   }
 }
