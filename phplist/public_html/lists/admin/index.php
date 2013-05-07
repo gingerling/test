@@ -537,7 +537,7 @@ if (checkAccess($page,"") || $page == 'about') {
     }
   } else {
     if ($GLOBALS["commandline"]) {
-      clineError("Sorry, that module does not exist");
+      clineError(s('Sorry, that module does not exist'));
       exit;
     }
     if (is_file('ui/'.$GLOBALS['ui'].'/pages/'.$include)) {
