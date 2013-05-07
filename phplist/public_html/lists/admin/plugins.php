@@ -202,7 +202,7 @@ foreach ($GLOBALS['allplugins'] as $pluginname => $plugin) {
     $ls->addColumn($pluginname,s('initialise'),$plugin->enabled ? 
       PageLinkAjax('plugins&initialise='.$pluginname,s('Initialise')) : '');
   }
-  if (!empty($pluginDetails['installUrl']) && is_writable($pluginDestinatin.'/'.$pluginname)) {
+  if (!empty($pluginDetails['installUrl']) && is_writable($pluginDestination.'/'.$pluginname)) {
     ## we can only delete the ones that were installed from the interface
     $ls->addColumn($pluginname,s('delete'),'<span class="delete"><a href="javascript:deleteRec(\'./?page=plugins&delete='.$pluginname. '\');" class="button" title="'.s('delete this plugin').'">'.s('delete').'</a></span>');
   }
