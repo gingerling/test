@@ -28,7 +28,7 @@ class phplistPlugin {
   public $DBstruct= array ();
   # These files can be called from the commandline
   # This should hold an array per file: filename (without .php) => path relative to admin/
-  public $commandlinePages = array();
+  public $commandlinePluginPages = array();
   
   public $configArray = array();
 
