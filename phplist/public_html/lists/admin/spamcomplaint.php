@@ -42,6 +42,13 @@ Sql_Query(sprintf('update %s set blacklisted = 1 where email = "%s"',$GLOBALS['t
 if (!empty($messageid)) {
   Sql_Query(sprintf('insert into %s (name,id,data) values("spamcomplaint",%d,1) on duplicate key update data = data + 1',$GLOBALS['tables']['messagedata'],$messageid));
 }
+
+
 addEmailToBlackList($emailDB,'blacklisted due to spam complaints',$date);
 cl_output('OK '.$emailDB);
+
+foreach ($GLOBALS['plugins'] as $plN => $plugin) {
+  $plugin->processSpamComplaint($emailDB,$date);
+}
+
 exit;
