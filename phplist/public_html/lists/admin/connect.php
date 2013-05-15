@@ -39,6 +39,7 @@ $GLOBALS["img_cross"] = '<img src="images/cross.gif" alt="No" />';
 $GLOBALS["img_tick"] = '<span class="yes">Yes</span>';
 $GLOBALS["img_cross"] = '<span class="no">No</span>';
 $GLOBALS["img_view"] = '<span class="view">View</span>';
+$GLOBALS['img_busy'] = '<img src="images/busy.gif" with="34" height="34" border="0" alt="Please wait" id="busyimage" />';
 
 # if keys need expanding with 0-s
 $checkboxgroup_storesize = 1; # this will allow 10000 options for checkboxes
@@ -1095,7 +1096,7 @@ function ListofLists($current,$fieldname,$subselect) {
   
   $categoryhtml['selected'] = '';
   $categoryhtml['all'] = '
-  <li><input type="hidden" name="'.$fieldname.'[unselect]" value="1" /><input type="checkbox" name="'.$fieldname.'[all]"';
+  <li><input type="hidden" name="'.$fieldname.'[unselect]" value="-1" /><input type="checkbox" name="'.$fieldname.'[all]"';
   if (!empty($current["all"])) {
     $categoryhtml['all'] .= "checked";
   }
@@ -1186,28 +1187,35 @@ function listSelectHTML ($current,$fieldname,$subselect,$alltab = '') {
 }
 
 function getSelectedLists($fieldname) {
+  $lists = array();
   if (!empty($_POST['addnewlist'])) {
     include "editlist.php";
-    $_POST[$fieldname][$_SESSION['newlistid']] = $_SESSION['newlistid'];
+    $lists[$_SESSION['newlistid']] = $_SESSION['newlistid'];
   }
   if (!isset($_POST[$fieldname])) return array();
   if (!empty($_POST[$fieldname]['all'])) {
     ## load all lists
-    $_POST[$fieldname] = array();
     $req = Sql_Query(sprintf('select id from %s',$GLOBALS['tables']['list']));
     while ($row = Sql_Fetch_Row($req)) {
-      $_POST[$fieldname][$row[0]] = $row[0];
+      $lists[$row[0]] = $row[0];
     }
   } elseif (!empty($_POST[$fieldname]['allactive'])) {
     ## load all active lists
-    $_POST[$fieldname] = array();
     $req = Sql_Query(sprintf('select id from %s where active',$GLOBALS['tables']['list']));
     while ($row = Sql_Fetch_Row($req)) {
-      $_POST[$fieldname][$row[0]] = $row[0];
+      $lists[$row[0]] = $row[0];
+    }
+  } else {
+    ## verify the lists are actually allowed
+    $req = Sql_Query(sprintf('select id from %s',$GLOBALS['tables']['list']));
+    while ($row = Sql_Fetch_Row($req)) {
+      if (in_array($row[0],$_POST[$fieldname])) {
+        $lists[$row[0]] = $row[0];
+      }
     }
   }
 
-  return $_POST[$fieldname];
+  return $lists;
 }
 
 function Redirect($page) {
