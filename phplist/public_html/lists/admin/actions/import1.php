@@ -224,8 +224,11 @@
       parentJQuery("#busyimage").hide();
       parentJQuery("#progresscount").html(\''.$htmlupdate.'\');
       </script>';
+      
+  @unlink($GLOBALS['tmpdir'].'/'.$file);
+  @unlink($GLOBALS['tmpdir'].'/'.$file.'.data');
   
-#  print ActionResult($report);
+  print ActionResult($report);
   foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
     $plugin->importReport($report);
   }
