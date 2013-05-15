@@ -1091,11 +1091,11 @@ function PageURL2($name,$desc = "",$url="",$no_plugin = false) {
 function ListofLists($current,$fieldname,$subselect) {
   $categoryhtml = array();
   ## add a hidden field, so that all checkboxes can be unchecked while keeping the field in POST to process it
-  $categoryhtml['unselect'] = '<input type="hidden" name="'.$fieldname.'[unselect]" value="1" />';
+ # $categoryhtml['unselect'] = '<input type="hidden" name="'.$fieldname.'[unselect]" value="1" />';
   
   $categoryhtml['selected'] = '';
   $categoryhtml['all'] = '
-  <li><input type="checkbox" name="'.$fieldname.'[all]"';
+  <li><input type="hidden" name="'.$fieldname.'[unselect]" value="1" /><input type="checkbox" name="'.$fieldname.'[all]"';
   if (!empty($current["all"])) {
     $categoryhtml['all'] .= "checked";
   }
@@ -1133,7 +1133,7 @@ function ListofLists($current,$fieldname,$subselect) {
     if (isset($current[$list["id"]]) && $current[$list["id"]]) {
       $categoryhtml[$list['category']] .= "checked";
     }
-    $categoryhtml[$list['category']] .= " />".stripslashes($list["name"]);
+    $categoryhtml[$list['category']] .= " />".htmlspecialchars(stripslashes($list["name"]));
     if ($list["active"]) {
       $categoryhtml[$list['category']] .= ' (<span class="activelist">'.$GLOBALS['I18N']->get('Public list').'</span>)';
     } else {
@@ -1154,7 +1154,6 @@ function ListofLists($current,$fieldname,$subselect) {
 function listSelectHTML ($current,$fieldname,$subselect,$alltab = '') {
   $categoryhtml = ListofLists($current,$fieldname,$subselect);
 
-#  var_dump($categoryhtml);
   $tabno = 1;
   $listindex = $listhtml = '';
   $some = sizeof($categoryhtml);
@@ -1165,10 +1164,10 @@ function listSelectHTML ($current,$fieldname,$subselect,$alltab = '') {
  #   array_unshift($categoryhtml,$alltab);
   }
   
-  if ($some) {
+  if ($some > 0) {
     foreach ($categoryhtml as $category => $content) {
       if ($category == 'all') $category = '@';
-      if ($some == 1) { ## don't show tabs, when there's just one
+      if ($some > 1) { ## don't show tabs, when there's just one
         $listindex .= sprintf('<li><a href="#%s%d">%s</a></li>',$fieldname,$tabno,$category);
       }
       $listhtml .= sprintf('<div id="%s%d"><ul>%s</ul></div>',$fieldname,$tabno,$content);
@@ -1176,10 +1175,9 @@ function listSelectHTML ($current,$fieldname,$subselect,$alltab = '') {
     }
   }
 
-#var_dump($listindex);
   $html = '<div class="tabbed"><ul>'.$listindex.'</ul>';
   $html .= $listhtml;
-  $html .= '</div>'; ## close tabbed
+  $html .= '</div><!-- end of tabbed -->'; ## close tabbed
 
   if (!$some) {
     $html = $GLOBALS['I18N']->get('There are no lists available');
