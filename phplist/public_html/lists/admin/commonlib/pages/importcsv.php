@@ -1,4 +1,5 @@
 <?php
+if (!defined('PHPLISTINIT')) exit;
 
 print '<script language="Javascript" src="js/progressbar.js" type="text/javascript"></script>';
 
@@ -91,7 +92,7 @@ require $GLOBALS["coderoot"] . "structure.php";
 
 ## identify system values from the database structure
 $system_attributes = array ();
-reset($DBstruct["user"]);
+reset($DBstruct['user']);
 while (list ($key, $val) = each($DBstruct["user"])) {
   if (strpos( $val[1],"sys") === false && is_array($val)) {
     $system_attributes[strtolower($key)] = $val[1];  ## allow columns like "htmlemail" and "foreignkey"
@@ -106,7 +107,7 @@ while (list ($key, $val) = each($DBstruct["user"])) {
 }
 
 ## handle terminology change (from user to subscriber)
-$system_attributes['send this user html emails'] = $system_attributes['send this subscriber html emails'];
+$system_attributes['send this user html emails'] = $system_attributes_nicename['send this subscriber html emails'];
 $system_attributes_nicename['send this user html emails'] = $system_attributes_nicename['send this subscriber html emails'];
 
 ## allow mapping a column to a comma separated list of group names
@@ -966,7 +967,7 @@ if (Sql_Table_Exists($tables["list"])) {
     $row = Sql_fetch_array($result);
     printf('<input type="hidden" name="listname[%d]" value="%s"><input type="hidden" name="lists[%d]" value="%d">%s <b>%s</b>', $c, stripslashes($row["name"]), $c, $row["id"], $GLOBALS['I18N']->get('Adding users to list'), stripslashes($row["name"]));
   } else {
-    print '<p class="information">' . $GLOBALS['I18N']->get('Select the lists to add the emails to') . '</p>';
+    print '<h3>' . $GLOBALS['I18N']->get('Select the lists to add the emails to') . '</h3>';
 /*
     while ($row = Sql_fetch_array($result)) {
       printf('<li><input type="hidden" name="listname[%d]" value="%s"><input type="checkbox" name="lists[%d]" value="%d">%s', $c, stripslashes($row["name"]), $c, $row["id"], stripslashes($row["name"]));
@@ -978,7 +979,10 @@ if (Sql_Table_Exists($tables["list"])) {
     if (!$some) {
       echo $GLOBALS['I18N']->get('No lists available') . ' ' . PageLink2("editlist", $GLOBALS['I18N']->get('Add a list'));
     } else {
-      print listSelectHTML('','lists',$subselect,s('Select the lists to add the emails to'));
+
+      $selected_lists = getSelectedLists('lists');
+      
+      print listSelectHTML($selected_lists,'lists',$subselect,s('Select the lists to add the emails to'));
     }
   }
 /*
