@@ -208,10 +208,10 @@ if (isset($_POST["subscribe"]) && is_email($_POST["email"]) && $listsok && $allt
     
     # https://mantis.phplist.com/view.php?id=15557, disallow re-subscribing existing subscribers
     if (!SILENT_RESUBSCRIBE) {
-      $msg = '<p class="error">'.$GLOBALS["strUserExistsResubscribe"].'</p>';
-      $msg .= '<p class="information">';
+      $msg = '<div class="error missing"><h4>'.$GLOBALS["strUserExistsResubscribe"].'</h4>';
+      $msg .= '<p>';
       $msg .= sprintf($GLOBALS["strUserExistsResubscribeExplanation"],getConfig("preferencesurl"));
-      $msg .= '</p>';
+      $msg .= '</p></div>';
       return;
     }
 
@@ -714,7 +714,7 @@ function ListAvailableLists($userid = 0,$lists_to_show = "") {
       }
       $html .= " /><b>".stripslashes($row["name"]).'</b><div class="listdescription">';
       $desc = nl2br(stripslashes($row["description"]));
-      $html .= '<input type="hidden" name="listname['.$row["id"] . ']" value="'.htmlspecialchars(stripslashes($row["name"])).'"/>';
+ #     $html .= '<input type="hidden" name="listname['.$row["id"] . ']" value="'.htmlspecialchars(stripslashes($row["name"])).'"/>';
       $html .= $desc.'</div></li>';
       $some++;
       if ($some == 1) {
