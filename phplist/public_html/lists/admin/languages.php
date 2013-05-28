@@ -187,9 +187,15 @@ class phplist_I18N {
     if (function_exists('gettext')) {
       $this->hasGettext = true;
     }
-    if (Sql_Check_For_Table('i18n')) {
+    if (isset($_SESSION['hasI18Ntable'])) {
+      $this->hasDB = $_SESSION['hasI18Ntable'];
+    } elseif (Sql_Check_For_Table('i18n')) {
+      $_SESSION['hasI18Ntable'] = true;
       $this->hasDB = true;
+    } else {
+      $_SESSION['hasI18Ntable'] = false;
     }
+
     if (isset($_GET['origpage']) && !empty($_GET['ajaxed'])) { ## used in ajaxed requests
       $page = basename($_GET["origpage"]);
     } elseif (isset($_GET["page"])) {
