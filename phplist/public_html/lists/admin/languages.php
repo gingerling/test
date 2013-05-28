@@ -305,7 +305,10 @@ class phplist_I18N {
       }
     }
     $page_title = '';
-    if (is_file(dirname(__FILE__).'/locale/'.$this->language.'/pagetitles.php')) {
+    $dbTitle = $this->databaseTranslation('pagetitle:'.$page);
+    if ($dbTitle) {
+      $page_title = $dbTitle;
+    } elseif (is_file(dirname(__FILE__).'/locale/'.$this->language.'/pagetitles.php')) {
       include dirname(__FILE__).'/locale/'.$this->language.'/pagetitles.php';
     } elseif (is_file(dirname(__FILE__).'/lan/'.$this->language.'/pagetitles.php')) {
       include dirname(__FILE__).'/lan/'.$this->language.'/pagetitles.php';
@@ -546,6 +549,8 @@ function parsePo($translationUpdate) {
     } elseif (preg_match('/^msgstr "(.*)"/',$line,$regs)) {
     #  $status .= '<br/>'.$original.' '.$regs[1];
       $translation = $regs[1];
+    } elseif (preg_match('/^#/',$line) || preg_match('/^\s+$/',$line)) {
+      $original = $translation = '';
     } elseif (preg_match('/"(.*)"/',$line,$regs)) {# && !empty($translation)) {
       ## wrapped to multiple lines
       $translation .= $regs[1];
