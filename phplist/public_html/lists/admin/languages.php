@@ -428,6 +428,21 @@ $lan = array(
     }
   }
   
+  function initFSTranslations() {
+    $translations = parsePO(file_get_contents(dirname(__FILE__).'/locale/'.$this->language.'/phplist.po'));
+    $time = filemtime(dirname(__FILE__).'/locale/'.$this->language.'/phplist.po');
+    $this->updateDBtranslations($translations,$time);
+  }
+  
+  function updateDBtranslations($translations,$time) {
+    if (sizeof($translations)) {
+      foreach ($translations as $orig => $trans) {
+        Sql_Replace($GLOBALS['tables']['i18n'],array('lan' => $this->language,'original' => $orig,'translation' => $trans),'');
+      }
+    }
+    saveConfig('lastlanguageupdate-'.$this->language,$time,0);
+  }
+  
   function getTranslation($text,$page,$basedir) {
 
     ## try DB, as it will be the latest
@@ -435,6 +450,15 @@ $lan = array(
       $db_trans = $this->databaseTranslation($text);
       if (!empty($db_trans)) {
         return $this->formatText($db_trans);
+      } elseif (is_file(dirname(__FILE__).'/locale/'.$this->language.'/phplist.po')) {
+        if (function_exists('getConfig')) {
+          $lastUpdate = getConfig('lastlanguageupdate-'.$this->language);
+          $thisUpdate = filemtime(dirname(__FILE__).'/locale/'.$this->language.'/phplist.po');
+          if ($thisUpdate > $lastUpdate && !empty($_SESSION['adminloggedin'])) {
+            $GLOBALS['pagefooter']['transupdate'] = '<script type="text/javascript">initialiseTranslation("Initialising phpList in your language, please wait.");</script>';
+          }
+        }
+        #$this->updateDBtranslations($translations,$time);
       }
     }
 
@@ -547,21 +571,27 @@ function s($text) {
 function parsePo($translationUpdate) {
   $translation_lines = explode("\n",$translationUpdate);
   $original = '';
+  $flagOrig = $flagTrans = false;
   $translation = '';
   $translations = array();
   foreach ($translation_lines as $line) {
     if (preg_match('/^msgid "(.*)"/',$line,$regs)) {
       $original = $regs[1];
+      $flagOrig = true;
     } elseif (preg_match('/^msgstr "(.*)"/',$line,$regs)) {
-    #  $status .= '<br/>'.$original.' '.$regs[1];
+      $flagOrig = false;
+      $flagTrans = true;
       $translation = $regs[1];
-    } elseif (preg_match('/^#/',$line) || preg_match('/^\s+$/',$line)) {
+    } elseif (preg_match('/^"(.*)"/',$line,$regs) && !(preg_match('/^#/',$line) || preg_match('/^\s+$/',$line) || $line == "")) {
+      ## wrapped to multiple lines, can be both original and translation
+      if ($flagTrans) {
+        $translation .= $regs[1];
+      } else {
+        $original .= $regs[1];
+      }
+    } elseif (preg_match('/^#/',$line) || preg_match('/^\s+$/',$line) || $line == "") {
       $original = $translation = '';
-    } elseif (preg_match('/"(.*)"/',$line,$regs)) {# && !empty($translation)) {
-      ## wrapped to multiple lines
-      $translation .= $regs[1];
-    } elseif (preg_match('/^#/',$line) || preg_match('/^\s+$/',$line)) {
-      $original = $translation = '';
+      $flagOrig = $flagTrans = false;
     }
     if (!empty($original) && !empty($translation)) {
       $translations[$original] = $translation;
