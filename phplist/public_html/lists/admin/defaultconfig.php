@@ -712,9 +712,13 @@ if (!function_exists("getconfig")) {
         }
 			}
 		}
-		$value = preg_replace('/\[WEBSITE\]/i', $website, $value);
-		$value = preg_replace('/\[DOMAIN\]/i', $domain, $value);
-		$value = preg_replace('/<\?=VERSION\?>/i', VERSION, $value);
+		$value = str_replace('[WEBSITE]', $website, $value);
+		$value = str_replace('[DOMAIN]', $domain, $value);
+        if (isset($GLOBALS['organisation_name'])) {
+           $value = str_replace('[ORGANISATION_NAME]', $GLOBALS['organisation_name'], $value);
+        } 
+		$value = str_replace('<?=VERSION?>', VERSION, $value);
+    
 		if (isset ($default_config[$item]['type'])) {
 			$type = $default_config[$item]['type'];
 		} else {
