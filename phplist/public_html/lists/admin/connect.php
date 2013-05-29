@@ -713,7 +713,7 @@ $main_menu = array(
   );
 
 function contextMenu() {
-  if (isset ($GLOBALS["firsttime"])) {
+  if (isset ($GLOBALS["firsttime"]) || (isset($_GET['page']) && $_GET['page'] == 'initialise')) {
     return;
   }
   if (!CLICKTRACK) {
