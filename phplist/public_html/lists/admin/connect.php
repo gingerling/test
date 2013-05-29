@@ -28,6 +28,22 @@ if (!isset ($_GET["pi"]))
 
 $GLOBALS["mail_error"] = '';
 $GLOBALS["mail_error_count"]=0;
+$GLOBALS['organisation_name'] = getConfig('organisation_name');
+$domain = getConfig("domain");
+$website = getConfig("website");
+if (!$domain) {
+  $domain = $_SERVER['SERVER_NAME'];
+}
+if (!$website) {
+  $website = $_SERVER['SERVER_NAME'];
+}
+
+$xormask = getConfig('xormask');
+if (!$xormask) {
+  $xormask = md5(uniqid(rand(), true));
+  SaveConfig("xormask",$xormask,0,1);
+}
+define('XORmask',$xormask);
 
 # make sure magic quotes are on. Try to switch it on, this may fail
 ini_set("magic_quotes_gpc","on");
@@ -94,21 +110,6 @@ if (!isset($usertable_prefix)) {
   $usertable_prefix = $table_prefix;
 }
 
-$domain = getConfig("domain");
-$website = getConfig("website");
-if (!$domain) {
-  $domain = $_SERVER['SERVER_NAME'];
-}
-if (!$website) {
-  $website = $_SERVER['SERVER_NAME'];
-}
-
-$xormask = getConfig('xormask');
-if (!$xormask) {
-  $xormask = md5(uniqid(rand(), true));
-  SaveConfig("xormask",$xormask,0,1);
-}
-define('XORmask',$xormask);
 
 /* set session name, without revealing version
   * but with version included, so that upgrading works more smoothly
