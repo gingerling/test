@@ -137,7 +137,13 @@ if ($success) {
   Sql_Replace($tables['config'], array('item' => "updatelastcheck", 'value' => 'current_timestamp', 'editable' => '0'), 'item', false);
   SaveConfig('admin_address',$_REQUEST['adminemail'],1);
   SaveConfig('message_from_name',strip_tags($_REQUEST['adminname']),1);
-  SaveConfig('organisation_name',strip_tags($_REQUEST['orgname']),1);
+  if (!empty($_REQUEST['orgname'])) {
+    SaveConfig('organisation_name',strip_tags($_REQUEST['orgname']),1);
+  } elseif (!empty($_REQUEST['adminname'])) {
+    SaveConfig('organisation_name',strip_tags($_REQUEST['adminname']),1);
+  } else {
+    SaveConfig('organisation_name',strip_tags($_REQUEST['adminemail']),1);
+  }
  
   # add a testlist
   $info = $GLOBALS['I18N']->get("List for testing.");
