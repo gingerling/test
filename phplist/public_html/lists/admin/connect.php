@@ -983,7 +983,9 @@ function PageLink2($name,$desc="",$url="",$no_plugin = false,$title = '') {
       } else {
         $pi = "";
       }
-      return sprintf('<a href="./?page=%s%s%s" title="%s">%s</a>',$name,$url,$pi,strip_tags($title),ucfirst(strtolower($desc)));
+      $linktext = ucfirst(strtolower($desc));
+      $linktext = str_ireplace('phplist','phpList',$linktext);
+      return sprintf('<a href="./?page=%s%s%s" title="%s">%s</a>',$name,$url,$pi,strip_tags($title),$linktext);
     }
   } else
     return "";
