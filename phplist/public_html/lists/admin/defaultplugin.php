@@ -1,13 +1,6 @@
 <?php
 require_once dirname(__FILE__) . '/accesscheck.php';
 
-# Typical call
-//foreach ($GLOBALS['plugins'] as $plugin) {
-//  if ($plugin->enabled) {
-//    $html .= $plugin->addSnippet();
-//  }
-//}
-
 class phplistPlugin {
   ############################################################
   # Registration & Config
@@ -288,6 +281,10 @@ class phplistPlugin {
   function displaySubscriptionChoice($pageData, $userID= 0) {
     # return snippet for the Subscribe page
     return '';
+  }
+  
+  function validateSubscriptionPage($pageData) {
+    return;
   }
 
   function parseThankyou($pageid= 0, $userid= 0, $text= "") {
