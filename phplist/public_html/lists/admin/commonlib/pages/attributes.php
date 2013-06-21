@@ -332,7 +332,7 @@ $c= 0;
 while ($row = Sql_Fetch_array($res)) {
 	$c++;
   print '<h3><a name="'. $row["id"].'">'.
-  $GLOBALS['I18N']->get('Attribute').': '. $row["id"];
+  $GLOBALS['I18N']->get('Attribute').': '. $row["id"].' '.htmlspecialchars(stripslashes(strip_tags($row["name"])));
   if ($formtable_exists) {
     sql_query("select * from formfield where attribute = ".$row["id"]);
     print "  (".$GLOBALS['I18N']->get('used in').' '.Sql_affected_rows().' '.$GLOBALS['I18N']->get('forms').')';
