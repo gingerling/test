@@ -179,6 +179,13 @@ function processImapBounce ($link,$num,$header) {
   if (VERBOSE) {
     output("UID".$userid." MSGID".$msgid);
   }
+  
+  ## @TODO add call to plugins to determine what to do.
+  # for now, quick hack to zap MsExchange Delayed messages
+  if (preg_match('/Action: delayed\s+Status: 4\.4\.7/im',$body)) {
+    ## just say we did something, when actually we didn't
+    return true;
+  }
 
   Sql_Query(sprintf('insert into %s (date,header,data)
     values("%s","%s","%s")',
@@ -215,27 +222,46 @@ function processBounceData($bounceid,$msgid,$userid) {
       $tables["user"],
       $userid));
   } elseif (!empty($msgid) && !empty($userid)) {
-    Sql_Query(sprintf('update %s
-      set status = "bounced list message %d",
-      comment = "%s bouncecount increased"
-      where id = %d',
-      $tables["bounce"],
-      $msgid,
-      $userid,$bounceid));
-    Sql_Query(sprintf('update %s
-      set bouncecount = bouncecount + 1
-      where id = %d',
-      $tables["message"],
-      $msgid));
-    Sql_Query(sprintf('update %s
-      set bouncecount = bouncecount + 1
-      where id = %d',
-      $tables["user"],
-      $userid));
-    Sql_Query(sprintf('insert into %s
-      set user = %d, message = %d, bounce = %d',
-      $tables["user_message_bounce"],
-      $userid,$msgid,$bounceid));
+    ## check if we already have this um as a bounce
+    ## so that we don't double count "delayed" like bounces
+    $exists = Sql_Fetch_Row_Query(sprintf('select count(*) from %s where user = %d and message = %d',
+      $tables["user_message_bounce"],$userid,$msgid));
+    if (empty($exists[0])) {
+      Sql_Query(sprintf('insert into %s
+        set user = %d, message = %d, bounce = %d',
+        $tables["user_message_bounce"],
+        $userid,$msgid,$bounceid));
+      Sql_Query(sprintf('update %s
+        set status = "bounced list message %d",
+        comment = "%s bouncecount increased"
+        where id = %d',
+        $tables["bounce"],
+        $msgid,
+        $userid,$bounceid));
+      Sql_Query(sprintf('update %s
+        set bouncecount = bouncecount + 1
+        where id = %d',
+        $tables["message"],
+        $msgid));
+      Sql_Query(sprintf('update %s
+        set bouncecount = bouncecount + 1
+        where id = %d',
+        $tables["user"],
+        $userid));
+    } else {
+      ## we create the relationship, but don't increase counters
+      Sql_Query(sprintf('insert into %s
+        set user = %d, message = %d, bounce = %d',
+        $tables["user_message_bounce"],
+        $userid,$msgid,$bounceid));
+      Sql_Query(sprintf('update %s
+        set status = "bounced list message %d",
+        comment = "duplicate bounce for %d"
+        where id = %d',
+        $tables["bounce"],
+        $msgid,
+        $userid,$bounceid));
+    }
   } elseif ($userid) {
     Sql_Query(sprintf('update %s
       set status = "bounced unidentified message",
