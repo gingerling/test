@@ -32,6 +32,8 @@ if (function_exists('iconv_set_encoding')) {
 if (function_exists('mb_internal_encoding')) {
   mb_internal_encoding("UTF-8");
 }
+#magic quotes are deprecated, so try to switch off if possible
+ini_set("magic_quotes_gpc","off");
 
 $IsCommandlinePlugin = '';
 $zlib_compression = ini_get('zlib.output_compression');
@@ -246,7 +248,7 @@ if (!defined('ALWAYS_ADD_USERTRACK')) define('ALWAYS_ADD_USERTRACK',1);
 if (!defined('MERGE_DUPLICATES_DELETE_DUPLICATE')) define('MERGE_DUPLICATES_DELETE_DUPLICATE',1);
 if (!defined('USE_PERSONALISED_REMOTEURLS')) define('USE_PERSONALISED_REMOTEURLS',1);
 if (!defined('USE_LOCAL_SPOOL')) define('USE_LOCAL_SPOOL',0);
-if (!defined('SEND_LISTADMIN_COPY')) define('SEND_LISTADMIN_COPY',0);
+if (!defined('SEND_LISTADMIN_COPY')) define('SEND_LISTADMIN_COPY',true);
 if (!defined('EMAIL_ADDRESS_VALIDATION_LEVEL')) define('EMAIL_ADDRESS_VALIDATION_LEVEL',3);
 if (!defined('BLACKLIST_EMAIL_ON_BOUNCE')) define('BLACKLIST_EMAIL_ON_BOUNCE',5);
 if (!defined('MANUALLY_PROCESS_BOUNCES')) define('MANUALLY_PROCESS_BOUNCES',1);
