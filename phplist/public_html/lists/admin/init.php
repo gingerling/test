@@ -62,10 +62,10 @@ if (!isset($GLOBALS['default_system_language'])) {
 }
 
 if (!isset($table_prefix)) {
-  $table_prefix = '';
+  $table_prefix = 'phplist_';
 }
 if (!isset($usertable_prefix)) {
-  $usertable_prefix = '';
+  $usertable_prefix = 'phplist_user_';
 }
 
 /* this can probably go */
