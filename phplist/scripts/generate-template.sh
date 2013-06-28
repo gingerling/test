@@ -34,7 +34,7 @@ if [ -s "diff${now}" ]; then
   echo
   fgrep '< msgid' diff${now} | sed s/'< msgid'//
 
-  mail -s "phpList language template update" $reportto < /tmp/message$$ 
+  mail -s "phpList language changes" $reportto < /tmp/message$$ 
   rm -f diff${now} /tmp/message$$
   mv -f phplist-new.pot phplist.pot
 fi
