@@ -28,7 +28,9 @@ msgmerge -N $current messages.po > phplist-new.pot 2>/dev/null
 diff phplist-new.pot $current > diff${now}
 if [ -s "diff${now}" ]; then
   exec > /tmp/message$$
-  echo Language text updates 
+  echo These are this weeks changes in the language template file
+  echo They will show up in http://translation.phplist.com as untranslated
+  echo Please update your translations, thanks 
   echo
   fgrep '< msgid' diff${now} | sed s/'< msgid'//
 
