@@ -142,6 +142,10 @@ function SaveConfig($item,$value,$editable=1,$ignore_errors = 0) {
       'value' => '',
     );
   }
+  ## to validate we need the actual values
+  $value = str_ireplace('[domain]',$GLOBALS['domain'],$value);
+  $value = str_ireplace('[website]',$GLOBALS['website'],$value);
+  
   switch ($configInfo['type']) {
     case 'integer':
       $value = sprintf('%d',$value);
