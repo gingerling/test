@@ -209,10 +209,11 @@ function my_shutdown () {
   if ($sent)
     output(sprintf('%d %s %01.2f %s (%d %s)',$sent,$GLOBALS['I18N']->get('messages sent in'),
       $totaltime,$GLOBALS['I18N']->get('seconds'),$msgperhour,$GLOBALS['I18N']->get('msgs/hr')),$sent,'progress');
-  if ($invalid)
-    output(sprintf('%d %s',$invalid,$GLOBALS['I18N']->get('invalid emails')),1,'progress');
+  if ($invalid) {
+    output(s('%d invalid email addresses',$invalid),1,'progress');
+  }
   if ($failed_sent) {
-    output(sprintf('%d %s',$failed_sent,$GLOBALS['I18N']->get('emails failed (will retry later)')),1,'progress');
+    output(s('%d failed (will retry later)',$failed_sent),1,'progress');
     foreach ($counters as $label => $value) {
     #  output(sprintf('%d %s',$value,$GLOBALS['I18N']->get($label)),1,'progress');
       cl_output(sprintf('%d %s',$value,$GLOBALS['I18N']->get($label)));
@@ -1010,7 +1011,7 @@ while ($message = Sql_fetch_array($messages)) {
              if (!$throttled && !validateEmail($useremail)) {
                $unconfirmed++;
                $counters['email address invalidated']++;
-               logEvent("invalid email $useremail user marked unconfirmed");
+               logEvent("invalid email address $useremail user marked unconfirmed");
                Sql_Query(sprintf('update %s set confirmed = 0 where email = "%s"',
                  $GLOBALS['tables']['user'],$useremail));
              }
@@ -1087,7 +1088,7 @@ while ($message = Sql_fetch_array($messages)) {
           logEvent(s('Invalid email address').': userid  '. $user['id'].'  email '. $user['email']);
           # mark it as sent anyway
           if ($user['id']) {
-            $um = Sql_query(sprintf('replace into %s (entered,userid,messageid,status) values(current_timestamp,%d,%d,"invalid email")',$tables['usermessage'],$userid,$messageid) );
+            $um = Sql_query(sprintf('replace into %s (entered,userid,messageid,status) values(current_timestamp,%d,%d,"invalid email address")',$tables['usermessage'],$userid,$messageid) );
             Sql_Query(sprintf('update %s set confirmed = 0 where id = %d',
               $GLOBALS['tables']['user'],$user['id']));
             addUserHistory($user['email'],s('Subscriber marked unconfirmed for invalid email address',s('Marked unconfirmed while sending campaign %d',$messageid)));
