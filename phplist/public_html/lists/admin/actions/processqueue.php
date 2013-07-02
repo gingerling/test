@@ -1163,9 +1163,9 @@ while ($message = Sql_fetch_array($messages)) {
       if (!empty($msgdata['notify_end']) && !isset($msgdata['end_notified'])) {
         $notifications = explode(',',$msgdata['notify_end']);
         foreach ($notifications as $notification) {
-          sendMail($notification,$GLOBALS['I18N']->get('Message Campaign finished'),
-            sprintf($GLOBALS['I18N']->get('phplist has finished sending the campaign with subject %s'),$msgdata['subject'])."\n\n".
-            sprintf($GLOBALS['I18N']->get('to view the results of this campaign, go to http://%s'),getConfig('website').$GLOBALS['adminpages'].'/?page=messages&amp;tab=sent')
+          sendMail($notification,$GLOBALS['I18N']->get('Message campaign finished'),
+            sprintf($GLOBALS['I18N']->get('phpList has finished sending the campaign with subject %s'),$msgdata['subject'])."\n\n".
+            sprintf($GLOBALS['I18N']->get('to view the results of this campaign, go to http://%s'),getConfig('website').$GLOBALS['adminpages'].'/?page=statsoverview&id='.$messageid)
             );
         }
         Sql_Query(sprintf('insert ignore into %s (name,id,data) values("end_notified",%d,current_timestamp)',
