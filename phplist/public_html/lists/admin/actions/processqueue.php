@@ -262,7 +262,7 @@ function my_shutdown () {
     output($GLOBALS['I18N']->get('Finished, All done'),0);
       print '<script type="text/javascript">
       var parentJQuery = window.parent.jQuery;
-      window.parent.allDone();
+      window.parent.allDone("'.s('All done').'");
       </script>';
     
   } else {
