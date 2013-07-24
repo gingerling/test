@@ -27,7 +27,6 @@ class phplist extends DefaultPlugin {
       $this->table_prefix = $table_prefix;
     }
     include_once dirname(__FILE__).'/public_html/lists/admin/init.php';
-    include_once dirname(__FILE__).'/public_html/lists/admin/structure.php';
     $this->DBstructure = $GLOBALS['DBstruct'];
 
     $this->tables = array(
