@@ -457,7 +457,7 @@ if (isset($_GET["doit"]) && $_GET["doit"] == 'yes') {
   }
   
   ## changed terminology
-  Sql_Query(sprintf('update % set status = "invalid email address" where status = "invalid email"',$tables['usermessage']));
+  Sql_Query(sprintf('update %s set status = "invalid email address" where status = "invalid email"',$tables['usermessage']));
   
   ## for some reason there are some config entries marked non-editable, that should be
   include_once dirname(__FILE__).'/defaultconfig.php';
