@@ -379,7 +379,7 @@ function Error($msg,$documentationURL = '') {
   }
   print '<div class="error">'.$GLOBALS["I18N"]->get("error").": $msg ";
   if (!empty($documentationURL)) {
-    print '<br/><a href="'.$documentationURL.'" title="'.s('Documentation about this error').'" target="_blank" class="resourcelink">'.s('More information').'</a>';
+     print resourceLink($documentationURL);
   }
   print '</div>';
 
@@ -423,17 +423,21 @@ function join_clean($sep,$array) {
   return join($sep,$arr2);
 }
 
-function Fatal_Error($msg) {
+function Fatal_Error($msg,$documentationURL = '') {
   if ($GLOBALS['commandline']) {
     @ob_end_clean();
     print "\n".$GLOBALS["I18N"]->get("fatalerror").": ".strip_tags($msg)."\n";
     @ob_start();
   } else {
     if (isset($GLOBALS['I18N']) && is_object($GLOBALS['I18N'])) {
-      print '<div align="center" class="error">'.$GLOBALS["I18N"]->get("fatalerror").": $msg </div>";
+      print '<div align="center" class="error">'.$GLOBALS["I18N"]->get("fatalerror").": $msg ";
     } else {
-      print '<div align="center" class="error">'."Fatal Error: $msg </div>";
+      print '<div align="center" class="error">'."Fatal Error: $msg ";
     }
+    if (!empty($documentationURL)) {
+      print resourceLink($documentationURL);
+    }
+    print '</div>';
 
     foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
       $plugin->processError($msg);
@@ -443,6 +447,10 @@ function Fatal_Error($msg) {
  # include "footer.inc";
  # exit;
   return 0;
+}
+
+function resourceLink($url) {
+  return ' <span class="resourcelink"><a href="'.$url.'" title="'.s('Documentation about this error').'" target="_blank" class="resourcelink">'.snbr('More information').'</a></span>';
 }
 
 function Warn($msg) {
