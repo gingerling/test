@@ -372,12 +372,16 @@ function clineUsage($line = "") {
   exit;
 }
 
-function Error($msg) {
+function Error($msg,$documentationURL = '') {
   if ($GLOBALS["commandline"]) {
     clineError($msg);
     return;
   }
-  print '<div class="error">'.$GLOBALS["I18N"]->get("error").": $msg </div>";
+  print '<div class="error">'.$GLOBALS["I18N"]->get("error").": $msg ";
+  if (!empty($documentationURL)) {
+    print '<br/><a href="'.$documentationURL.'" title="'.s('Documentation about this error').'" target="_blank" class="resourcelink">'.s('More information').'</a>';
+  }
+  print '</div>';
 
   $GLOBALS["mail_error"] .= 'Error: '.$msg."\n";
   $GLOBALS["mail_error_count"]++;
