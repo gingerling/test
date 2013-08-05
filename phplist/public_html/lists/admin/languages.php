@@ -349,6 +349,10 @@ class phplist_I18N {
       $hoverText = $dbTitle;
     } else {
       $hoverText = $this->pageTitle($page);
+      ## is this returns itself, wipe it
+      if ($hoverText == $page) {
+        $hoverText = '';
+      }
     }
     if (!empty($hoverText)) {
       return $hoverText;
