@@ -38,7 +38,7 @@ if [ -s "diff2${now}" ]; then
 
   mail -s "phpList language changes" $reportto < /tmp/message$$ 
   rm -f diff${now} diff2 ${now} /tmp/message$$
-  mv -f phplist-new.pot phplist.pot
 fi
+mv -f phplist-new.pot phplist.pot
 rm -f messages.po phplist-new.pot diff${now} public_html/databasestructure.php
 
