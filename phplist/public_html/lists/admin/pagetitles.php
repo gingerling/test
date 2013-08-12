@@ -1,7 +1,8 @@
+<?php
 
 ## file used for the translation system
 
-get("pagetitle:home")
+get("pagetitle:home");
 
 get("pagetitle:setup")
 
