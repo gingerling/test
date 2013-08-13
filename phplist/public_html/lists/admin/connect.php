@@ -128,11 +128,6 @@ function SaveConfig($item,$value,$editable=1,$ignore_errors = 0) {
     $_SESSION['hasconf'] = Sql_Table_Exists($tables["config"]);
   } 
   if (empty($_SESSION['hasconf'])) return;
-  if ($value == "false" || $value == "no") {
-    $value = 0;
-  } elseif ($value == "true" || $value == "yes") {
-    $value = 1;
-  }
   if (isset($GLOBALS['default_config'][$item])) {
     $configInfo = $GLOBALS['default_config'][$item];
   } else {
@@ -147,6 +142,13 @@ function SaveConfig($item,$value,$editable=1,$ignore_errors = 0) {
   $value = str_ireplace('[website]',$GLOBALS['website'],$value);
   
   switch ($configInfo['type']) {
+    case 'boolean':
+      if ($value == "false" || $value == "no") {
+        $value = 0;
+      } elseif ($value == "true" || $value == "yes") {
+        $value = 1;
+      }
+      break;
     case 'integer':
       $value = sprintf('%d',$value);
       if ($value < $configInfo['min']) $value = $configInfo['min'];

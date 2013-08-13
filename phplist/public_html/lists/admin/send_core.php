@@ -927,7 +927,6 @@ if (!$done) {
      Help("googletrack").' '.s('add Google Analytics tracking code'),
      !empty($messagedata['google_track']) ? 'checked="checked"':'');
 
-
   ## @@TODO, maybe add a check on "sent" for this campaign and suppress this once it's over a threshold
   $send_content .= sprintf('
     <div class="resetStatistics">
