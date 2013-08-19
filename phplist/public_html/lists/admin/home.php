@@ -66,8 +66,8 @@ if ($checkinterval && !defined('IN_WEBBLER') && !defined('WEBBLER')) {
         print '<br/>'.$GLOBALS['I18N']->get('The new version may have fixed security issues,<br/>so it is recommended to upgrade as soon as possible');
         print '<br/>'.$GLOBALS['I18N']->get('Your version').': <b>'.$thisversion.'</b>';
         print '<br/>'.$GLOBALS['I18N']->get('Latest version').': <b>'.$latestversion.'</b><br/>  ';
-        print '<a href="https://www.phplist.com/news?utm_source=pl'.$thisversion.'&amp;utm_medium=updatenews&amp;utm_campaign=phpList" title="'.s('Read what has changed in the new version'). '">'.$GLOBALS['I18N']->get('View what has changed').'</a>&nbsp;&nbsp;';
-        print '<a href="https://www.phplist.com/download?utm_source=pl'.$thisversion.'&amp;utm_medium=updatedownload&amp;utm_campaign=phpList" title="'.s('Download the new version'). '">'.$GLOBALS['I18N']->get('Download').'</a></div>';
+        print '<a href="https://www.phplist.com/latestchanges?utm_source=pl'.$thisversion.'&amp;utm_medium=updatenews&amp;utm_campaign=phpList" title="'.s('Read what has changed in the new version'). '" target="_blank">'.$GLOBALS['I18N']->get('View what has changed').'</a>&nbsp;&nbsp;';
+        print '<a href="https://www.phplist.com/download?utm_source=pl'.$thisversion.'&amp;utm_medium=updatedownload&amp;utm_campaign=phpList" title="'.s('Download the new version'). '" target="_blank">'.$GLOBALS['I18N']->get('Download').'</a></div>';
       }
     }
     $values = array('item'=>"updatelastcheck", 'value'=>'current_timestamp', 'editable'=>'0');
