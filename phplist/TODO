@@ -19,6 +19,8 @@ reorganise code particularly the "libraries"
 12. subscriber management
 https://mantis.phplist.com/view.php?id=12801 and related
 
+plugin dependencies: Plugin A requires Plugin B (+version) so installing A also installs B
+
 - auto responder 
 - Invitation mode, send to unconfirmed subscribers, but require [CONFIRMATIONURL] placeholder
 - upload of Zip with All html and assets for a campaign/template
