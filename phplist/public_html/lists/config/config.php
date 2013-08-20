@@ -566,9 +566,17 @@ Advanced Features, HTML editor, RSS, Attachments, Plugins. PDF creation
 
 */
 
+# Usertrack
+# Usertrack is used to track views or opens of campaigns. This only works in HTML messages
+# as it relies on a little image being pulled from the phpList system to update the database
+# To add it to your campaigns, you need to add [USERTRACK] somewhere. 
+# From version 3 onwards, this is automatically done with the following setting. If you do not
+# want it, you can switch it off here, by uncommenting the next line
+# define('ALWAYS_ADD_USERTRACK',0);
+
 # Click tracking
 # If you set this to 1, all links in your emails will be converted to links that
-# go via phplist. This will make sure that clicks are tracked. This is experimental and
+# go via phpList. This will make sure that clicks are tracked. This is experimental and
 # all your findings when using this feature should be reported to mantis
 # for now it's off by default until we think it works correctly
 define('CLICKTRACK',0);
