@@ -297,6 +297,10 @@ class phplistPlugin {
     return $text;
   }
   
+  function subscriberConfirmation($subscribepageID,$userdata = array()) {
+    
+  } 
+  
   ############################################################
   # Messages
 

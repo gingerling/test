@@ -615,10 +615,14 @@ function confirmPage($id) {
   if (!$_GET["uid"]) {
     FileNotFound();
   }
-  $req = Sql_Query("select * from {$tables["user"]} where uniqid = \"".$_GET["uid"]."\"");
+  $req = Sql_Query(sprintf('select * from %s where uniqid = "%s"',$tables["user"],sql_escape($_GET["uid"])));
   $userdata = Sql_Fetch_Array($req);
   if ($userdata["id"]) {
     $blacklisted = isBlackListed($userdata["email"]);
+    foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
+      $plugin->subscriberConfirmation($id,$userdata);
+    }
+        
     $html = '<ul>';
     $lists = '';
     Sql_Query("update {$tables["user"]} set confirmed = 1,blacklisted = 0 where id = ".$userdata["id"]);
