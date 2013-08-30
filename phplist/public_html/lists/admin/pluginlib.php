@@ -19,7 +19,7 @@ $pluginFiles = array();
 
 foreach ($pluginRootDirs as $pluginRootDir) {
   ## try to expand to subdir of the admin dir
-  if (!is_dir($pluginRootDir)) {
+  if (!is_dir($pluginRootDir) && !empty($pluginRootDir)) {
     $pluginRootDir = dirname(__FILE__).'/'.$pluginRootDir;
   }
   
