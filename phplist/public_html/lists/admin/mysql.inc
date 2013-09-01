@@ -27,13 +27,16 @@ function Sql_Connect($host,$user,$password,$database) {
         print "Unknown database, cannot continue";
         exit;
       case 1045: # access denied
-        print "Cannot connect to database, access denied. Please contact the administrator.";
+        print "Cannot connect to database, access denied. Please check your configuration or contact the administrator.";
         exit;
       case 2002:
-         print "Cannot connect to database, Sql server is not running. Please contact the administrator.";
+         print "Cannot connect to database, Sql server is not running. Please check your configuration or contact the administrator.";
         exit;
       case 1040: # too many connections
         print "Sorry, the server is currently too busy, please try again later.";
+        exit;
+      case 2005: # "unknown host"
+        print "Unknown database host to connected to, please check your configuration";
         exit;
       case 2006: # "gone away"
         print "Sorry, the server is currently too busy, please try again later.";
@@ -41,9 +44,12 @@ function Sql_Connect($host,$user,$password,$database) {
       case 0:
         break;
       default:
-        print SQL_Error($GLOBALS['database_connection'],$errno);
+        if (isset($GLOBALS['database_connection'])) {
+          print SQL_Error($GLOBALS['database_connection'],$errno);
+        } else {
+          print "Cannot connect to Database, please check your configuration";
+        }
     }
- #   print "Cannot connect to Database, please check your configuration";
     exit;
   }
   if (!$db) {
