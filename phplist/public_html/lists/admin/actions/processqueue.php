@@ -326,6 +326,7 @@ function output ($message,$logit = 1,$target = 'summary') {
   }
   if (!empty($GLOBALS["commandline"])) {
     cl_output(strip_tags($message).' ['.$GLOBALS['processqueue_timer']->interval(1).'] ('.$GLOBALS["pagestats"]["number_of_queries"].')');
+    $infostring = "[". date("D j M Y H:i",time()) . "] [CL]";
   } else {
     $infostring = "[". date("D j M Y H:i",time()) . "] [" . $_SERVER["REMOTE_ADDR"] ."]";
     #print "$infostring $message<br/>\n";
