@@ -15,6 +15,7 @@ $actionresult = '';
 if (isset($_POST['listorder']) && is_array($_POST['listorder']))
   while (list($key,$val) = each ($_POST['listorder'])) {
     $active = empty($_POST['active'][$key]) ? '0' : '1';
+    $active = $active || listUsedInSubscribePage($key);
     $query
     = ' update %s'
     . ' set listorder = ?, active = ?'
