@@ -17,24 +17,26 @@ function Sql_Connect($host,$user,$password,$database) {
     $errno = mysql_errno();
   }
   if ($errno) {
-    foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
-      $plugin->processDBerror($errno);
+    if (isset($GLOBALS['plugins']) && is_array($GLOBALS['plugins'])) {
+      foreach ($GLOBALS['plugins'] as $pluginname => $plugin) {
+        $plugin->processDBerror($errno);
+      }
     }
     switch ($errno) {
       case 1049: # unknown database
-        Fatal_Error("unknown database, cannot continue");
+        print "Unknown database, cannot continue";
         exit;
       case 1045: # access denied
-        Fatal_Error("Cannot connect to database, access denied. Please contact the administrator");
+        print "Cannot connect to database, access denied. Please contact the administrator.";
         exit;
       case 2002:
-        Fatal_Error("Cannot connect to database, Sql server is not running. Please contact the administrator");
+         print "Cannot connect to database, Sql server is not running. Please contact the administrator.";
         exit;
       case 1040: # too many connections
-        Fatal_Error("Sorry, the server is currently too busy, please try again later.");
+        print "Sorry, the server is currently too busy, please try again later.";
         exit;
       case 2006: # "gone away"
-        Fatal_Error("Sorry, the server is currently too busy, please try again later.");
+        print "Sorry, the server is currently too busy, please try again later.";
         exit;
       case 0:
         break;
