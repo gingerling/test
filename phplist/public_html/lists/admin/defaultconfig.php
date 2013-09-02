@@ -707,7 +707,7 @@ if (!function_exists("getconfig")) {
 			} else {
 				$row = Sql_Fetch_Row($req);
 				$value = $row[0];
-        if ($row[1] == 0) {
+        if (!empty($default_config[$item]['hidden'])) {
           $GLOBALS['noteditableconfig'][] = $item;
         }
 			}
