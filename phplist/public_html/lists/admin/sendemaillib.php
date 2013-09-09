@@ -911,8 +911,7 @@ function sendEmail ($messageid,$email,$hash,$htmlpref = 0,$rssitems = array(),$f
         $plugin->processSendFailed($messageid, $userdata, $isTestMail);
       }
       output(sprintf(s('Error sending message %d (%d/%d) to %s (%s) '),
-        $messageid,$counters['batch_count'],$counters['batch_total'],$email,$destinationemail));
-      logEvent("Error sending message $messageid to $email ($destinationemail)");
+        $messageid,$counters['batch_count'],$counters['batch_total'],$email,$destinationemail),0);
       return 0;
     } else {
       ## only save the estimated size of the message when sending a test message
