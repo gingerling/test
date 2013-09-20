@@ -196,7 +196,7 @@ while ($row = Sql_fetch_array($result)) {
   $ls->addElement($element);
   $ls->setClass($element,'rows row1');
   $ls->addColumn($element,
-    $GLOBALS['I18N']->get('Members'),$members. '<span class="view"><a class="button " href="./?page=members&id='.$row["id"].'" title="'.$GLOBALS['I18N']->get('View Members').'">'.$GLOBALS['I18N']->get('View Members').'</a></span>');
+    $GLOBALS['I18N']->get('Members'),'<div style="display:inline-block;text-align:right;width:50%;float:left;">'.$members. '</div><span class="view" style="text-align:left;display:inline-block;float:right;width:48%;"><a class="button " href="./?page=members&id='.$row["id"].'" title="'.$GLOBALS['I18N']->get('View Members').'">'.$GLOBALS['I18N']->get('View Members').'</a></span>');
     
   $ls->addColumn($element,
     $GLOBALS['I18N']->get('Public'),sprintf('<input type="checkbox" name="active[%d]" value="1" %s %s />',$row["id"],
