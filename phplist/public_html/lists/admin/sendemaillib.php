@@ -190,6 +190,11 @@ function sendEmail ($messageid,$email,$hash,$htmlpref = 0,$rssitems = array(),$f
   #historical, not sure it's still used
   $html["userid"] = $hash;
   $text["userid"] = $hash;
+  
+  $html['website'] = $GLOBALS['website']; # Your website's address, e.g. www.yourdomain.com
+  $text['website'] = $GLOBALS['website'];
+  $html['domain'] = $GLOBALS['domain'];   # Your domain, e.g. yourdomain.com
+  $text['domain'] = $GLOBALS['domain'];
 
   if ($hash != 'forwarded') {
     $text['footer'] = $cached[$messageid]["textfooter"];
@@ -369,13 +374,13 @@ function sendEmail ($messageid,$email,$hash,$htmlpref = 0,$rssitems = array(),$f
 
   if (ALWAYS_ADD_USERTRACK) {
     if (stripos($htmlmessage,'</body>')) {
-      $htmlmessage = str_replace('</body>','<img src="'.$GLOBALS['public_scheme'].'://'.$website.$GLOBALS["pageroot"].'/ut.php?u='.$hash.'&m='.$messageid.'" width="1" height="1" border="0" /></body>',$htmlmessage);
+      $htmlmessage = str_replace('</body>','<img src="'.$GLOBALS['public_scheme'].'://'.$website.$GLOBALS["pageroot"].'/ut.php?u='.$hash.'&amp;m='.$messageid.'" width="1" height="1" border="0" /></body>',$htmlmessage);
     } else {
-      $htmlmessage .= '<img src="'.$GLOBALS['public_scheme'].'://'.$website.$GLOBALS["pageroot"].'/ut.php?u='.$hash.'&m='.$messageid.'" width="1" height="1" border="0" />';
+      $htmlmessage .= '<img src="'.$GLOBALS['public_scheme'].'://'.$website.$GLOBALS["pageroot"].'/ut.php?u='.$hash.'&amp;m='.$messageid.'" width="1" height="1" border="0" />';
     }
   } else {
     ## can't use str_replace or str_ireplace, because those replace all, and we only want to replace one
-    $htmlmessage = preg_replace( '/\[USERTRACK\]/i','<img src="'.$GLOBALS['public_scheme'].'://'.$website.$GLOBALS["pageroot"].'/ut.php?u='.$hash.'&m='.$messageid.'" width="1" height="1" border="0" />',$htmlmessage,1);
+    $htmlmessage = preg_replace( '/\[USERTRACK\]/i','<img src="'.$GLOBALS['public_scheme'].'://'.$website.$GLOBALS["pageroot"].'/ut.php?u='.$hash.'&amp;m='.$messageid.'" width="1" height="1" border="0" />',$htmlmessage,1);
   }
   # make sure to only include usertrack once, otherwise the stats would go silly
   $htmlmessage = str_ireplace('[USERTRACK]','',$htmlmessage);
