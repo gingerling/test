@@ -8,6 +8,14 @@ if (isset($_GET['start'])) {
   $start = sprintf('%d',$_GET['start']);
 } else $start = 0;
 
+if (isset($_GET["tab"]) && $_GET["tab"] == 'unconfirmed') {
+  $confirmedSelection = ' (!u.confirmed or u.blacklisted)';
+  $pagingKeep = 'tab=unconfirmed';
+} else {
+  $pagingKeep = 'tab=confirmed';
+  $confirmedSelection = ' u.confirmed and !u.blacklisted';
+}
+
 switch ($access) {
   case "owner":
     $subselect = " where owner = ".$_SESSION["logindetails"]["id"];
@@ -200,41 +208,41 @@ if (isset($_REQUEST["doadd"])) {
 if (isset($_REQUEST["delete"])) {
   $delete = sprintf('%d',$_REQUEST["delete"]);
   # single delete the index in delete
-  $_SESSION['action_result'] = $GLOBALS['I18N']->get("Deleting")." $delete ..\n";
+  $_SESSION['action_result'] = s("Removing %d from this list ",$delete). " ..\n";
   $query
   = ' delete from ' . $tables['listuser']
   . ' where listid = ?'
   . '   and userid = ?';
   $result = Sql_Query_Params($query, array($id, $delete));
   $_SESSION['action_result'] .= "... ".$GLOBALS['I18N']->get("Done")."<br />\n";
-  Redirect("members&id=$id");
+  Redirect("members&$pagingKeep&id=$id");
 }
 if (isset($id)) {
+  
   $query
   = ' select count(*)'
   . ' from %s lu'
   . '    join %s u'
   . '       on lu.userid = u.id'
   . ' where lu.listid = ? '
-  . ' and u.confirmed and !u.blacklisted';
+  . ' and '.$confirmedSelection;
   $query = sprintf($query, $tables['listuser'], $tables['user']);
   $result = Sql_Query_Params($query, array($id));
   $row = Sql_Fetch_row($result);
   $total = $row[0];
-#  print "<p>$total ".$GLOBALS['I18N']->get("Subscribers on this list").'</p>';
   $offset = $start;
 
   $paging = '';
   if ($total > MAX_USER_PP) {
       if ($start > 0) {
-        $listing = sprintf($GLOBALS['I18N']->get("Listing subscriber %d to %d"),$start,($start + MAX_USER_PP));
+        $listing = sprintf(s("Listing subscriber %d to %d",$start,($start + MAX_USER_PP)));
         $limit = "limit $start,".MAX_USER_PP;
      } else {
-        $listing = $GLOBALS['I18N']->get("Listing subscriber 1 to 50");
+        $listing = s("Listing subscriber 1 to 50");
         $limit = "limit 0,50";
       }
 
-      $paging = simplePaging("members&amp;id=".$id,$start,$total,MAX_USER_PP,$GLOBALS['I18N']->get('subscribers'));
+      $paging = simplePaging("members&$pagingKeep&amp;id=".$id,$start,$total,MAX_USER_PP,$GLOBALS['I18N']->get('subscribers'));
   }
   $query
   = ' select u.*'
@@ -242,12 +250,25 @@ if (isset($id)) {
   . "    join %s u"
   . '       on lu.userid = u.id'
   . ' where lu.listid = ?'
-  . ' and u.confirmed and !u.blacklisted'
+  . ' and '.$confirmedSelection
   . ' order by confirmed desc, email'
   . ' limit ' . MAX_USER_PP . ' offset ' . $offset;
 // TODO Consider using a subselect.  select user where uid in select uid from list
   $query=sprintf($query, $tables['listuser'], $tables['user'] );
   $result = Sql_Query_Params($query, array($id));
+  
+  $tabs = new WebblerTabs();
+  $tabs->addTab(s("confirmed"),PageUrl2("members&id=".$id),'confirmed');
+  $tabs->addTab(s("unconfirmed"),PageUrl2("members&tab=unconfirmed&id=".$id),'unconfirmed');
+  if (!empty($_GET['tab'])) {
+    $tabs->setCurrent($_GET["tab"]);
+  } else {
+    $_GET['tab'] = 'confirmed';
+    $tabs->setCurrent('confirmed');
+  }
+  print $tabs->display();
+  print "<p>".s('%d subscribers',$total).'</p>';
+  
   print formStart(' name="users" class="membersProcess" ');
   printf('<input type="hidden" name="id" value="%d" />',$id);
   ?>
@@ -266,7 +287,7 @@ if (isset($id)) {
     $ls_delete="";
     if ($access != "view"){
        $ls_delete=sprintf('<a title="'.$GLOBALS['I18N']->get('Delete').'" class="del" href="javascript:deleteRec(\'%s\');"></a>',
-       PageURL2("members","","start=$start&id=$id&delete=".$user["id"]));
+       PageURL2("members","","start=$start&$pagingKeep&id=$id&delete=".$user["id"]));
     }
     $ls->addRow($element ,'',($user["confirmed"] && !$user["blacklisted"])?$ls_delete.$GLOBALS["img_tick"]:$ls_delete.$GLOBALS["img_cross"]);
 
@@ -334,8 +355,8 @@ if ($html) {
   </select></div></td></tr>
   <tr><td><input type="radio" name="tagaction" value="nothing" checked="checked" /><?php echo $GLOBALS['I18N']->get('Nothing')?> </td></tr>
 <?php } ?>
-<tr><td><h3><?php echo $GLOBALS['I18N']->get('What to do with all users')?></h3>
-        <h6><?php echo $GLOBALS['I18N']->get('This will process all users on this list')?></h6>
+<tr><td><h3><?php echo s('What to do with all subscribers')?></h3>
+        <h6><?php echo s('This will process all subscribers on this list, confirmed and unconfirmed')?></h6>
 </td></tr>
 <tr><td>
     <input type="radio" name="tagaction_all" value="delete" /> <?php echo $GLOBALS['I18N']->get('Delete')?> (<?php echo $GLOBALS['I18N']->get('from this list')?>)
