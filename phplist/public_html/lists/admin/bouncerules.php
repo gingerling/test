@@ -4,7 +4,7 @@ require_once dirname(__FILE__).'/accesscheck.php';
 
 if (isset($_GET['type']) && $_GET['type'] == 'candidate') {
   $type = 'candidate';
-  $url = '&amp;type=candidate';
+  $url = '&type=candidate';
 } else {
   $type = 'active';
 }
