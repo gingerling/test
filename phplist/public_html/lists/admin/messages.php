@@ -19,6 +19,13 @@ if (isset($_GET['start'])) {
   unset($start);
 }
 
+if (!isset($_SESSION['messagefilter'])) {
+  $_SESSION['messagefilter'] = '';
+}
+if (isset($_POST['filter'])) {
+  $_SESSION['messagefilter'] = removeXSS($_POST['filter']);
+}
+
 # remember last one listed
 if (!isset($_GET["tab"]) && !empty($_SESSION["lastmessagetype"])) {
   $_GET["tab"] = $_SESSION["lastmessagetype"];
@@ -61,6 +68,12 @@ if (!empty($_GET['tab'])) {
 }
 
 print $tabs->display();
+
+print '<div id="messagefilter" class="filterdiv fright">';
+print formStart(' id="messagefilterform" ');
+print '<div><input type="text" name="filter" value="'.htmlspecialchars($_SESSION['messagefilter']).'" id="filtertext" />';
+print '<button type="submit" name="go" id="filterbutton" >'.s('Go').'</button></div>';
+print '</form></div>';
 
 ### Process 'Action' requests
 if (!empty($_GET["delete"])) {
@@ -199,6 +212,10 @@ switch ($_GET["tab"]) {
     $cond[] = " status in ('sent') ";
     $url_keep = '&amp;tab=sent';
     break;
+}
+
+if (!empty($_SESSION['messagefilter'])) {
+  $cond[] = ' subject like "%'.sql_escape($_SESSION['messagefilter']).'%" ';
 }
 
 ### Query messages from db
