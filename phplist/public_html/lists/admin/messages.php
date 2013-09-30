@@ -22,8 +22,15 @@ if (isset($_GET['start'])) {
 if (!isset($_SESSION['messagefilter'])) {
   $_SESSION['messagefilter'] = '';
 }
+if (!empty($_POST['clear'])) {
+  $_SESSION['messagefilter'] = '';
+  $_POST['filter'] = '';
+}
 if (isset($_POST['filter'])) {
   $_SESSION['messagefilter'] = removeXSS($_POST['filter']);
+  if ($_SESSION['messagefilter'] == ' --- filter --- ') {
+    $_SESSION['messagefilter'] = '';
+  }
 }
 
 # remember last one listed
@@ -69,10 +76,14 @@ if (!empty($_GET['tab'])) {
 
 print $tabs->display();
 
+$filterDisplay = $_SESSION['messagefilter'];
+if ($filterDisplay == '') {
+  $filterDisplay = ' --- filter --- ';
+}
 print '<div id="messagefilter" class="filterdiv fright">';
 print formStart(' id="messagefilterform" ');
-print '<div><input type="text" name="filter" value="'.htmlspecialchars($_SESSION['messagefilter']).'" id="filtertext" />';
-print '<button type="submit" name="go" id="filterbutton" >'.s('Go').'</button></div>';
+print '<div><input type="text" name="filter" value="'.htmlspecialchars($filterDisplay).'" id="filtertext" />';
+print '<button type="submit" name="go" id="filterbutton" >'.s('Go').'</button> <button type="submit" name="clear" id="filterclearbutton" value="1">'.s('Clear').'</button></div>';
 print '</form></div>';
 
 ### Process 'Action' requests
@@ -242,7 +253,7 @@ if ($total > MAX_MSG_PP) {
   $paging = simplePaging("messages$url_keep",$start,$total,MAX_MSG_PP,$GLOBALS['I18N']->get("Campaigns"));
 }
   
-$ls = new WebblerListing($I18N->get('messages'));
+$ls = new WebblerListing(s('Campaigns'));
 $ls->usePanel($paging);
 
 ## messages table
@@ -403,9 +414,5 @@ if ($total > 5 && $_GET['tab'] == 'active') {
   print PageLinkButton("messages",$GLOBALS['I18N']->get("Suspend All"),"action=suspall");
   print PageLinkButton("messages",$GLOBALS['I18N']->get("Mark All Sent"),"action=markallsent");
 }
-
-
-?>
-
 
 
