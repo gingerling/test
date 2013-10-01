@@ -288,7 +288,7 @@ switch ($_SESSION['messagesortby']) {
   case 'embargoasc': $sortBySql = 'order by embargo asc'; break;
   case 'embargodesc': $sortBySql = 'order by embargo desc'; break;
   default: 
-    $sortBySql = '';
+    $sortBySql = 'order by embargo desc, entered desc';
 }
 
 $req = Sql_query('select count(*) from ' . $tables['message']. $where .' '.$sortBySql);
