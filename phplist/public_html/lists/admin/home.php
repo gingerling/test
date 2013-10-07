@@ -2,10 +2,11 @@
 require_once dirname(__FILE__).'/accesscheck.php';
 ob_end_flush();
 $upgrade_required = 0;
+$canUpgrade = checkAccess("upgrade");
 
 if (Sql_Table_exists($tables["config"],1)) {
   $dbversion = getConfig("version");
-  if ($dbversion != VERSION && !defined("IN_WEBBLER")&& !defined("WEBBLER")) {
+  if ($dbversion != VERSION && $canUpgrade) {
     Error($GLOBALS['I18N']->get('Your database is out of date, please make sure to upgrade').'<br/>'.
      $GLOBALS['I18N']->get('Your version').' : '.$dbversion.'<br/>'.
      $GLOBALS['I18N']->get('phplist version').' : '.VERSION.
@@ -22,9 +23,6 @@ if (Sql_Table_exists($tables["config"],1)) {
   $_SESSION["firstinstall"] = 1;
   return;
 }
-
-// if (WARN_ABOUT_PHP_SETTINGS && (version_compare('4.3.11',PHP_VERSION)>0 || version_compare('5.0.4',PHP_VERSION)>0))
-//   Warn($GLOBALS['I18N']->get('globalvulnwarning'));
 
 ## trigger this somewhere else?
 refreshTlds();
