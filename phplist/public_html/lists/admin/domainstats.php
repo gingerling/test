@@ -56,7 +56,7 @@ print $ls->display();
 
 print '<br /><br />';
 
-$req = Sql_Query(sprintf('select lcase(substring_index(email,"@",1)) as preat,count(email) as num from phplist_user_user where confirmed group by preat order by num desc limit 25',$GLOBALS['tables']['user']));
+$req = Sql_Query(sprintf('select lcase(substring_index(email,"@",1)) as preat,count(email) as num from %s where confirmed group by preat order by num desc limit 25',$GLOBALS['tables']['user']));
 $ls = new WebblerListing($GLOBALS['I18N']->get('Top 25 pre-@ of email addresses'));
 while ($row = Sql_Fetch_Array($req)) {
   if ($row['num'] > 10) {
