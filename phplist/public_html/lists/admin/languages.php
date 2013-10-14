@@ -348,6 +348,7 @@ class phplist_I18N {
     $hoverText = '';
     $dbTitle = $this->databaseTranslation('pagetitlehover:'.$page);
     if ($dbTitle) {
+      $dbTitle = str_ireplace('pagetitlehover:','',$dbTitle);
       $hoverText = $dbTitle;
     } else {
       $hoverText = $this->pageTitle($page);
