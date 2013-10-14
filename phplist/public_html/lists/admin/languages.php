@@ -320,6 +320,8 @@ class phplist_I18N {
     $page_title = '';
     $dbTitle = $this->databaseTranslation('pagetitle:'.$page);
     if ($dbTitle) {
+      ## quite a few translators keep the pagetitle: in the translation
+      $dbTitle = str_ireplace('pagetitle:','',$dbTitle);
       $page_title = $dbTitle;
     } elseif (is_file(dirname(__FILE__).'/locale/'.$this->language.'/pagetitles.php')) {
       include dirname(__FILE__).'/locale/'.$this->language.'/pagetitles.php';
