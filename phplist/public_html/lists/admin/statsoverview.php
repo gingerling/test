@@ -17,15 +17,14 @@ if (isset($_GET['start'])) {
 
 $addcomparison = 0;
 $access = accessLevel('statsoverview');
-$and = '';
+$ownership = '';
 $subselect = '';
 $paging = '';
-$and_params = array();
+
 #print "Access Level: $access";
 switch ($access) {
   case 'owner':
-    $and = ' and owner = ?';
-    $and_params[] = $_SESSION['logindetails']['id'];
+    $ownership = sprintf(' and owner = %d ', $_SESSION['logindetails']['id']);
     if ($id) {
       $query = sprintf('select owner from %s where id = ? and owner = ?', $GLOBALS['tables']['message']);
       $rs = Sql_Query_Params($query, array($id, $_SESSION['logindetails']['id']));
@@ -41,8 +40,7 @@ switch ($access) {
     break;
   case 'none':
   default:
-    $and = ' and id = ?';
-    $and_params[] = 0;
+    $ownership = ' and msg.id = 0';
     print $GLOBALS['I18N']->get('You do not have access to this page');
     return;
     break;
@@ -71,9 +69,9 @@ if (!$id) {
 
   $query = sprintf('select msg.owner,msg.id as messageid,count(um.viewed) as views, 
     count(um.status) as total,subject,date_format(sent,"%%e %%b %%Y") as sent,
-    bouncecount as bounced from %s um,%s msg where um.messageid = msg.id and um.status = "sent" %s %s
+    bouncecount as bounced from %s um,%s msg where um.messageid = msg.id and um.status = "sent" %s %s %s
     group by msg.id order by msg.entered desc',
-    $GLOBALS['tables']['usermessage'],$GLOBALS['tables']['message'],$subselect,$timerange);
+    $GLOBALS['tables']['usermessage'],$GLOBALS['tables']['message'],$subselect,$timerange,$ownership);
   $req = Sql_Query($query);
   $total = Sql_Num_Rows($req);
   if ($total > 10 && !$download) {
