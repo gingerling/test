@@ -141,8 +141,7 @@ function loadMessageData($msgid) {
     $GLOBALS['tables']['messagedata'],$msgid));
   while ($row = Sql_Fetch_Assoc($msgdata_req)) {
     if (strpos($row['data'],'SER:') === 0) {
-      $data = substr($row['data'],4);
-      $data = @unserialize(stripslashes($data));
+      $data = stripSlashesArray(unserialize(substr($row['data'], 4)));
     } else {
       $data = stripslashes($row['data']);
     }
@@ -1582,10 +1581,13 @@ function copy_recursive($source, $dest)
         mkdir($dest);
 
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
+            new RecursiveDirectoryIterator($source),
             RecursiveIteratorIterator::SELF_FIRST
         );
         foreach ($iterator as $item) {
+            if ($item->getBasename() == '..' || $item->getBasename() == '.') {
+                continue;
+            }
             if ($item->isDir()) {
                 mkdir($dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName());
             } else {
