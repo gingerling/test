@@ -999,7 +999,7 @@ function PageLink2($name,$desc="",$url="",$no_plugin = false,$title = '') {
       } else {
         $pi = "";
       }
-      $linktext = ucfirst(strtolower($desc));
+      $linktext = $desc;
       $linktext = str_ireplace('phplist','phpList',$linktext);
       return sprintf('<a href="./?page=%s%s%s" title="%s">%s</a>',$name,$url,$pi,htmlspecialchars(strip_tags($title)),$linktext);
     }
