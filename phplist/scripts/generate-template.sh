@@ -6,6 +6,11 @@ svnup=$3
 reportto=$1
 current=$2
 
+[ -f $current ] || {
+  echo Usage: $0 [reportto] [currentfile] [optional: do svn-up]
+  exit;
+}
+
 [ "$reportto" ] || reportto=root@localhost 
 
 if [ "$svnup" ]; then
