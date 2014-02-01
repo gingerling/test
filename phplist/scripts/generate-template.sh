@@ -6,7 +6,7 @@ svnup=$3
 reportto=$1
 current=$2
 
-[ -f $current ] || {
+[ ! -s "$current" ] && [ -f $current ] || {
   echo Usage: $0 [reportto] [currentfile] [optional: do svn-up]
   exit;
 }
