@@ -45,5 +45,5 @@ if [ -s "diff2${now}" ]; then
   rm -f diff${now} diff2${now} /tmp/message$$
 fi
 mv -f phplist-new.pot phplist.pot
-rm -f messages.po phplist-new.pot diff${now} public_html/databasestructure.php
+rm -f messages.po phplist-new.pot diff${now} diff2${now} public_html/databasestructure.php
 
