@@ -892,21 +892,21 @@ function recentlyVisited() {
 function topMenu() {
   if (empty($_SESSION["logindetails"])) return '';
   
-  if ($_SESSION["logindetails"]['superuser']) { // we don't have a system yet to distinguish access to plugins
-    if (sizeof($GLOBALS["plugins"])) {
-      foreach ($GLOBALS["plugins"] as $pluginName => $plugin) {
+  if (sizeof($GLOBALS["plugins"])) {
+    foreach ($GLOBALS["plugins"] as $pluginName => $plugin) {
         //if (isset($GLOBALS['pagecategories']['plugins'])) {
           //array_push($GLOBALS['pagecategories']['plugins']['menulinks'],'main&pi='.$pluginName);
         //}
-        $menulinks = $plugin->topMenuLinks;
-        foreach ($menulinks as $link => $linkDetails) {
-          if (isset($GLOBALS['pagecategories'][$linkDetails['category']])) {
+      $menulinks = $plugin->topMenuLinks;
+      foreach ($menulinks as $link => $linkDetails) {
+        if (isset($GLOBALS['pagecategories'][$linkDetails['category']])) {
+          if ($_SESSION["logindetails"]['superuser'] || $plugin->rightsRequired) {
             array_push($GLOBALS['pagecategories'][$linkDetails['category']]['menulinks'],$link.'&pi='.$pluginName);
           }
         }
       }
-    } 
-  }
+    }
+  } 
 
   $topmenu = '';
   $topmenu .= '<div id="menuTop">';
@@ -1034,7 +1034,7 @@ function PageLinkAjax ($name,$desc="",$url="",$extraclass = '') {
   ## as PageLink2, but add the option to ajax it in a popover window
   $link = PageLink2($name,$desc,$url);
   if ($link) {
-    $link = str_replace('<a ','<a class="ajaxable '.$extraclass.'"',$link);
+    $link = str_replace('<a ','<a class="ajaxable '.$extraclass.'" ',$link);
     $link .= '';
   }
   return $link;
