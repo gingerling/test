@@ -163,6 +163,7 @@ if (is_dir(dirname(__FILE__).'/../texts')) {
   while (false !== ($direntry = $landir->read())) {
     if (is_file($landir->path.'/'.$direntry) && preg_match('/\.inc$/i',$direntry)) {
       $language_files[$direntry] = basename($direntry,'.inc');
+## needs changing to      $language_files[$direntry] = mb_basename($direntry,'.inc');
     }
   }
   $landir->close();
