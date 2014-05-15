@@ -176,8 +176,6 @@ if ($success) {
   $body = '
     Version: '.VERSION."\r\n".
    ' Url: '.$_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']."\r\n";
-  ## take off the ?page=initialise
-  $body = str_replace('?page=initialise','',$body);
   printf('<p class="information">'.$GLOBALS['I18N']->get('Success').': <a class="button" href="mailto:info@phplist.com?subject=Successful installation of phplist&body=%s">'.$GLOBALS['I18N']->get('Tell us about it').'</a>. </p>', $body);
   printf('<p class="information">
     '.$GLOBALS['I18N']->get("Please make sure to read the file README.security that can be found in the zip file.").'</p>');
